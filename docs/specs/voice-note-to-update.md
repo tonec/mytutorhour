@@ -1,7 +1,7 @@
 # Feature Spec: Voice note → lesson log + parent update
 
 > Status: Draft · Last updated: 2026-10-02
-> Research: `docs/research/voice-note-to-update.md` · Mission: `docs/specs/mission.md`
+> Research: `docs/research/voice-note-to-update.md` · Mission: `docs/mission.md`
 
 ## Summary
 After a lesson, the tutor picks a student and records a short voice note. The note can also be typed. The app transcribes it and generates three things: a **structured lesson log**, a **parent-friendly update** and **next steps** for the next lesson. The tutor reviews and edits them, then approves. Nothing reaches a parent without that approval.
