@@ -30,24 +30,8 @@ Independent tutors with 10-30 students, often teaching back-to-back lessons with
 2. Parents value a short, regular, specific update (more than a monthly summary).
 3. Continuity (the "last time we…" context) is a meaningful differentiator from generic AI.
 
-## Interview questions
-- Walk me through the 15 minutes after your last lesson.
-- How do you keep parents updated today? How often? What do they ask about?
-- How do you remember where each student is up to?
-- Have you tried AI tools for this? What happened?
-- What would make you stop using a tool like this?
-- What do you pay for tools today? Would you pay £X/month for this?
-
-## Findings
-| # | Tutor (anon) | Subjects / levels | Students | Key quotes | Signals |
-|---|---|---|---|---|---|
-| 1 | | | | | |
-
 ## Open questions
 - Voice vs typed bullets as primary input?
 - Email, share link or copy-for-WhatsApp?
 - Do parents need to consent to anything?
 - How much editing is acceptable before it feels slower than writing?
-
-## Recommendation
-_TBD after interviews and pilot._
