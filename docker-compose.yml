@@ -16,7 +16,7 @@ services:
 
   # S3-compatible Object Storage to mirror production buckets
   minio:
-    image: minio/minio:latest
+    image: docker.io/pgsty/minio:latest
     container_name: nextjs_storage_local
     ports:
       - "9000:9000"       # S3 API port
