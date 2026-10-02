@@ -11,13 +11,32 @@
             "id": "2ed3e60eda1800d4",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/mission.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "mission"
+            }
+          },
+          {
+            "id": "f30d853b396914fc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/tech-stack.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "tech-stack"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -95,6 +114,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "docs/tech-stack.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,6 +133,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "docs/tech-stack.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -155,6 +176,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "docs/tech-stack.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -181,6 +203,11 @@
       "bases:Create new base": false
     }
   },
-  "active": "2ed3e60eda1800d4",
-  "lastOpenFiles": []
+  "active": "f30d853b396914fc",
+  "lastOpenFiles": [
+    "docs/roadmap.md",
+    "docs/mission.md",
+    "docs/tech-stack.md",
+    "README.md"
+  ]
 }
