@@ -1,29 +1,28 @@
 # Tech Stack
 
-> Status: Draft · Last updated: 2026-10-02
-> ✅ Decided · 🟡 Leaning (likely, not confirmed) · TBD. Decided items are recorded in the decision log.
-
+> Status: Draft · Last updated: 2026-10-03
+> ✅ Decided · 🟡 Leaning (likely, not confirmed) · TBD.
 ## Constraints
-- Solo builder: boring tech; keep ops burden small (self-hosting via Coolify means we own backups, patching and monitoring)
+- Solo builder: boring tech; keep ops burden small
 - Mobile-first web (PWA) before native apps
 - UK/EU data residency preferred (children's data)
 - Low fixed cost while pre-revenue
 
 ## Stack options
-| Layer | Options (suggested first) | Decision |
-|---|---|---|
-| Language | TypeScript | ✅ **Decided** |
-| Frontend | Next.js (React) PWA · SvelteKit · Expo (if native needed) | ✅ **Decided: Next.js** |
-| Hosting | Hetzner Cloud VPS (EU) + Coolify (self-hosted PaaS) · Railway · Vercel · Fly.io | 🟡 **Leaning: Hetzner + Coolify** |
-| Backend / DB | Postgres on Coolify (Hetzner) + Next.js API routes · Railway Postgres · Supabase · Neon | 🟡 **Leaning: Postgres on Coolify** |
-| Auth | Better Auth (self-hosted, TypeScript) · Clerk · Supabase Auth | 🟡 **Leaning: Better Auth** |
-| Audio capture | Browser MediaRecorder API · native via Expo | TBD |
-| Speech-to-text | OpenAI Whisper API · Deepgram · AssemblyAI · self-hosted Whisper | TBD |
-| Summarisation (LLM) | Claude API · OpenAI · other | TBD |
-| File storage | Hetzner Object Storage (S3-compatible, EU) · MinIO on Coolify · Cloudflare R2 | 🟡 **Leaning: Hetzner Object Storage** |
-| Email to parents | Postmark · Resend · SES | TBD |
-| Payments (later) | Stripe | TBD |
-| Analytics | PostHog (EU) · Plausible | TBD |
+| Layer               | Options (suggested first)                                        | Decision      |
+| ------------------- | ---------------------------------------------------------------- | ------------- |
+| Language            | TypeScript                                                       | ✅ **Decided** |
+| Frontend            | Next.js + vinext for hosting on Cloudflare                       | ✅ **Decided** |
+| Hosting             | Cloudflare Pages using vinext                                    | ✅ **Decided** |
+| Backend / DB        | Supabase                                                         | ✅ **Decided** |
+| Auth                | Supabase Auth                                                    | ✅ **Decided** |
+| Audio capture       | Browser MediaRecorder API · native via Expo                      | TBD           |
+| Speech-to-text      | OpenAI Whisper API · Deepgram · AssemblyAI · self-hosted Whisper | TBD           |
+| Summarisation (LLM) | Claude API · OpenAI · other                                      | TBD           |
+| File storage        | Cloudflare R2                                                    | ✅ **Decided** |
+| Email to parents    | Postmark · Resend · SES                                          | TBD           |
+| Payments (later)    | Stripe                                                           | TBD           |
+| Analytics           | PostHog (EU) · Plausible                                         | TBD           |
 
 ## Architecture notes
 - **Flow:** record audio (client) → upload → transcribe → LLM structures transcript into log, parent update and next steps using the student's history → tutor reviews/edits → share.
@@ -45,23 +44,36 @@ Topic        (id, subject, level, spec_ref?, name)   -- later: spec-mapped topic
 ```
 
 ## Privacy and security checklist
-- [ ] Data stored in EU region: pick one Hetzner location (e.g. Falkenstein, Nuremberg or Helsinki) for VPS **and** object storage
-- [ ] Sign Hetzner's data processing agreement (EU company, so no US transfer for hosting; UK→EU transfer covered by UK adequacy for the EU, confirm still current)
-- [ ] Self-hosting ops: automated Postgres backups to off-server storage, tested restores, OS/security updates, firewall, SSH key-only access, uptime monitoring
-- [ ] Disk encryption: check whether Hetzner volumes are encrypted at rest; if not, use LUKS or encrypt sensitive fields at app level
-- [ ] Data Processing Agreements with STT and LLM providers; confirm no training on our data
-- [ ] Audio deleted after transcription (default)
-- [ ] Minimal student data (first name, level, subject; no DOB or school by default)
-- [ ] Privacy notice written for tutors **and** a parent-facing version
-- [ ] Tutor is data controller; we are processor. Document this in the terms
-- [ ] Encryption at rest and in transit; per-tutor data isolation (enforce `tutor_id` scoping in every query, or Postgres RLS)
-- [ ] Data export and delete-account flows
-- [ ] Consider ICO Children's Code relevance (we serve tutors, but process children's data)
 
-## Decision log
-| Date | Decision | Rationale | Alternatives considered |
-|---|---|---|---|
-| 2026-10-02 | Language: TypeScript | Type safety across front end, API and LLM output contracts; one language end to end | JavaScript |
-| 2026-10-02 | Front end: Next.js | Mature React framework, PWA-capable, good fit for a solo builder | SvelteKit, Expo |
-| 2026-10-02 | ~~🟡 Leaning: Railway for hosting, Postgres and file storage~~ (superseded below); 🟡 Leaning: Better Auth for auth | One platform for app, DB and files keeps ops simple for a solo builder; Better Auth is TypeScript-native and keeps user data in our own Postgres | Vercel + Supabase, Fly.io, Neon, Clerk, Supabase Auth |
-| 2026-10-02 | 🟡 Leaning: Hetzner Cloud + Coolify for hosting and Postgres; Hetzner Object Storage for files (replaces Railway) | EU company and EU data centres simplify UK GDPR for children's data; low fixed cost; Coolify gives a Railway-like deploy experience on our own server. Trade-off: we own backups, patching and uptime | Railway, Vercel + Supabase, Fly.io |
+### Providers and data location
+- [ ] Supabase project created in a UK/EU region (London `eu-west-2` preferred for UK users; Frankfurt as fallback)
+- [ ] R2 bucket created with **EU jurisdiction**, so objects are stored only in the EU
+- [ ] Note that Cloudflare Pages/Workers run at the edge globally: requests can be processed outside the UK/EU even though stored data stays in the EU (strict regional processing needs Cloudflare's enterprise Data Localisation Suite)
+- [ ] Supabase and Cloudflare are US companies: accept each one's DPA and confirm the UK transfer mechanism (UK–US Data Bridge certification or UK IDTA/addendum)
+- [ ] DPAs with the STT, LLM and email providers; confirm no training on our data and check where they process
+
+### Supabase (database and auth)
+- [ ] Row-level security enabled on **every** table; policies scope rows to the signed-in tutor (`tutor_id = auth.uid()`)
+- [ ] Service-role key used only server-side (Worker env secret), never in the client bundle
+- [ ] Auth hardening: email confirmation on, password policy set, MFA available to tutors
+- [ ] Backups: confirm plan includes daily backups; consider point-in-time recovery once there are paying users
+- [ ] Encryption at rest is provided by Supabase; all connections over TLS
+
+### Cloudflare (hosting and R2)
+- [ ] R2 bucket private; uploads and reads only through short-lived presigned URLs
+- [ ] R2 lifecycle rule auto-deletes audio after N days as a backstop to deletion after transcription
+- [ ] Secrets stored as Cloudflare environment secrets, not in the repo
+- [ ] Security headers set (HTTPS only, HSTS, CSP)
+
+### Product and data handling
+- [ ] Audio deleted after successful transcription (default)
+- [ ] Minimal student data (first name, level, subject; no DOB or school by default)
+- [ ] Tutor private notes never included in parent updates or logged to analytics
+- [ ] No student data in error logs or analytics events
+- [ ] Data export and delete-account flows (delete also removes R2 objects)
+
+### Legal and documentation
+- [ ] Tutor is data controller; we are processor. Document this in the terms
+- [ ] Privacy notice for tutors **and** a parent-facing version
+- [ ] Record of processing activities and a list of sub-processors (Supabase, Cloudflare, STT, LLM, email)
+- [ ] Consider ICO Children's Code relevance (we serve tutors, but process children's data)

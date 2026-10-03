@@ -35,25 +35,25 @@ Give independent tutors their evenings back. MyTutorHour turns a 60-second post-
 - Invoicing (a possible later, light add-on)
 
 ## Success metrics
-| Metric | MVP target |
-|---|---|
-| Time from lesson end to update ready | < 2 min median |
-| Updates sent per active tutor per week | ≥ 70% of lessons logged |
-| Edit rate on generated update | Trending down; < 30% heavily edited |
-| Week-4 tutor retention (pilot) | ≥ 3 of 5 pilot tutors still using |
-| Willingness to pay | ≥ 30% of interviewed tutors say they'd pay £8+/mo |
+| Metric                                 | MVP target                                        |
+| -------------------------------------- | ------------------------------------------------- |
+| Time from lesson end to update ready   | < 2 min median                                    |
+| Updates sent per active tutor per week | ≥ 70% of lessons logged                           |
+| Edit rate on generated update          | Trending down; < 30% heavily edited               |
+| Week-4 tutor retention (pilot)         | ≥ 3 of 5 pilot tutors still using                 |
+| Willingness to pay                     | ≥ 30% of interviewed tutors say they'd pay £8+/mo |
 
 ## Pricing hypothesis
 Free for up to 3 students, then about £8-20/month. *Unvalidated.*
 
 ## Key risks
-| Risk | Mitigation |
-|---|---|
-| Low willingness to pay / churn | Validate pricing in interviews and pilot before building billing |
-| Free substitutes (Notion + ChatGPT) | Win on speed, per-student memory and parent-ready output, not on raw AI |
-| Habit change | Under-2-minute flow, mobile-first, end-of-lesson nudge |
-| UK GDPR / children's data | Data minimisation, DPA with providers, audio deletion policy, clear privacy notice |
-| Seasonality (exam cycles, summer dip) | Annual plan discount; track cohort retention by month |
+| Risk                                  | Mitigation                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------------- |
+| Low willingness to pay / churn        | Validate pricing in interviews and pilot before building billing                   |
+| Free substitutes (Notion + ChatGPT)   | Win on speed, per-student memory and parent-ready output, not on raw AI            |
+| Habit change                          | Under-2-minute flow, mobile-first, end-of-lesson nudge                             |
+| UK GDPR / children's data             | Data minimisation, DPA with providers, audio deletion policy, clear privacy notice |
+| Seasonality (exam cycles, summer dip) | Annual plan discount; track cohort retention by month                              |
 
 ## Validation plan
 1. **Interviews:** 10-15 independent tutors (pain, current workflow, WTP).
