@@ -11,13 +11,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { login } from './actions';
+import { register } from './actions';
 
 export default function CardDemo() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle>Sign up to start now</CardTitle>
       </CardHeader>
       <CardContent>
         <form>
@@ -29,12 +29,6 @@ export default function CardDemo() {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="text ml-auto inline-block text-xs underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
               </div>
               <Input id="password" type="password" required />
             </div>
@@ -42,14 +36,14 @@ export default function CardDemo() {
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" formAction={login}>
+        <Button type="submit" className="w-full" formAction={register}>
           Login
         </Button>
         <Link
-          href="/register"
+          href="/login"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
-          Don&apos;t have an account yet
+          Already registered
         </Link>
       </CardFooter>
     </Card>
