@@ -27,8 +27,9 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang={lang}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       dir={isRTL(lang) ? 'rtl' : 'ltr'}
+      data-theme="dark"
     >
       <body className="min-h-full flex flex-col">
         <ClientProviders lang={lang}>{children}</ClientProviders>
