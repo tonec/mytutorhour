@@ -1,6 +1,6 @@
 import { Button } from '@heroui/react';
 
-export default function Home() {
+export default async function Page() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Button>Primary</Button>
