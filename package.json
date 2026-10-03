@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@heroui/react": "^3.2.6",
-    "@heroui/styles": "^3.2.6",
     "@supabase/ssr": "^0.12.7",
     "next": "16.3.8",
     "postcss": "^8.5.28",
