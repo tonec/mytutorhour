@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { headers } from 'next/headers';
 import { isRTL } from '@heroui/react';
-import './globals.css';
 import { ClientProviders } from './provider';
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
