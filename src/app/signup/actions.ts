@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-export async function register(formData: FormData) {
+export async function signup(formData: FormData) {
   const supabase = await createClient();
 
   console.log('formData', formData);

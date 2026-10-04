@@ -3,41 +3,42 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { register } from './actions';
+import { signup } from './actions';
 
-export default function CardDemo() {
+export default function SignUpPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
         <h1 className="font-heading text-center text-2xl leading-normal font-medium">
-          Sign up to MyTutorHour
+          Create an account
         </h1>
       </CardHeader>
+
       <CardContent>
-        <form>
+        <form action={signup}>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" type="email" name="email" placeholder="m@example.com" required />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input id="password" type="password" required />
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" required />
+            </div>
+            <div className="flex items-center justify-center">
+              <Button type="submit" className="w-1/2">
+                Sign up
+              </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full" formAction={register}>
-            Sign me up
-          </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
+      <CardFooter className="flex-col">
         <Link
-          href="/login"
+          href="/register"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
-          Already registered? Log in
+          Already have an account? Log in
         </Link>
       </CardFooter>
     </Card>

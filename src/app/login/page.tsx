@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { login } from './actions';
 
-export default function CardDemo() {
+export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -41,7 +41,7 @@ export default function CardDemo() {
       </CardContent>
       <CardFooter className="flex-col">
         <Link
-          href="/register"
+          href="/signup"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
           Don&apos;t have an account? Sign up
