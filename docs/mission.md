@@ -6,7 +6,7 @@
 Give independent tutors their evenings back. MyTutorHour turns a 60-second post-lesson voice note into a structured lesson log, a parent-friendly update and next steps, and the tutor reviews everything before it is sent.
 
 ## Target users
-**Primary:** Independent (solo) tutors in the UK with 10-30 active students, mostly 1:1, often teaching GCSE/A-level. They are usually self-employed, use a patchwork of generic tools and have no admin support.
+**Primary:** Independent (solo) tutors in the UK with 10-30 active students, mostly 1:1, often teaching GCSE/A-level. They are usually self-employed, use a patchwork of generic tools and have no admin support. Free directory for tutors to list their services and be contacted. Not a full marketplace but an opportunity to build a potential user base before the schedule app's release.
 
 **Secondary:** Parents and guardians who pay for tutoring. They want to see progress, but they are not the buyer of the tool.
 
@@ -26,6 +26,10 @@ Give independent tutors their evenings back. MyTutorHour turns a 60-second post-
 4. **Privacy by default.** We hold children's data, so collect the minimum and be clear about where it goes.
 5. **Narrow and excellent** beats broad and average.
 
+## Flywheel
+1. Parents can issue, without exposing any data, brag posts on social media.
+2. Milestone tracking so parents can see progress.
+
 ## Non-goals (for MVP)
 - Lead generation or a marketplace (Superprof, Tutorful, MyTutor etc. already do this)
 - Full scheduling/calendar (Calendly etc. exist)
@@ -33,6 +37,7 @@ Give independent tutors their evenings back. MyTutorHour turns a 60-second post-
 - Multi-tutor or agency features
 - Student-facing app
 - Invoicing (a possible later, light add-on)
+- AI analysis of student progress
 
 ## Success metrics
 | Metric                                 | MVP target                                        |
