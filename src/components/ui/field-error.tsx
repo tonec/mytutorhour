@@ -8,7 +8,7 @@ type Props = {
 export function FieldError({ formState, name }: Props) {
   return (
     <span className="text-xs text-red-400" aria-live="polite">
-      {formState.fieldErrors.properties?.[name].errors[0]}
+      {formState.fieldErrors.properties?.[name]?.errors?.[0]}
     </span>
   );
 }
