@@ -1,13 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
@@ -17,7 +9,9 @@ export default function CardDemo() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Sign up to start now</CardTitle>
+        <h1 className="font-heading text-center text-2xl leading-normal font-medium">
+          Sign up to MyTutorHour
+        </h1>
       </CardHeader>
       <CardContent>
         <form>
@@ -37,13 +31,13 @@ export default function CardDemo() {
       </CardContent>
       <CardFooter className="flex-col gap-2">
         <Button type="submit" className="w-full" formAction={register}>
-          Login
+          Sign me up
         </Button>
         <Link
           href="/login"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
-          Already registered
+          Already registered? Log in
         </Link>
       </CardFooter>
     </Card>
