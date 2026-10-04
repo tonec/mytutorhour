@@ -1,9 +1,6 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { login } from './actions';
+import { LoginForm } from './login-form';
 
 export default function LoginPage() {
   return (
@@ -15,29 +12,7 @@ export default function LoginPage() {
       </CardHeader>
 
       <CardContent>
-        <form action={login}>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" name="email" placeholder="m@example.com" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
-              <a
-                href="#"
-                className="text-muted-foreground ml-auto inline-block text-xs underline-offset-4 hover:underline"
-              >
-                Forgot your password?
-              </a>
-            </div>
-            <div className="flex items-center justify-center">
-              <Button type="submit" className="w-1/2">
-                Login
-              </Button>
-            </div>
-          </div>
-        </form>
+        <LoginForm />
       </CardContent>
       <CardFooter className="flex-col">
         <Link
