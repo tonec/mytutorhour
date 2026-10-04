@@ -9,10 +9,10 @@
   "endOfLine": "lf",
   "importOrder": [
     "next/(.*)$",
-    "@lib/(.*)$",
-    "@services/(.*)$",
-    "@hooks/(.*)$",
-    "@components/(.*)$",
+    "@/lib/(.*)$",
+    "@/services/(.*)$",
+    "@/hooks/(.*)$",
+    "@/components/(.*)$",
     "^[../]",
     "^[./]"
   ],
