@@ -1,3 +1,14 @@
-export function FieldError() {
-  return;
+import { FormState } from '@/utils/form';
+
+type Props = {
+  formState: FormState;
+  name: string;
+};
+
+export function FieldError({ formState, name }: Props) {
+  return (
+    <span className="text-xs text-red-400" aria-live="polite">
+      {formState.fieldErrors.properties?.[name].errors[0]}
+    </span>
+  );
 }
