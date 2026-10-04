@@ -15,7 +15,7 @@ export function LoginForm() {
   return (
     <form action={formAction}>
       <div className="flex flex-col gap-6">
-        <div className="grid gap-2">
+        <div className="relative grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             // Remount with the new defaultValue after each submit; Base UI warns if it changes in place.
@@ -28,16 +28,12 @@ export function LoginForm() {
           />
           <FieldError formState={formState} name="email" />
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
+        <div className="relative grid gap-2">
+          <div className="flex">
+            <Label htmlFor="password">Password</Label>
+          </div>
           <Input id="password" name="password" type="password" />
           <FieldError formState={formState} name="password" />
-          <a
-            href="#"
-            className="text-muted-foreground ml-auto inline-block text-xs underline-offset-4 hover:underline"
-          >
-            Forgot your password?
-          </a>
         </div>
         <FormMessage formState={formState} />
         <div className="flex items-center justify-center">

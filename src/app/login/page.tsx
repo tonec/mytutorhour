@@ -15,6 +15,12 @@ export default function LoginPage() {
         <LoginForm />
       </CardContent>
       <CardFooter className="flex-col">
+        <a
+          href="#"
+          className="text-muted-foreground mx-auto inline-block text-xs underline-offset-4 hover:underline"
+        >
+          Forgot your password?
+        </a>
         <Link
           href="/signup"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
