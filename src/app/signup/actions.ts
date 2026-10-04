@@ -1,22 +1,22 @@
 'use server';
 
+import { fromErrorToFormState } from '@/utils/form';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { signupSchema } from './schema';
 
-export async function signup(formData: FormData) {
+export async function signup(initialState: unknown, formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  };
+  try {
+    const validatedFields = signupSchema.parse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    });
 
-  const { error } = await supabase.auth.signUp(data);
-
-  if (error) {
-    redirect('/error');
+    await supabase.auth.signInWithPassword(validatedFields);
+  } catch (error) {
+    return fromErrorToFormState(error);
   }
 
   redirect('/account');
