@@ -18,6 +18,8 @@ export function SignUpForm() {
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
+            // Remount with the new defaultValue after each submit; Base UI warns if it changes in place.
+            key={formState.timestamp}
             id="email"
             type="email"
             name="email"
