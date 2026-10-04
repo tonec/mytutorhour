@@ -27,12 +27,12 @@ export default function CardDemo() {
               <Input id="password" type="password" required />
             </div>
           </div>
+          <Button type="submit" className="w-full" formAction={register}>
+            Sign me up
+          </Button>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" formAction={register}>
-          Sign me up
-        </Button>
         <Link
           href="/login"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"

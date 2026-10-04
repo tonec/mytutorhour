@@ -1,7 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 
+const publicRoutes = ['/login', '/register', '/'];
+
 export async function updateSession(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const isPublicRoute = publicRoutes.includes(path);
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -36,7 +41,14 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+
+  if (!claims && !isPublicRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
