@@ -13,9 +13,9 @@ export function SignUpForm() {
   const [formState, formAction, pending] = useActionState(signup, EMPTY_FORM_STATE);
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       <div className="flex flex-col gap-6">
-        <div className="grid gap-2">
+        <div className="relative grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             // Remount with the new defaultValue after each submit; Base UI warns if it changes in place.
@@ -28,12 +28,12 @@ export function SignUpForm() {
           />
           <FieldError formState={formState} name="email" />
         </div>
-        <div className="grid gap-2">
+        <div className="relative grid gap-2">
           <Label htmlFor="password">Password</Label>
           <Input id="password" name="password" type="password" />
           <FieldError formState={formState} name="password" />
         </div>
-        <div className="grid gap-2">
+        <div className="relative grid gap-2">
           <Label htmlFor="confirm">Confirm password</Label>
           <Input id="confirm" name="confirm" type="password" />
           <FieldError formState={formState} name="confirm" />

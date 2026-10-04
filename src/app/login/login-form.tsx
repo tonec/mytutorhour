@@ -13,7 +13,7 @@ export function LoginForm() {
   const [formState, formAction, pending] = useActionState(login, EMPTY_FORM_STATE);
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       <div className="flex flex-col gap-6">
         <div className="relative grid gap-2">
           <Label htmlFor="email">Email</Label>
