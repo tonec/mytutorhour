@@ -10,6 +10,7 @@ export type FormState = {
   message: string;
   fieldErrors: LooseErrorTree;
   timestamp: number;
+  payload?: Record<string, string>;
 };
 
 export const EMPTY_FORM_STATE: FormState = {
@@ -19,24 +20,33 @@ export const EMPTY_FORM_STATE: FormState = {
   timestamp: Date.now(),
 };
 
-export const fromErrorToFormState = (error: unknown): FormState => {
+export const fromErrorToFormState = (
+  error: unknown,
+  payload?: Record<string, string>
+): FormState => {
   if (error instanceof ZodError) {
     return {
       status: 'ERROR',
       message: '',
       fieldErrors: z.treeifyError(error),
       timestamp: Date.now(),
+      payload,
     };
   }
 
-  return EMPTY_FORM_STATE;
+  return { ...EMPTY_FORM_STATE, payload };
 };
 
-export const toFormState = (status: FormState['status'], message: string): FormState => {
+export const toFormState = (
+  status: FormState['status'],
+  message: string,
+  payload?: Record<string, string>
+): FormState => {
   return {
     status,
     message,
     fieldErrors: { errors: [] },
     timestamp: Date.now(),
+    payload,
   };
 };

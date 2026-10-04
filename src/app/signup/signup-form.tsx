@@ -4,6 +4,7 @@ import { EMPTY_FORM_STATE } from '@/utils/form';
 import { useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FieldError } from '@/components/ui/field-error';
+import { FormMessage } from '@/components/ui/form-message';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signup } from './actions';
@@ -16,7 +17,13 @@ export function SignUpForm() {
       <div className="flex flex-col gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" placeholder="me@example.com" />
+          <Input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="me@example.com"
+            defaultValue={formState.payload?.email}
+          />
           <FieldError formState={formState} name="email" />
         </div>
         <div className="grid gap-2">
@@ -29,6 +36,7 @@ export function SignUpForm() {
           <Input id="confirm" name="confirm" type="password" />
           <FieldError formState={formState} name="confirm" />
         </div>
+        <FormMessage formState={formState} />
         <div className="flex items-center justify-center">
           <Button type="submit" className="w-1/2" disabled={pending}>
             Sign up
