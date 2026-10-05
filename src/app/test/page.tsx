@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
 import { Suspense } from 'react';
+import { createClient } from '@/lib/supabase/server';
 
 async function InstrumentsData() {
   const supabase = await createClient();
