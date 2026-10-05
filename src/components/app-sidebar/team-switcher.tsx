@@ -5,6 +5,7 @@ import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -44,7 +45,7 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
               />
             }
           >
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-foreground">
+            <div className="bg-background text-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <Logo className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -59,9 +60,9 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Teams
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
+            </DropdownMenuGroup>
             {teams.map((team, index) => (
               <DropdownMenuItem
                 className="gap-2 p-2"
@@ -77,10 +78,10 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+              <div className="bg-background flex size-6 items-center justify-center rounded-md border">
                 <Plus className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+              <div className="text-muted-foreground font-medium">Add team</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

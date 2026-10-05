@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -20,11 +21,7 @@ type Notification = {
   time: string;
 };
 
-export function NotificationsPopover({
-  notifications,
-}: {
-  notifications: Notification[];
-}) {
+export function NotificationsPopover({ notifications }: { notifications: Notification[] }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -40,7 +37,9 @@ export function NotificationsPopover({
         <BellIcon className="size-5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="my-6 w-80" side="right">
-        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {notifications.map(({ id, avatar, fallback, text, time }) => (
           <DropdownMenuItem className="flex items-start gap-3" key={id}>
@@ -49,13 +48,13 @@ export function NotificationsPopover({
               <AvatarFallback>{fallback}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-medium text-sm">{text}</span>
+              <span className="text-sm font-medium">{text}</span>
               <span className="text-muted-foreground text-xs">{time}</span>
             </div>
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="justify-center text-muted-foreground text-sm hover:text-primary">
+        <DropdownMenuItem className="text-muted-foreground hover:text-primary justify-center text-sm">
           View all notifications
         </DropdownMenuItem>
       </DropdownMenuContent>
