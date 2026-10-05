@@ -181,7 +181,7 @@ export function DashboardSidebar() {
   const isCollapsed = state === 'collapsed';
 
   return (
-    <Sidebar collapsible="icon" variant="floating">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader
         className={cn(
           'flex md:pt-3.5',

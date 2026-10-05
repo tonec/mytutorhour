@@ -6,7 +6,9 @@ export default function Sidebar03() {
     <SidebarProvider>
       <div className="relative flex h-dvh w-full">
         <DashboardSidebar />
-        <SidebarInset className="flex flex-col" />
+        <SidebarInset className="flex flex-col">
+          <p>dsdsdsd</p>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
