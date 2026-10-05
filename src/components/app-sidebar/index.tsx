@@ -1,7 +1,7 @@
+import { DashboardSidebar } from '@/components/app-sidebar/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { DashboardSidebar } from '@/components/sidebar-03/app-sidebar';
 
-export default function Sidebar03() {
+export default function AppSidebar() {
   return (
     <SidebarProvider>
       <div className="relative flex h-dvh w-full">

@@ -1,4 +1,4 @@
-import { DashboardSidebar } from '@/components/sidebar-03/app-sidebar';
+import { DashboardSidebar } from '@/components/app-sidebar/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default function Sidebar03() {

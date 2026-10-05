@@ -18,11 +18,11 @@ import {
   Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/sidebar-03/logo';
-import type { Route } from '@/components/sidebar-03/nav-main';
-import DashboardNavigation from '@/components/sidebar-03/nav-main';
-import { NotificationsPopover } from '@/components/sidebar-03/nav-notifications';
-import { TeamSwitcher } from '@/components/sidebar-03/team-switcher';
+import { Logo } from '@/components/app-sidebar/logo';
+import type { Route } from '@/components/app-sidebar/nav-main';
+import DashboardNavigation from '@/components/app-sidebar/nav-main';
+import { NotificationsPopover } from '@/components/app-sidebar/nav-notifications';
+import { TeamSwitcher } from '@/components/app-sidebar/team-switcher';
 import {
   Sidebar,
   SidebarContent,
