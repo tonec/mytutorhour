@@ -1,31 +1,28 @@
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { LoginForm } from './login-form';
+import { ForgotPasswordForm } from './forgot-password-form';
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
         <h1 className="font-heading text-center text-2xl leading-normal font-medium">
-          Log in to your account
+          Reset your password
         </h1>
+        <p className="text-muted-foreground text-center text-sm">
+          Enter your email and we&apos;ll send you a link to choose a new password.
+        </p>
       </CardHeader>
 
       <CardContent>
-        <LoginForm />
+        <ForgotPasswordForm />
       </CardContent>
       <CardFooter className="flex-col">
         <Link
-          href="/forgot-password"
-          className="text-muted-foreground mx-auto inline-block text-xs underline-offset-4 hover:underline"
-        >
-          Forgot your password?
-        </Link>
-        <Link
-          href="/signup"
+          href="/login"
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
-          Don&apos;t have an account? Sign up
+          Back to log in
         </Link>
       </CardFooter>
     </Card>

@@ -1,4 +1,4 @@
-export default async function SignupLayout({ children }: LayoutProps<'/login'>) {
+export default async function UpdatePasswordLayout({ children }: LayoutProps<'/login'>) {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">{children}</div>

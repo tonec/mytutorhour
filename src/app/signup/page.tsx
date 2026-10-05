@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { SignUpForm } from './signup-form';
 
-export default function SignUpPage() {
+export default function SignupPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
