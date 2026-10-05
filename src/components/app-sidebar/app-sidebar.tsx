@@ -3,10 +3,10 @@
 import { navigationItems } from '@/config/navigation-items';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { TeamSwitcher } from '@/components/app-sidebar/account-dropdown';
 import { Logo } from '@/components/app-sidebar/logo';
 import DashboardNavigation from '@/components/app-sidebar/nav-main';
 import { NotificationsPopover } from '@/components/app-sidebar/nav-notifications';
-import { TeamSwitcher } from '@/components/app-sidebar/team-switcher';
 import {
   Sidebar,
   SidebarContent,
@@ -78,9 +78,11 @@ export function DashboardSidebar() {
           <SidebarTrigger />
         </motion.div>
       </SidebarHeader>
+
       <SidebarContent className="gap-4 px-2 py-4">
         <DashboardNavigation routes={navigationItems} />
       </SidebarContent>
+
       <SidebarFooter className="px-2">
         <TeamSwitcher teams={teams} />
       </SidebarFooter>
