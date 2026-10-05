@@ -36,6 +36,7 @@ export function NotificationsPopover({ notifications }: { notifications: Notific
       >
         <BellIcon className="size-5" />
       </DropdownMenuTrigger>
+
       <DropdownMenuContent className="w-80" side="top">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Notifications</DropdownMenuLabel>

@@ -54,6 +54,7 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
             </div>
             <ChevronsUpDown className="ml-auto" />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             align="start"
             className="mb-4 w-(--anchor-width) min-w-56 rounded-lg"
