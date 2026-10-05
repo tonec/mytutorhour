@@ -5,7 +5,7 @@ export type LooseErrorTree = {
   properties?: Record<string, LooseErrorTree>;
 };
 
-export type FormState = {
+export type ActionState = {
   status: 'UNSET' | 'SUCCESS' | 'ERROR';
   message: string;
   fieldErrors: LooseErrorTree;
@@ -13,17 +13,20 @@ export type FormState = {
   payload?: Record<string, string>;
 };
 
-export const EMPTY_FORM_STATE: FormState = {
+export const EMPTY_FORM_STATE: ActionState = {
   status: 'UNSET',
   message: '',
   fieldErrors: { errors: [] },
   timestamp: Date.now(),
 };
 
+export const getFieldError = (formState: ActionState, name: string) =>
+  formState.fieldErrors.properties?.[name]?.errors?.[0];
+
 export const fromErrorToFormState = (
   error: unknown,
   payload?: Record<string, string>
-): FormState => {
+): ActionState => {
   if (error instanceof ZodError) {
     return {
       status: 'ERROR',
@@ -38,10 +41,10 @@ export const fromErrorToFormState = (
 };
 
 export const toFormState = (
-  status: FormState['status'],
+  status: ActionState['status'],
   message: string,
   payload?: Record<string, string>
-): FormState => {
+): ActionState => {
   return {
     status,
     message,
