@@ -60,9 +60,8 @@ export function DashboardSidebar() {
             : 'flex-row items-center justify-between'
         )}
       >
-        <a className="flex items-center gap-2" href="#">
+        <a className="-mb-1 ml-2 flex items-center gap-2" href="#">
           <Logo className="h-8 w-8" />
-          {!isCollapsed && <span className="font-semibold text-black dark:text-white">Acme</span>}
         </a>
 
         <motion.div
