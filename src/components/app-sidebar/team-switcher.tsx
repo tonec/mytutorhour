@@ -12,12 +12,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 
 type Team = {
   name: string;
@@ -26,7 +21,6 @@ type Team = {
 };
 
 export function TeamSwitcher({ teams }: { teams: Team[] }) {
-  const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
   if (!activeTeam) return null;
@@ -56,9 +50,8 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            align="start"
-            className="mb-4 w-(--anchor-width) min-w-56 rounded-lg"
-            side={isMobile ? 'bottom' : 'right'}
+            className="w-(--anchor-width) min-w-56 rounded-lg"
+            side="top"
             sideOffset={4}
           >
             <DropdownMenuGroup>
