@@ -16,9 +16,12 @@ npm run build    # production build
 npm run start    # serve the production build
 npm run lint     # ESLint (flat config); Prettier runs as an ESLint rule
 npx eslint --fix <path>   # lint and auto-format specific files
+npm run test     # Vitest in watch mode
+npm run test:unitRun      # Vitest single run (use before merge)
+npx vitest run <path>     # run a single test file
 ```
 
-There is no test runner set up yet.
+Unit tests use Vitest + React Testing Library (`vitest.config.mts`, `vitest.setup.ts`), colocated as `src/**/*.test.ts(x)`. Tests import `describe`/`it`/`expect` from `vitest` explicitly (no globals). Vitest can't render `async` Server Components, so cover those with E2E tests.
 
 ## Stack and code layout
 
@@ -51,11 +54,13 @@ These come from the docs and are hard requirements, not nice-to-haves:
 ## Testing Standards
 
 ### Unit Testing Rules
+
 - Framework: Vitest and Jest
 - Pattern: Always follow Arrange-Act-Assert (AAA) structure.
 - Isolation: Mock external network calls and database dependencies. Prefer real instances over over-mocking internal logic.
 
 ### E2E Testing Rules
+
 - Framework: Playwright (separate `e2e/` folder, cross-browser)
 - Selectors: Priority must be `data-testid` > `role` > `text`. Never use brittle CSS classes or internal database IDs.
 - Execution: Always spin up the local development server automatically before executing E2E tests.

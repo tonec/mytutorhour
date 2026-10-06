@@ -1,17 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: template (unversioned) → 1.0.0
-- Modified principles: all placeholders replaced
-  - [PRINCIPLE_1_NAME] → I. Tutor Approval Gates Every Parent Message (NON-NEGOTIABLE)
-  - [PRINCIPLE_2_NAME] → II. Private Notes Stay Private (NON-NEGOTIABLE)
-  - [PRINCIPLE_3_NAME] → III. Grounded, Validated AI Output
-  - [PRINCIPLE_4_NAME] → IV. Children's Data Privacy by Default
-  - [PRINCIPLE_5_NAME] → V. Under Two Minutes, Mobile-First
-- Added principles: VI. Solo-First Simplicity
-- Added sections: Technology & Security Constraints; Development Workflow & Quality Gates
+- Version change: 1.0.0 → 1.1.0
+- Modified sections: Development Workflow & Quality Gates (unit test gate now in force)
+- Added sections: none
 - Removed sections: none
-- Deferred TODOs:
-  - TODO(TEST_RUNNER): no test runner exists yet; the testing gate applies once one is added.
+- Resolved TODOs: TODO(TEST_RUNNER) (Vitest + React Testing Library added)
+- Deferred TODOs: none
 -->
 
 # MyTutorHour Constitution
@@ -109,11 +103,12 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
 
 - Features follow the Spec Kit flow: specify → (clarify) → plan → tasks → implement. Each plan
   MUST include a Constitution Check against Principles I–VI.
-- Before merge: `npm run lint` and `npm run check-types` MUST pass. Formatting follows
-  `.prettierrc` (enforced via ESLint).
+- Before merge: `npm run lint`, `npm run check-types` and `npm run test:unitRun` MUST pass.
+  Formatting follows `.prettierrc` (enforced via ESLint).
+- Unit tests use Vitest and React Testing Library, are colocated as `*.test.ts(x)`, and follow
+  Arrange-Act-Assert. External network calls and the database MUST be mocked.
 - Changes touching approval state, private notes, LLM output validation, RLS, or data deletion
-  (Principles I–IV) MUST include automated tests once a test runner exists
-  (TODO(TEST_RUNNER)); until then, the plan MUST list manual verification steps for them.
+  (Principles I–IV) MUST include automated tests covering that behaviour.
 - Every new table MUST ship with its RLS policy in the same migration.
 
 ## Governance
@@ -127,4 +122,4 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
 - Compliance: every feature plan and code review MUST verify adherence; any deviation MUST be
   justified in the plan's Complexity Tracking section or the constitution amended first.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
