@@ -9,15 +9,14 @@ import {
   SidebarMenuSubButton,
   SidebarMenuItem as SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import type { Route } from './types';
+import type { RouteWithSubRoutes } from './types';
 
 type Props = {
   isCollapsed: boolean;
-  route: Route;
-  hasSubRoutes: boolean;
+  route: RouteWithSubRoutes;
 };
 
-export function NavigationMenuItemCollapsible({ isCollapsed, route, hasSubRoutes }: Props) {
+export function NavigationMenuItemCollapsible({ isCollapsed, route }: Props) {
   const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
 
   const isOpen = !isCollapsed && openCollapsible === route.id;
@@ -45,7 +44,7 @@ export function NavigationMenuItemCollapsible({ isCollapsed, route, hasSubRoutes
 
         {!isCollapsed && <span className="ml-2 flex-1 text-sm font-medium">{route.title}</span>}
 
-        {!isCollapsed && hasSubRoutes && (
+        {!isCollapsed && (
           <span className="ml-auto">
             {isOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
           </span>
@@ -55,21 +54,22 @@ export function NavigationMenuItemCollapsible({ isCollapsed, route, hasSubRoutes
       {!isCollapsed && (
         <CollapsibleContent>
           <SidebarMenuSub className="my-1 ml-3.5">
-            {route.subs?.map((subRoute) => (
-              <SidebarMenuSubItem className="h-auto" key={`${route.id}-${subRoute.title}`}>
-                <SidebarMenuSubButton
-                  render={
-                    <Link
-                      className="text-muted-foreground hover:bg-sidebar-muted hover:text-foreground flex items-center rounded-md px-4 py-1.5 text-sm font-medium"
-                      href={subRoute.link}
-                      prefetch={true}
-                    />
-                  }
-                >
-                  {subRoute.title}
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            ))}
+            {route.type === 'sub' &&
+              route.subs?.map((subRoute) => (
+                <SidebarMenuSubItem className="h-auto" key={`${route.id}-${subRoute.title}`}>
+                  <SidebarMenuSubButton
+                    render={
+                      <Link
+                        className="text-muted-foreground hover:bg-sidebar-muted hover:text-foreground flex items-center rounded-md px-4 py-1.5 text-sm font-medium"
+                        href={subRoute.link}
+                        prefetch={true}
+                      />
+                    }
+                  >
+                    {subRoute.title}
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
           </SidebarMenuSub>
         </CollapsibleContent>
       )}

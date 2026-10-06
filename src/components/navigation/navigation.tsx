@@ -12,18 +12,12 @@ export function Navigation({ routes }: { routes: Route[] }) {
   return (
     <SidebarMenu>
       {routes.map((route) => {
-        const hasSubRoutes = !!route.subs?.length;
-
         return (
           <SidebarMenuItem key={route.id}>
-            {hasSubRoutes ? (
-              <NavigationMenuItemCollapsible
-                isCollapsed={isCollapsed}
-                hasSubRoutes={hasSubRoutes}
-                route={route}
-              />
-            ) : (
+            {route.type === 'prime' ? (
               <NavigationMenuItem isCollapsed={isCollapsed} route={route} />
+            ) : (
+              <NavigationMenuItemCollapsible isCollapsed={isCollapsed} route={route} />
             )}
           </SidebarMenuItem>
         );

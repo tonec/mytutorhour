@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
-import { Route } from './types';
+import { RouteWithoutSubRoutes } from './types';
 
 type Props = {
   isCollapsed: boolean;
-  route: Route;
+  route: RouteWithoutSubRoutes;
 };
 
 export function NavigationMenuItem({ isCollapsed, route }: Props) {
