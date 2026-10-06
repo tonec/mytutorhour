@@ -1,3 +1,8 @@
+'use client';
+
+import { route } from '@/config/routes';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -5,6 +10,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function UserMenuContent() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+    router.push(route.login);
+  };
+
   return (
     <DropdownMenuContent
       className="w-(--anchor-width) min-w-56 rounded-lg"
@@ -16,7 +29,9 @@ export function UserMenuContent() {
       <DropdownMenuSeparator />
       <DropdownMenuItem className="gap-2 p-2">Download desktop app</DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem className="gap-2 p-2">Log out</DropdownMenuItem>
+      <DropdownMenuItem className="gap-2 p-2" onClick={handleLogout}>
+        Log out
+      </DropdownMenuItem>
     </DropdownMenuContent>
   );
 }
