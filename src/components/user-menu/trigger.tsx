@@ -1,4 +1,4 @@
-import { ChevronsUpDown, User } from 'lucide-react';
+import { Ellipsis, User } from 'lucide-react';
 import { DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
 
@@ -18,7 +18,7 @@ export function UserMenuTrigger() {
       <div className="grid flex-1 text-left text-sm leading-tight">
         <span className="truncate font-semibold">{'Name'}</span>
       </div>
-      <ChevronsUpDown className="ml-auto" />
+      <Ellipsis className="ml-auto" />
     </DropdownMenuTrigger>
   );
 }
