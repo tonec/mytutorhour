@@ -1,5 +1,6 @@
 'use server';
 
+import { routes } from '@/config/routes';
 import { fromErrorToFormState, toFormState } from '@/utils/form';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -26,5 +27,5 @@ export async function updatePassword(initialState: unknown, formData: FormData) 
     return fromErrorToFormState(error);
   }
 
-  redirect('/account');
+  redirect(routes.dashboard.url);
 }

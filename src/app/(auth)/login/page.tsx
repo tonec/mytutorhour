@@ -1,4 +1,4 @@
-import { route } from '@/config/routes';
+import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { LoginForm } from './login-form';
@@ -23,7 +23,7 @@ export default function LoginPage() {
           Forgot your password?
         </Link>
         <Link
-          href={route.signup}
+          href={routes.signup.url}
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
           Don&apos;t have an account? Sign up

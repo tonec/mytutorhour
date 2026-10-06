@@ -1,6 +1,6 @@
 'use server';
 
-import { route } from '@/config/routes';
+import { routes } from '@/config/routes';
 import { fromErrorToFormState, toFormState } from '@/utils/form';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -25,5 +25,5 @@ export async function login(initialState: unknown, formData: FormData) {
     return fromErrorToFormState(error, payload);
   }
 
-  redirect(route.dashboard);
+  redirect(routes.dashboard.url);
 }

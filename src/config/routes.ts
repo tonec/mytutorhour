@@ -1,12 +1,44 @@
-// Navigation routes
-export const route = {
-  login: '/login',
-  signup: '/signup',
-  dashboard: '/dashboard',
-  students: '/students',
-  families: '/families',
-  calendar: '/calendar',
-  payments: '/payments',
-  expenses: '/expenses',
-  settings: '/settings',
+export type Route = {
+  url: string;
+  title: string;
 };
+
+// Navigation routes
+export const routes = {
+  login: {
+    url: '/login',
+    title: 'Log in',
+  },
+  signup: {
+    url: '/signup',
+    title: 'Sign up',
+  },
+  dashboard: {
+    url: '/dashboard',
+    title: 'Dashboard',
+  },
+  students: {
+    url: '/students',
+    title: 'Students',
+  },
+  families: {
+    url: '/families',
+    title: 'Families',
+  },
+  calendar: {
+    url: '/calendar',
+    title: 'Calendar',
+  },
+  payments: {
+    url: '/payments',
+    title: 'Payments',
+  },
+  expenses: {
+    url: '/expenses',
+    title: 'Expenses',
+  },
+  settings: {
+    url: '/settings',
+    title: 'Settings',
+  },
+} as const;

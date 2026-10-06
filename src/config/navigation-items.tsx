@@ -1,50 +1,50 @@
 import { BanknoteArrowDown, Calendar, CreditCard, Home, Users } from 'lucide-react';
-import type { Route } from '@/components/navigation/types';
-import { route } from './routes';
+import type { NavigationItem } from '@/components/navigation/types';
+import { routes } from './routes';
 
-export const navigationItems: Route[] = [
+export const navigationItems: NavigationItem[] = [
   {
     type: 'prime',
     id: 'home',
-    title: 'Home',
+    title: routes.dashboard.title,
     icon: <Home className="size-4" />,
-    link: route.dashboard,
+    link: routes.dashboard.url,
   },
   {
     type: 'sub',
     id: 'students',
-    title: 'Students & Families',
+    title: routes.students.title,
     icon: <Users className="size-4" />,
     subs: [
       {
-        title: 'Students',
-        link: route.students,
+        title: routes.students.title,
+        link: routes.students.url,
       },
       {
-        title: 'Families',
-        link: route.families,
+        title: routes.families.title,
+        link: routes.families.url,
       },
     ],
   },
   {
     type: 'prime',
     id: 'calendar',
-    title: 'Calendar',
+    title: routes.calendar.title,
     icon: <Calendar className="size-4" />,
-    link: route.calendar,
+    link: routes.calendar.url,
   },
   {
     type: 'prime',
     id: 'payments',
-    title: 'Payments & invoices',
+    title: routes.payments.title,
     icon: <CreditCard className="size-4" />,
-    link: route.payments,
+    link: routes.payments.url,
   },
   {
     type: 'prime',
     id: 'expenses',
-    title: 'Expenses',
+    title: routes.expenses.title,
     icon: <BanknoteArrowDown className="size-4" />,
-    link: route.expenses,
+    link: routes.expenses.url,
   },
 ];

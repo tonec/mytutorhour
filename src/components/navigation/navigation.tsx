@@ -4,10 +4,10 @@ import { usePathname } from 'next/navigation';
 import { SidebarMenu, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { NavigationMenuItem } from './menu-item';
 import { NavigationMenuItemCollapsible } from './menu-item-collapsible';
-import type { Route } from './types';
+import type { NavigationItem } from './types';
 import { isPathActive } from './utils';
 
-export function Navigation({ routes }: { routes: Route[] }) {
+export function Navigation({ routes }: { routes: NavigationItem[] }) {
   const { state } = useSidebar();
   const pathname = usePathname();
   const isCollapsed = state === 'collapsed';

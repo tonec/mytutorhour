@@ -17,4 +17,4 @@ export type RouteWithSubRoutes = {
   }[];
 };
 
-export type Route = RouteWithoutSubRoutes | RouteWithSubRoutes;
+export type NavigationItem = RouteWithoutSubRoutes | RouteWithSubRoutes;

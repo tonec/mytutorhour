@@ -1,6 +1,6 @@
 'use client';
 
-import { route } from '@/config/routes';
+import { routes } from '@/config/routes';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import {
@@ -15,7 +15,7 @@ export function UserMenuContent() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.refresh();
-    router.push(route.login);
+    router.push(routes.login.url);
   };
 
   return (

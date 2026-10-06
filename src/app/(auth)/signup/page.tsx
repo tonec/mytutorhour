@@ -1,4 +1,4 @@
-import { route } from '@/config/routes';
+import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { SignUpForm } from './signup-form';
@@ -16,7 +16,7 @@ export default function SignupPage() {
       </CardContent>
       <CardFooter className="flex-col">
         <Link
-          href={route.login}
+          href={routes.login.url}
           className="mt-2 inline-block text-sm underline-offset-4 hover:underline"
         >
           Already have an account? Log in
