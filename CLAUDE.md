@@ -19,9 +19,15 @@ npx eslint --fix <path>   # lint and auto-format specific files
 npm run test     # Vitest in watch mode
 npm run test:unitRun      # Vitest single run (use before merge)
 npx vitest run <path>     # run a single test file
+npm run test:e2e          # Playwright E2E, all browser projects (starts or reuses the dev server)
+npm run test:e2e:ui       # Playwright UI mode for debugging
+npx playwright test --project=mobile   # one project: chromium | firefox | webkit | mobile
+npx playwright install    # one-off: download the browser binaries
 ```
 
 Unit tests use Vitest + React Testing Library (`vitest.config.mts`, `vitest.setup.ts`), colocated as `src/**/*.test.ts(x)`. Tests import `describe`/`it`/`expect` from `vitest` explicitly (no globals). Vitest can't render `async` Server Components, so cover those with E2E tests.
+
+E2E tests live in `e2e/*.spec.ts` (`playwright.config.ts`). They run against desktop Chromium, Firefox and WebKit plus a `mobile` project (iPhone SE, 375px wide). The dev server reads `.env.local`, so the Supabase env vars must be set; in CI they must be provided as secrets, and `CI=1` starts a fresh server instead of reusing one.
 
 ## Stack and code layout
 
@@ -70,5 +76,5 @@ These come from the docs and are hard requirements, not nice-to-haves:
 
 ```bash
   npm run test:unitRun  # Run unit tests
-  npx playwright test   # Run e2e
+  npm run test:e2e      # Run e2e (same as npx playwright test)
 ```

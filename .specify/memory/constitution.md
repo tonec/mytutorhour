@@ -1,10 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Modified sections: Development Workflow & Quality Gates (unit test gate now in force)
+- Version change: 1.1.0 → 1.2.0
+- Modified sections: Development Workflow & Quality Gates (Playwright E2E coverage added)
 - Added sections: none
 - Removed sections: none
-- Resolved TODOs: TODO(TEST_RUNNER) (Vitest + React Testing Library added)
 - Deferred TODOs: none
 -->
 
@@ -109,6 +108,10 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
   Arrange-Act-Assert. External network calls and the database MUST be mocked.
 - Changes touching approval state, private notes, LLM output validation, RLS, or data deletion
   (Principles I–IV) MUST include automated tests covering that behaviour.
+- Core user flows MUST have Playwright E2E tests in `e2e/` that run on desktop Chromium,
+  Firefox and WebKit and on a 375px mobile viewport (Principle V). `npm run test:e2e` MUST pass
+  before merging changes to those flows. E2E tests select by `data-testid`, then role, then
+  text, and MUST NOT use fixed waits.
 - Every new table MUST ship with its RLS policy in the same migration.
 
 ## Governance
@@ -122,4 +125,4 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
 - Compliance: every feature plan and code review MUST verify adherence; any deviation MUST be
   justified in the plan's Complexity Tracking section or the constitution amended first.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
