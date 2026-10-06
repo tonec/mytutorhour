@@ -45,6 +45,6 @@ export const navigationItems: Route[] = [
     id: 'expenses',
     title: 'Expenses',
     icon: <BanknoteArrowDown className="size-4" />,
-    link: route.payments,
+    link: route.expenses,
   },
 ];

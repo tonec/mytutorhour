@@ -7,4 +7,6 @@ export const route = {
   families: '/families',
   calendar: '/calendar',
   payments: '/payments',
+  expenses: '/expenses',
+  settings: '/settings',
 };
