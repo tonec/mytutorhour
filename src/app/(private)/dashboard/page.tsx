@@ -1,3 +1,3 @@
 export default function Dashboard() {
-  return <p>dashboard</p>;
+  return <p>--</p>;
 }

@@ -42,3 +42,15 @@ export const routes = {
     title: 'Settings',
   },
 } as const;
+
+const urlToTitleMap = Object.values(routes).reduce(
+  (acc, route) => {
+    acc[route.url] = route.title;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+export function getTitleByUrl(url: string): string | undefined {
+  return urlToTitleMap[url];
+}
