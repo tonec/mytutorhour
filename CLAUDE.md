@@ -47,3 +47,20 @@ These come from the docs and are hard requirements, not nice-to-haves:
 - **Children's data:** collect the minimum, prefer UK/EU data residency, isolate every row per tutor, and keep student data out of error logs and analytics.
 - Transcription and generation run as **async jobs** that show their status (`uploading` → `transcribing` → `generating` → `ready`). Prompts are versioned in the repo.
 - **Mobile-first:** fully usable at 375px wide, with WCAG 2.2 AA on core flows.
+
+## Testing Standards
+
+### Unit Testing Rules
+- Framework: Vitest / Jest (or XUnit for .NET, Pytest for Python)
+- Pattern: Always follow Arrange-Act-Assert (AAA) structure.
+- Isolation: Mock external network calls and database dependencies. Prefer real instances over over-mocking internal logic.
+
+### E2E Testing Rules
+- Framework: Playwright (separate `e2e/` folder, cross-browser)
+- Selectors: Priority must be `data-testid` > `role` > `text`. Never use brittle CSS classes or internal database IDs.
+- Execution: Always spin up the local development server automatically before executing E2E tests.
+- Prohibited: Never use hardcoded `sleep()` or `waitForTimeout()`. Rely strictly on event-driven assertions.
+
+## Common Commands
+- Run Unit Tests: `npm run test:unit`
+- Run E2E Tests: `npx playwright test`
