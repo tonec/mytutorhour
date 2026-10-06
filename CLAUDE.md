@@ -51,7 +51,7 @@ These come from the docs and are hard requirements, not nice-to-haves:
 ## Testing Standards
 
 ### Unit Testing Rules
-- Framework: Vitest / Jest (or XUnit for .NET, Pytest for Python)
+- Framework: Vitest and Jest
 - Pattern: Always follow Arrange-Act-Assert (AAA) structure.
 - Isolation: Mock external network calls and database dependencies. Prefer real instances over over-mocking internal logic.
 
@@ -62,5 +62,8 @@ These come from the docs and are hard requirements, not nice-to-haves:
 - Prohibited: Never use hardcoded `sleep()` or `waitForTimeout()`. Rely strictly on event-driven assertions.
 
 ## Common Commands
-- Run Unit Tests: `npm run test:unit`
-- Run E2E Tests: `npx playwright test`
+
+```bash
+  npm run test:unitRun  # Run unit tests
+  npx playwright test   # Run e2e
+```
