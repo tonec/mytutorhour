@@ -30,7 +30,7 @@ export function UserMenuTrigger({ userPromise }: Props) {
         <User className="size-4" />
       </div>
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-semibold">{data.user.email}</span>
+        <span className="truncate font-semibold">{data.user.user_metadata.firstname}</span>
       </div>
       <Ellipsis className="ml-auto" />
     </DropdownMenuTrigger>

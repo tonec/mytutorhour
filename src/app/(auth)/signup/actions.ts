@@ -10,13 +10,19 @@ export async function signup(initialState: unknown, formData: FormData) {
   const payload = { email: String(formData.get('email') ?? '') };
 
   try {
-    const { email, password } = signupSchema.parse({
+    const { firstname, lastname, email, password } = signupSchema.parse({
+      firstname: formData.get('firstname'),
+      lastname: formData.get('lastname'),
       email: formData.get('email'),
       password: formData.get('password'),
       confirm: formData.get('confirm'),
     });
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { firstname, lastname } },
+    });
 
     if (error) {
       return toFormState('ERROR', "We couldn't create your account. Please try again.", payload);

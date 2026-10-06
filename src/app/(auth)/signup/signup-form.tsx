@@ -12,13 +12,15 @@ export function SignUpForm() {
   const signupForm = useActionForm({
     schema: signupSchema,
     action: signup,
-    defaultValues: { email: '', password: '', confirm: '' },
+    defaultValues: { firstname: '', lastname: '', email: '', password: '', confirm: '' },
   });
 
   return (
     <ActionForm actionForm={signupForm}>
       <div className="flex flex-col gap-6">
-        <FormField name="email" label="Email" type="email" placeholder="me@example.com" />
+        <FormField name="firstname" label="First name" type="text" />
+        <FormField name="lastname" label="Last name" type="email" />
+        <FormField name="email" label="Email" type="email" placeholder="you@example.com" />
         <FormField name="password" label="Password" type="password" />
         <FormField name="confirm" label="Confirm password" type="password" />
         <FormMessage actionState={signupForm.actionState} />
