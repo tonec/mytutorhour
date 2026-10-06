@@ -26,7 +26,7 @@ export function UserMenuContent() {
         <DropdownMenuLabel className="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
       </DropdownMenuGroup>
       {teams.map((team, index) => (
-        <DropdownMenuItem className="gap-2 p-2" key={team.name} onClick={() => {}}>
+        <DropdownMenuItem className="gap-2 p-2" key={team.name}>
           <div className="flex size-6 items-center justify-center rounded-sm border">
             <team.logo className="size-4 shrink-0" />
           </div>
