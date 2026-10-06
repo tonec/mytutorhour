@@ -10,14 +10,20 @@ import {
   SidebarMenuItem as SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import type { RouteWithSubRoutes } from './types';
+import { isPathActive } from './utils';
 
 type Props = {
   isCollapsed: boolean;
+  pathname: string;
   route: RouteWithSubRoutes;
 };
 
-export function NavigationMenuItemCollapsible({ isCollapsed, route }: Props) {
-  const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
+export function NavigationMenuItemCollapsible({ isCollapsed, pathname, route }: Props) {
+  const hasActiveChild =
+    route.subs?.some((subRoute) => isPathActive(pathname, subRoute.link)) ?? false;
+  const [openCollapsible, setOpenCollapsible] = useState<string | null>(
+    hasActiveChild ? route.id : null
+  );
 
   const isOpen = !isCollapsed && openCollapsible === route.id;
 
@@ -31,12 +37,10 @@ export function NavigationMenuItemCollapsible({ isCollapsed, route }: Props) {
         render={
           <SidebarMenuButton
             className={cn(
-              'flex w-full items-center rounded-lg px-2 transition-colors',
-              isOpen
-                ? 'bg-sidebar-muted text-foreground'
-                : 'text-muted-foreground hover:bg-sidebar-muted hover:text-foreground',
+              'text-muted-foreground flex w-full items-center rounded-lg px-2 transition-colors',
               isCollapsed && 'justify-center'
             )}
+            isActive={hasActiveChild}
           />
         }
       >
@@ -55,21 +59,27 @@ export function NavigationMenuItemCollapsible({ isCollapsed, route }: Props) {
         <CollapsibleContent>
           <SidebarMenuSub className="my-1 ml-3.5">
             {route.type === 'sub' &&
-              route.subs?.map((subRoute) => (
-                <SidebarMenuSubItem className="h-auto" key={`${route.id}-${subRoute.title}`}>
-                  <SidebarMenuSubButton
-                    render={
-                      <Link
-                        className="text-muted-foreground hover:bg-sidebar-muted hover:text-foreground flex items-center rounded-md px-4 py-1.5 text-sm font-medium"
-                        href={subRoute.link}
-                        prefetch={true}
-                      />
-                    }
-                  >
-                    {subRoute.title}
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
+              route.subs?.map((subRoute) => {
+                const isActive = isPathActive(pathname, subRoute.link);
+
+                return (
+                  <SidebarMenuSubItem className="h-auto" key={`${route.id}-${subRoute.title}`}>
+                    <SidebarMenuSubButton
+                      className="text-muted-foreground flex items-center rounded-md px-4 py-1.5 text-sm font-medium"
+                      isActive={isActive}
+                      render={
+                        <Link
+                          aria-current={isActive ? 'page' : undefined}
+                          href={subRoute.link}
+                          prefetch={true}
+                        />
+                      }
+                    >
+                      {subRoute.title}
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                );
+              })}
           </SidebarMenuSub>
         </CollapsibleContent>
       )}
