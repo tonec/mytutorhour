@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
-import type { Route } from '@/components/app-sidebar/nav-main';
+import type { Route } from '@/components/navigation/types';
 
 export const navigationItems: Route[] = [
   {
