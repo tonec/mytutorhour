@@ -31,7 +31,7 @@ export const navigationItems: Route[] = [
     id: 'calendar',
     title: 'Calendar',
     icon: <Calendar className="size-4" />,
-    link: route.families,
+    link: route.calendar,
   },
   {
     type: 'prime',
