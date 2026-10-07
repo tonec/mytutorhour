@@ -8,6 +8,11 @@
 
 **Input**: User description: "voice note to lesson log and parent update"
 
+**Revised**: 2026-10-07. Students, families and tags are now defined by
+[spec 002 (Student List)](../002-student-list/spec.md). The per-student Guardian is replaced by a
+shared Family with one contact, and students can be children or adults. Affected: US1 intro, US3,
+edge cases, FR-001, FR-002, FR-020 and Key Entities.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Voice note to an approved parent update (Priority: P1)
@@ -16,8 +21,8 @@ Straight after a lesson, a solo tutor picks a student on their phone and records
 note about the lesson. The app turns it into three things: a structured lesson log, a
 parent-friendly update and next steps for the next lesson. The tutor reads and edits them,
 approves the parent update, then copies it to paste into WhatsApp or a text message.
-A student can be added with only a first name, subject and level so the tutor can start
-straight away.
+Students are added from the student list (spec 002). A child needs only a first name, subject,
+level and a family, which can be created on the spot, so the tutor can start straight away.
 
 **Why this priority**: This is the core promise of the product: getting the tutor's evenings
 back by turning a 60-second note into a ready-to-send update in under 2 minutes. Without it
@@ -29,9 +34,9 @@ messaging app.
 
 **Acceptance Scenarios**:
 
-1. **Given** a tutor with student "Amira" (GCSE maths), **When** they record a 60-second note
+1. **Given** a tutor with student "Emily" (GCSE maths), **When** they record a 60-second note
    and stop, **Then** within 45 seconds they see a lesson log, a parent update and next steps,
-   **And** the parent update mentions Amira by name and at least one specific topic from the
+   **And** the parent update mentions Emily by name and at least one specific topic from the
    note.
 2. **Given** a generated parent update in draft, **Then** the "Copy" action is unavailable
    until the tutor taps "Approve".
@@ -72,25 +77,28 @@ outputs appear and can be reviewed, approved and copied.
 
 ---
 
-### User Story 3 - Email the update to a guardian (Priority: P2)
+### User Story 3 - Email the update (Priority: P2)
 
-The tutor adds a guardian with an email address to a student. After approving an update, they
-send it by email from the app, and the app records that it was sent and when.
+After approving an update, the tutor sends it by email from the app, and the app records that it
+was sent and when. For a child, the email goes to their family's contact email. For an adult
+student, it goes to the student's own email (spec 002, FR-008 and FR-010).
 
 **Why this priority**: Many parents prefer email, and sending from the app gives the tutor a
 record of what was sent. Copying (Story 1) already covers the other channels.
 
-**Independent Test**: Add a guardian with an email, approve an update and tap "Email"; confirm
-delivery and that the status and sent time are recorded.
+**Independent Test**: Give a child's family a contact email, approve an update and tap "Email";
+confirm delivery and that the status and sent time are recorded.
 
 **Acceptance Scenarios**:
 
-1. **Given** an approved update and a guardian with an email address, **When** the tutor taps
-   "Email", **Then** the email is delivered, the status becomes sent, and the sent time is
-   recorded.
-2. **Given** a guardian with no email address, **Then** the "Email" option is hidden and only
-   "Copy" is shown.
-3. **Given** an update in draft, **Then** "Email" is unavailable.
+1. **Given** an approved update for "Emily" whose family contact Sarah Taylor has an email
+   address, **When** the tutor taps "Email", **Then** the email is delivered to Sarah Taylor,
+   the status becomes sent, and the sent time is recorded.
+2. **Given** an approved update for an adult student "Daniel Hughes" with his own email, **When**
+   the tutor taps "Email", **Then** it is sent to Daniel's email.
+3. **Given** a child whose family has no contact email, or an adult with no email, **Then** the
+   "Email" option is hidden and only "Copy" is shown.
+4. **Given** an update in draft, **Then** "Email" is unavailable.
 
 ---
 
@@ -128,8 +136,8 @@ second lesson's next steps are shown and both lessons appear on the student's ti
 
 **Acceptance Scenarios**:
 
-1. **Given** Amira's last lesson had the next step "practise simultaneous equations", **When**
-   the tutor opens a new note for Amira, **Then** that next step is shown as a reminder.
+1. **Given** Emily's last lesson had the next step "practise simultaneous equations", **When**
+   the tutor opens a new note for Emily, **Then** that next step is shown as a reminder.
 2. **Given** a student with past lessons, **When** the tutor opens the student page, **Then**
    lessons are listed newest first with date, topics and update status.
 3. **Given** a student's first lesson, **Then** generation works without any history.
@@ -169,19 +177,23 @@ each time and private notes never appear.
   again, an error is shown and the transcript or typed notes are kept so nothing is lost.
 - A note recorded in a language other than English gets a friendly "English only for now"
   message.
-- A guardian with no email: only "Copy" is offered.
+- No email to send to (a family with no contact email, or an adult with no email): only "Copy" is
+  offered.
 - An email that fails to deliver leaves the update in approved state and tells the tutor.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-**Students and guardians**
+**Students and families**
 
-- **FR-001**: Tutors MUST be able to create a student with a required first name, subject and
-  level, and an optional exam board and notes. No other personal details are collected.
-- **FR-002**: Tutors MUST be able to add one or more guardians per student with a name, an
-  optional email address and a preferred channel (email or copy).
+- **FR-001**: Tutors MUST be able to create and edit students as defined in spec 002 (FR-006 to
+  FR-017). A child has a first name, subject and level, an optional exam board and notes, and a
+  required family. An adult also has a last name and an optional email and phone of their own.
+  No other personal details are collected.
+- **FR-002**: The contact for a child's parent updates MUST be their family's contact (name,
+  optional email, optional phone) as defined in spec 002 (FR-018 to FR-022). The contact for an
+  adult student is the student.
 - **FR-003**: Tutors MUST be able to archive a student (hidden, history kept, restorable) or
   delete a student (all related data permanently removed).
 
@@ -228,7 +240,8 @@ each time and private notes never appear.
   approved update can be sent or copied. Editing or regenerating an approved update MUST return
   it to draft.
 - **FR-020**: "Copy" MUST put the approved text on the clipboard and mark the update as copied.
-  "Email" MUST send it to the guardian's email address and mark it as sent, with the time.
+  "Email" MUST send it to the contact's email address (FR-002) and mark it as sent, with the
+  time.
 - **FR-021**: The system MUST store the difference between the generated and final parent update
   to track output quality.
 
@@ -251,16 +264,18 @@ each time and private notes never appear.
 ### Key Entities
 
 - **Tutor**: The signed-in user who owns all the data below. Name, email.
-- **Student**: A child the tutor teaches. First name, subject, level, optional exam board and
-  notes, archived flag. Belongs to one tutor.
-- **Guardian**: A parent or carer of a student. Name, optional email, preferred channel
-  (email or copy). Belongs to one student.
+- **Student**: A child or adult the tutor teaches, as defined in spec 002, plus an archived flag
+  added by this feature. Belongs to one tutor.
+- **Family**: Defined in spec 002. A household with one contact (name, optional email and
+  phone) who receives updates about its child students. Replaces the earlier per-student
+  Guardian.
 - **Lesson**: One tutoring session for a student. Date, optional duration, processing status.
 - **Voice Note**: The tutor's input for a lesson: audio (temporary, deleted after
   transcription) or typed text, plus the transcript, duration and when the audio was deleted.
 - **Lesson Log**: The structured record of a lesson: topics covered, went well, struggled with,
   homework, next steps and the tutor's private notes.
-- **Parent Update**: The message for guardians about a lesson. Text, status (draft, approved,
+- **Parent Update**: The message about a lesson for the family contact (or for an adult student
+  themselves). Text, status (draft, approved,
   sent, copied), channel, sent time, the original generated text and the version of the
   generation instructions used.
 
@@ -298,3 +313,10 @@ each time and private notes never appear.
 - Audio is never kept after successful transcription; optional retention is not offered in
   the MVP.
 - Parent update emails include a way for parents to stop receiving them.
+- For an adult student, the "parent update" is addressed to the student and goes through the
+  same draft → approved → sent/copied flow.
+- The earlier "preferred channel" on a guardian is dropped. "Email" is offered whenever there is
+  an email address to send to, and "Copy" is always available.
+- Student notes (spec 002) are separate from the tutor's private lesson notes. They are never
+  shown to parents. Whether they are given to generation as context is decided in this spec's
+  plan.

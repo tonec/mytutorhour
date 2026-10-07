@@ -1,7 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.2.0
-- Modified sections: Development Workflow & Quality Gates (Playwright E2E coverage added)
+- Version change: 1.2.0 → 1.2.1 (PATCH: clarification)
+- Modified sections: IV. Children's Data Privacy by Default (minimum-data list applies to child
+  students; adult students may hold a surname and their own email/phone)
+- Templates: no template changes needed
+- Previous: 1.1.0 → 1.2.0 added Playwright E2E coverage to Development Workflow & Quality Gates
 - Added sections: none
 - Removed sections: none
 - Deferred TODOs: none
@@ -47,8 +50,11 @@ Rationale: parents receive these words as the tutor's own; fabricated detail is 
 
 ### IV. Children's Data Privacy by Default
 
-- Collect the minimum: student first name, subject, level (optional exam board/notes). No DOB,
-  school, or surname by default.
+- Collect the minimum. For a **child** student: first name, subject, level (optional exam
+  board/notes). No DOB, school, surname, or contact details of their own; a child's contact
+  details come from their family.
+- An **adult** student MAY also have a surname and their own email and phone, because they are
+  the person being contacted. No DOB or other extra fields.
 - Every table MUST have row-level security scoped to `tutor_id = auth.uid()`. No query path may
   bypass per-tutor isolation.
 - The Supabase service-role key and all provider secrets MUST be server-side only and never in
@@ -125,4 +131,4 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
 - Compliance: every feature plan and code review MUST verify adherence; any deviation MUST be
   justified in the plan's Complexity Tracking section or the constitution amended first.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-07
