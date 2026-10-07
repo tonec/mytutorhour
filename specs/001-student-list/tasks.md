@@ -36,9 +36,9 @@ Write each story's tests first and check they fail before implementing.
 
 **Purpose**: Dependencies, UI primitives and test plumbing.
 
-- [ ] T001 Add `@supabase/supabase-js` (`^2.114.0`, already installed as a peer of `@supabase/ssr`) as an explicit dependency: `npm i @supabase/supabase-js@^2.114.0`. This updates `package.json` and `package-lock.json`.
-- [ ] T002 [P] Add the Base UI shadcn components with `npx shadcn@latest add combobox radio-group alert-dialog badge`, creating `src/components/ui/combobox.tsx`, `src/components/ui/radio-group.tsx`, `src/components/ui/alert-dialog.tsx` and `src/components/ui/badge.tsx`. Confirm they import from `@base-ui/react` (style `base-vega` in `components.json`), then run `npx eslint --fix src/components/ui`.
-- [ ] T003 [P] In `playwright.config.ts`, load `.env.local` for the test runner only with `if (existsSync('.env.local')) process.loadEnvFile('.env.local');` (Node 24). This makes `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` available to fixtures. App code must never read `SUPABASE_SERVICE_ROLE_KEY`.
+- [X] T001 Add `@supabase/supabase-js` (`^2.114.0`, already installed as a peer of `@supabase/ssr`) as an explicit dependency: `npm i @supabase/supabase-js@^2.114.0`. This updates `package.json` and `package-lock.json`.
+- [X] T002 [P] Add the Base UI shadcn components with `npx shadcn@latest add combobox radio-group alert-dialog badge`, creating `src/components/ui/combobox.tsx`, `src/components/ui/radio-group.tsx`, `src/components/ui/alert-dialog.tsx` and `src/components/ui/badge.tsx`. Confirm they import from `@base-ui/react` (style `base-vega` in `components.json`), then run `npx eslint --fix src/components/ui`.
+- [X] T003 [P] In `playwright.config.ts`, load `.env.local` for the test runner only with `if (existsSync('.env.local')) process.loadEnvFile('.env.local');` (Node 24). This makes `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` available to fixtures. App code must never read `SUPABASE_SERVICE_ROLE_KEY`.
 
 ---
 

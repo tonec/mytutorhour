@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import { existsSync } from 'node:fs';
+
+// Test runner only: makes NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY available to
+// E2E fixtures. App code must never read SUPABASE_SERVICE_ROLE_KEY.
+if (existsSync('.env.local')) process.loadEnvFile('.env.local');
 
 const PORT = 3000;
 const baseURL = `http://localhost:${PORT}`;
