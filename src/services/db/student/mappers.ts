@@ -19,7 +19,10 @@ export type StudentListItem = {
   displayName: string;
   familyId?: string;
   familyName?: string;
+  notes?: string;
   subject: string;
+  email?: string;
+  phone?: string;
   level: string;
   tags: StudentTag[];
 };
@@ -80,6 +83,9 @@ export function toStudentListItem(row: StudentRow): StudentListItem {
     displayName: displayName(row),
     familyId: orUndefined(row.family_id),
     familyName: row.families?.name,
+    notes: orUndefined(row.notes),
+    email: orUndefined(row.email),
+    phone: orUndefined(row.phone),
     subject: row.subject,
     level: row.level,
     tags: tagsOf(row),

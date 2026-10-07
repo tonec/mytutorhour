@@ -13,7 +13,7 @@ import { FormField } from '@/components/ui/form-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { RadioGroupField } from '@/components/ui/radio-group-field';
 import { TextareaField } from '@/components/ui/textarea-field';
-import type { StudentDetail } from '../list-student/mappers';
+import type { StudentDetail } from '../../services/db/student/mappers';
 import { ContactDetails } from './contact-details';
 import { FamilyPicker } from './family-picker';
 import { studentSchema } from './schema';

@@ -3,10 +3,9 @@ import { createClient } from '@/lib/supabase/server';
 import {
   type StudentDetail,
   type StudentListItem,
-  type StudentRow,
   toStudentDetail,
   toStudentListItem,
-} from '../../../components/list-student/mappers';
+} from './mappers';
 
 // A student with their family's contact details (children show these) and their tags.
 const STUDENT_SELECT =
@@ -20,10 +19,7 @@ function loadFailed(what: string, code: string | undefined): never {
 // The signed-in tutor's students (RLS limits rows to their own).
 export async function listStudents(): Promise<StudentListItem[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('students')
-    .select(STUDENT_SELECT)
-    .returns<StudentRow[]>();
+  const { data, error } = await supabase.from('students').select(STUDENT_SELECT);
 
   if (error) loadFailed('students', error.code);
   return data.map(toStudentListItem);
@@ -36,7 +32,6 @@ export async function getStudent(id: string): Promise<StudentDetail | null> {
     .from('students')
     .select(STUDENT_SELECT)
     .eq('id', id)
-    .returns<StudentRow[]>()
     .maybeSingle();
 
   // 22P02: the id isn't a valid uuid, which can only mean there's no such student.
