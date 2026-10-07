@@ -122,3 +122,12 @@ NEEDS CLARIFICATION items remain.
 - **Form messages**: `FormMessage` uses `role="alert"`, so form-level errors are announced straight away.
 - **Rationale**: Without the wrapper, a failed request throws into the route's error boundary and the tutor loses what they typed.
 - **Verify during implementation**: check the behaviour against `node_modules/next/dist/docs/` and React 19 `useActionState` (rethrow detection uses `unstable_rethrow` from `next/navigation`, or `isRedirectError`/`isNotFoundError` if available).
+
+## R16. Keeping text typed before hydration (FR-017)
+
+- **Problem**: Forms are server-rendered, so a tutor on a slow phone can start typing before React hydrates the page. When `FormField` hydrates, React Hook Form's `register` ref runs `updateValidAndValue`. Because the field has a defined default (`''`), it calls `setFieldValue(name, defaultValue)`, which overwrites the DOM value and loses the typed text. In react-hook-form 7.89.0 this is `updateValidAndValue` in `dist/index.esm.mjs`. The E2E login hit it on mobile WebKit, where the email vanished while the password typed after hydration survived.
+- **Decision**: Wrap the registration ref in `FormField` and `TextareaField`. Read the element's value before registering; if it held typed text that registering cleared, restore it with `setValue(name, typed, { shouldDirty: true })`. No inputs are disabled, so forms still work without JS.
+- **Alternatives considered**:
+  - Remove `''` text defaults so React Hook Form reads the DOM instead. Rejected because it weakens typing and `reset()` for every form.
+  - Disable inputs until hydrated. Rejected because it breaks the no-JS path and blocks fast typists.
+  - Retry in tests only. Rejected because real tutors would still lose text. The E2E fixture's `toPass` retry is a stopgap that T025 removes.

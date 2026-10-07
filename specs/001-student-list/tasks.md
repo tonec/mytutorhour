@@ -209,7 +209,7 @@ Write each story's tests first and check they fail before implementing.
 
 ### E2E fixtures
 
-- [X] T023 Create `e2e/fixtures/tutor.ts` (needs T001's `@supabase/supabase-js` and T003's env loading), exporting `test` (extended from `@playwright/test`) and `expect`.
+- [x] T023 Create `e2e/fixtures/tutor.ts` (needs T001's `@supabase/supabase-js` and T003's env loading), exporting `test` (extended from `@playwright/test`) and `expect`.
   - **`adminClient`** fixture: `createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } })` from `@supabase/supabase-js`.
   - **`newTutor()`** fixture factory:
     1. Creates a confirmed user with `auth.admin.createUser({ email: `tutor-${randomUUID()}@example.test`, password, email_confirm: true })`.
@@ -218,7 +218,15 @@ Write each story's tests first and check they fail before implementing.
     4. Returns `{ id, email, page }`.
   - **`tutor`** fixture: signs in a fresh user on the default `page`.
   - **Teardown:** `auth.admin.deleteUser(id)` for every user created (rows cascade).
-- [X] T024 Create `e2e/fixtures/seed.ts` (after T023, which provides the `adminClient` fixture) with helpers that take `(adminClient, tutorId)` and insert rows with the secret key with an explicit `tutor_id`: `seedFamily({ name, contactName, contactEmail?, contactPhone? })`, `seedStudent({ type, firstName, lastName?, familyId?, subject, level })` and `seedTag(name, studentIds[])`. Each returns ids. They are used for list, search, filter and tag tests so those tests don't depend on other stories' UI.
+- [x] T024 Create `e2e/fixtures/seed.ts` (after T023, which provides the `adminClient` fixture) with helpers that take `(adminClient, tutorId)` and insert rows with the secret key with an explicit `tutor_id`: `seedFamily({ name, contactName, contactEmail?, contactPhone? })`, `seedStudent({ type, firstName, lastName?, familyId?, subject, level })` and `seedTag(name, studentIds[])`. Each returns ids. They are used for list, search, filter and tag tests so those tests don't depend on other stories' UI.
+
+### Form hydration
+
+- [ ] T025 Stop forms losing text typed before React hydrates the page (research R16). Today, text typed into a server-rendered input before hydration is wiped. React Hook Form's `register` ref calls `setFieldValue(name, defaultValue)` with the `''` default and overwrites the DOM value. This is seen on mobile WebKit in the E2E login and affects every form using `FormField`, including log in and sign up.
+  - In `src/components/ui/form-field.tsx` and `src/components/ui/textarea-field.tsx`, wrap the `register(name)` ref. Read the element's current `value` _before_ calling the registration ref. If it was non-empty and differs from the value after registering, call `setValue(name, typed, { shouldDirty: true })` so the typed text is kept in both the form state and the DOM. Leave the existing `key`/`defaultValue` payload handling unchanged.
+  - Write AAA tests in `src/components/ui/form-field.test.tsx` and extend `src/components/ui/textarea-field.test.tsx`. Server-render a `FormHarness` form with `renderToString` into a container, set the input's `value` to "Emily" (as a user would before hydration), then hydrate with `render(..., { container, hydrate: true })`. Assert the input still shows "Emily" and that submitting puts "Emily" in `FormData`. Also assert that an untouched input still hydrates to its default.
+  - In `e2e/fixtures/tutor.ts`, remove the `toPass` retry around login and go back to a single fill → click → `toHaveURL('/dashboard')`. Add an E2E test in `e2e/auth.spec.ts` that types into the login form straight after `page.goto('/login')`, with no waits, and checks the email field keeps its value (run on all four projects).
+  - Run `npx playwright test e2e/auth.spec.ts --repeat-each=5` and confirm it passes on every project, including mobile.
 
 **Checkpoint**: `npx supabase test db` and `npm run test:unitRun` are green, and the schema and fixtures are ready.
 
@@ -232,7 +240,7 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 1 (write first, they must fail)
 
-- [ ] T025 [P] [US1] Write E2E tests in `e2e/students.spec.ts` (`test.describe('US1 add a child')`, using the `tutor` fixture) covering spec US1 AC1–AC5:
+- [ ] T026 [P] [US1] Write E2E tests in `e2e/students.spec.ts` (`test.describe('US1 add a child')`, using the `tutor` fixture) covering spec US1 AC1–AC5:
   - AC1: Emily (GCSE, Maths) with a new family "Taylor", contact "Sarah Taylor", email `sarah.taylor@example.test`, phone `07700 900123` → `student-row` shows Emily, `student-type-badge` "Child", and "Taylor". Opening the row shows Sarah Taylor's email and phone in `contact-details`.
   - AC2: with Child selected there is no "Last name", "Email" or "Phone" field, and saving without a family shows "Choose or add a family."
   - AC3: Oliver added to the existing Taylor family shows the same contact.
@@ -242,35 +250,35 @@ Write each story's tests first and check they fail before implementing.
 
   Also add a no-horizontal-scroll check on `/students/new`, as in `e2e/auth.spec.ts`.
 
-- [ ] T026 [P] [US1] Write component tests in `src/app/(private)/students/student-form.test.tsx`, mocking `./actions`, `../families/actions` and `next/navigation`:
+- [ ] T027 [P] [US1] Write component tests in `src/app/(private)/students/student-form.test.tsx`, mocking `./actions`, `../families/actions` and `next/navigation`:
   - Child is the default type, and no last-name, email or phone inputs render.
   - Submitting without a family shows "Choose or add a family." and doesn't call `saveStudent`.
   - Choosing `family-picker-add-new` opens `family-dialog`. A mocked `saveFamily` SUCCESS with `payload { id, name: 'Taylor', contactName: 'Sarah Taylor' }` closes the dialog and selects Taylor.
   - The notes counter shows `0/2000`.
   - FR-017: when mocked `saveStudent` rejects (network error), the form shows the network error and the typed first name, subject, level and notes are still in their inputs.
   - When mocked `saveStudent` returns a server `firstName` field error, the error shows under First name and First name has focus.
-- [ ] T027 [P] [US1] Write tests for pure mappers in `src/app/(private)/students/mappers.test.ts`:
+- [ ] T028 [P] [US1] Write tests for pure mappers in `src/app/(private)/students/mappers.test.ts`:
   - `toStudentListItem` (child `displayName` = first name, `familyName` set)
   - `toStudentDetail` (child `contact` = family `contactName`/`contactEmail`/`contactPhone`; child whose family has no email or phone → `contact.isEmpty = true`)
 
 ### Implementation for User Story 1
 
-- [ ] T028 [P] [US1] Create `src/app/(private)/students/mappers.ts` with the types `StudentListItem` (`id`, `type`, `displayName`, `familyId`, `familyName`, `subject`, `level`, `tags: { id; name }[]`) and `StudentDetail` (all editable fields plus `contact: { source: 'family' | 'student'; name?; email?; phone?; isEmpty }`, `familyName` and `tagIds`). Add the pure functions `toStudentListItem(row)` and `toStudentDetail(row)` over the generated `Database` row types with an embedded `families(...)` and `student_tags(tags(id, name))`. Handle the child branch here; US2 adds the adult branch.
-- [ ] T029 [P] [US1] Create `src/app/(private)/families/data.ts` with `listFamilies()`: select `id, name, contact_name, students(count)` ordered by name. Return `FamilyListItem { id, name, contactName, studentCount }` sorted with `localeCompare(…, 'en-GB', { sensitivity: 'base' })`.
-- [ ] T030 [US1] Create `src/app/(private)/families/actions.ts` (`'use server'`) with `saveFamily(state, formData)`:
+- [ ] T029 [P] [US1] Create `src/app/(private)/students/mappers.ts` with the types `StudentListItem` (`id`, `type`, `displayName`, `familyId`, `familyName`, `subject`, `level`, `tags: { id; name }[]`) and `StudentDetail` (all editable fields plus `contact: { source: 'family' | 'student'; name?; email?; phone?; isEmpty }`, `familyName` and `tagIds`). Add the pure functions `toStudentListItem(row)` and `toStudentDetail(row)` over the generated `Database` row types with an embedded `families(...)` and `student_tags(tags(id, name))`. Handle the child branch here; US2 adds the adult branch.
+- [ ] T030 [P] [US1] Create `src/app/(private)/families/data.ts` with `listFamilies()`: select `id, name, contact_name, students(count)` ordered by name. Return `FamilyListItem { id, name, contactName, studentCount }` sorted with `localeCompare(…, 'en-GB', { sensitivity: 'base' })`.
+- [ ] T031 [US1] Create `src/app/(private)/families/actions.ts` (`'use server'`) with `saveFamily(state, formData)`:
   1. Parse `familySchema` and insert or update `families` (`name`, `contact_name`, `contact_email`, `contact_phone`), mapping errors via `mapDbError`.
   2. When `intent === 'inline'`, return `toFormState('SUCCESS', 'Family added.', { id, name, contactName })` with no redirect.
   3. Otherwise `revalidatePath('/families')`, `revalidatePath('/students')`, then `redirect(`/families/${id}`)`.
-- [ ] T031 [US1] Create `src/app/(private)/families/family-form.tsx` (`'use client'`), using `useActionForm({ schema: familySchema, action: saveFamily, defaultValues })`, `data-testid="family-form"`, `FormField`s labelled "Family name", "Contact name", "Contact email (optional)" and "Contact phone (optional)", a hidden `id` and `intent`, `FormMessage` and a full-width submit button. It takes the props `family?`, `intent?: 'inline'` and `onSaved?(payload)`, and calls `onSaved` when `actionState.status === 'SUCCESS'` and the intent is inline.
-- [ ] T032 [US1] Create `src/app/(private)/families/family-dialog.tsx`: a shadcn `Dialog` (`data-testid="family-dialog"`, title "Add family") rendering `<FamilyForm intent="inline" onSaved={…} />` in a portal (not nested inside the student `<form>`). It takes `open`, `onOpenChange` and `onCreated({ id, name, contactName })`, and returns focus to `family-picker` on close.
-- [ ] T033 [US1] Create `src/app/(private)/students/actions.ts` (`'use server'`) with `saveStudent(state, formData)`:
+- [ ] T032 [US1] Create `src/app/(private)/families/family-form.tsx` (`'use client'`), using `useActionForm({ schema: familySchema, action: saveFamily, defaultValues })`, `data-testid="family-form"`, `FormField`s labelled "Family name", "Contact name", "Contact email (optional)" and "Contact phone (optional)", a hidden `id` and `intent`, `FormMessage` and a full-width submit button. It takes the props `family?`, `intent?: 'inline'` and `onSaved?(payload)`, and calls `onSaved` when `actionState.status === 'SUCCESS'` and the intent is inline.
+- [ ] T033 [US1] Create `src/app/(private)/families/family-dialog.tsx`: a shadcn `Dialog` (`data-testid="family-dialog"`, title "Add family") rendering `<FamilyForm intent="inline" onSaved={…} />` in a portal (not nested inside the student `<form>`). It takes `open`, `onOpenChange` and `onCreated({ id, name, contactName })`, and returns focus to `family-picker` on close.
+- [ ] T034 [US1] Create `src/app/(private)/students/actions.ts` (`'use server'`) with `saveStudent(state, formData)`:
   1. `studentSchema.parse(studentFormDataToInput(formData))`.
   2. `supabase.rpc('save_student', { p_id, p_type, p_first_name, p_last_name, p_family_id, p_subject, p_level, p_exam_board, p_notes, p_email, p_phone, p_tag_ids })`.
   3. Map errors with `mapDbError(error, 'saveStudent')`: a field error → `toFieldErrorState`, `notFound` → `notFound()`, form → `toFormState('ERROR', …, payload)`. Echo submitted strings as `payload` so values survive no-JS failures (FR-017).
   4. On success, `revalidatePath('/students')`, `revalidatePath('/families/[id]', 'page')`, then `redirect('/students')`.
-- [ ] T034 [US1] Create `src/app/(private)/students/data.ts`, exporting `listStudents()` and `getStudent(id)`. Both use the server client to select students with `families(id, name, contact_name, contact_email, contact_phone)` and `student_tags(tags(id, name))`, mapped through `mappers.ts`. `getStudent` returns `null` when no row (another tutor's or missing). Only server modules import this file.
-- [ ] T035 [US1] Create `src/app/(private)/students/family-picker.tsx` (`'use client'`) using `ComboboxField` (`name="familyId"`, label "Family", `data-testid="family-picker"`). It lists families as "Name (Contact name)" with `extraOption` "Add new family…" (`data-testid="family-picker-add-new"`), which opens `FamilyDialog`. `onCreated` appends the new family to local options and calls `setValue('familyId', id, { shouldValidate: true })`.
-- [ ] T036 [US1] Create `src/app/(private)/students/student-form.tsx` (`'use client'`), using `useActionForm({ schema: studentSchema, action: saveStudent, defaultValues })`, `data-testid="student-form"`, and fields in this order:
+- [ ] T035 [US1] Create `src/app/(private)/students/data.ts`, exporting `listStudents()` and `getStudent(id)`. Both use the server client to select students with `families(id, name, contact_name, contact_email, contact_phone)` and `student_tags(tags(id, name))`, mapped through `mappers.ts`. `getStudent` returns `null` when no row (another tutor's or missing). Only server modules import this file.
+- [ ] T036 [US1] Create `src/app/(private)/students/family-picker.tsx` (`'use client'`) using `ComboboxField` (`name="familyId"`, label "Family", `data-testid="family-picker"`). It lists families as "Name (Contact name)" with `extraOption` "Add new family…" (`data-testid="family-picker-add-new"`), which opens `FamilyDialog`. `onCreated` appends the new family to local options and calls `setValue('familyId', id, { shouldValidate: true })`.
+- [ ] T037 [US1] Create `src/app/(private)/students/student-form.tsx` (`'use client'`), using `useActionForm({ schema: studentSchema, action: saveStudent, defaultValues })`, `data-testid="student-form"`, and fields in this order:
   - `RadioGroupField` "Student type" (`data-testid="student-type"`, options Child/Adult, default `child`)
   - "First name"
   - `FamilyPicker` (child: required)
@@ -281,9 +289,9 @@ Write each story's tests first and check they fail before implementing.
 
   Props: `student?: StudentDetail` and `families: FamilyListItem[]`. Adult-only fields come in US2.
 
-- [ ] T037 [US1] Create `src/app/(private)/students/new/page.tsx` (async Server Component) that loads `listFamilies()` and renders `<StudentForm families={…} />` in a mobile-first container (`max-w-xl`, `px-4`).
-- [ ] T038 [US1] Create `src/app/(private)/students/[id]/page.tsx`, which awaits `params` (Promise) and calls `getStudent(id)`. If it's `null`, call `notFound()`. Otherwise render `<StudentForm student={…} families={…} />` (this also supports edits used later by US4).
-- [ ] T039 [US1] Create `src/app/(private)/students/student-row.tsx` and `src/app/(private)/students/student-list.tsx`:
+- [ ] T038 [US1] Create `src/app/(private)/students/new/page.tsx` (async Server Component) that loads `listFamilies()` and renders `<StudentForm families={…} />` in a mobile-first container (`max-w-xl`, `px-4`).
+- [ ] T039 [US1] Create `src/app/(private)/students/[id]/page.tsx`, which awaits `params` (Promise) and calls `getStudent(id)`. If it's `null`, call `notFound()`. Otherwise render `<StudentForm student={…} families={…} />` (this also supports edits used later by US4).
+- [ ] T040 [US1] Create `src/app/(private)/students/student-row.tsx` and `src/app/(private)/students/student-list.tsx`:
   - **Row:** a link to `/students/<id>` with `data-testid="student-row"`, showing `displayName`, a `Badge` "Child"/"Adult" (`data-testid="student-type-badge"`), the family name, and "subject · level".
   - **List:** a `<ul data-testid="student-list">`.
 
@@ -301,18 +309,18 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 2 (write first, they must fail)
 
-- [ ] T040 [P] [US2] Add `test.describe('US2 add an adult')` to `e2e/students.spec.ts`, covering spec US2 AC1–AC4:
+- [ ] T041 [P] [US2] Add `test.describe('US2 add an adult')` to `e2e/students.spec.ts`, covering spec US2 AC1–AC4:
   - AC1: Daniel Hughes with email `daniel.hughes@example.test` and phone `+44 7700 900456` → row shows "Daniel Hughes" and badge "Adult".
   - AC2: blank last name → "Enter a last name." and no navigation.
   - AC3: email `dan@` → "Please enter a valid email address."
   - AC4: an adult linked to family Taylor (seeded) shows his own email in `contact-details`, not Sarah Taylor's.
-- [ ] T041 [P] [US2] Extend `src/app/(private)/students/student-form.test.tsx`: selecting Adult reveals "Last name", "Email (optional)" and "Phone (optional)", and the family label reads "Family (optional)". Submitting without a last name shows "Enter a last name.".
-- [ ] T042 [P] [US2] Extend `src/app/(private)/students/mappers.test.ts`: an adult's `displayName` is "Daniel Hughes", and `contact.source === 'student'` uses the student's own email and phone even when `familyId` is set.
+- [ ] T042 [P] [US2] Extend `src/app/(private)/students/student-form.test.tsx`: selecting Adult reveals "Last name", "Email (optional)" and "Phone (optional)", and the family label reads "Family (optional)". Submitting without a last name shows "Enter a last name.".
+- [ ] T043 [P] [US2] Extend `src/app/(private)/students/mappers.test.ts`: an adult's `displayName` is "Daniel Hughes", and `contact.source === 'student'` uses the student's own email and phone even when `familyId` is set.
 
 ### Implementation for User Story 2
 
-- [ ] T043 [US2] Add the adult branch to `src/app/(private)/students/mappers.ts`: `displayName = first_name + ' ' + last_name`, and `contact` comes from the student's `email`/`phone` with `source: 'student'` (FR-010).
-- [ ] T044 [US2] Update `src/app/(private)/students/student-form.tsx`. When `watch('type') === 'adult'`, render "Last name" (required), "Email (optional)" (`type="email"`) and "Phone (optional)" (`type="tel"`), and label the family picker "Family (optional)". The `contact-details` block shows the adult's own details. Keep these inputs unmounted for children, so `FormData` doesn't carry them.
+- [ ] T044 [US2] Add the adult branch to `src/app/(private)/students/mappers.ts`: `displayName = first_name + ' ' + last_name`, and `contact` comes from the student's `email`/`phone` with `source: 'student'` (FR-010).
+- [ ] T045 [US2] Update `src/app/(private)/students/student-form.tsx`. When `watch('type') === 'adult'`, render "Last name" (required), "Email (optional)" (`type="email"`) and "Phone (optional)" (`type="tel"`), and label the family picker "Family (optional)". The `contact-details` block shows the adult's own details. Keep these inputs unmounted for children, so `FormData` doesn't carry them.
 
 **Checkpoint**: US1 and US2 both pass on their own.
 
@@ -326,13 +334,13 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 3 (write first, they must fail)
 
-- [ ] T045 [P] [US3] Write `src/app/(private)/students/filter.test.ts` for `filterAndSortStudents(items, { q, tagId })`:
+- [ ] T046 [P] [US3] Write `src/app/(private)/students/filter.test.ts` for `filterAndSortStudents(items, { q, tagId })`:
   - sorts "Alice", "ben", "Chloe" case-insensitively by first name (FR-002)
   - `q: 'taylor'` matches family "Taylor" and a student whose name contains "Taylor", case-insensitively and partially (FR-003)
   - `tagId` keeps only tagged students (FR-004)
   - `q` and `tagId` combine
   - empty `q` returns everything
-- [ ] T046 [P] [US3] Add `test.describe('US3 view and find')` to `e2e/students.spec.ts`, using `seed.ts` to create:
+- [ ] T047 [P] [US3] Add `test.describe('US3 view and find')` to `e2e/students.spec.ts`, using `seed.ts` to create:
   - the families Taylor and Smith
   - students Alice, Ben and Chloe, plus 27 more
   - tags "Year 11" and "11+"
@@ -347,18 +355,18 @@ Write each story's tests first and check they fail before implementing.
 
 ### Implementation for User Story 3
 
-- [ ] T047 [P] [US3] Create `src/app/(private)/students/filter.ts` with the pure `filterAndSortStudents(items: StudentListItem[], { q?: string; tagId?: string })`. It matches `q` against `displayName` and `familyName` with `toLocaleLowerCase('en-GB').includes(...)`, and sorts with `a.displayName.localeCompare(b.displayName, 'en-GB', { sensitivity: 'base' })`.
-- [ ] T048 [P] [US3] Create `src/app/(private)/students/tags/data.ts` with `listTags()`: select `id, name, student_tags(count)`, returning `TagWithCount { id, name, studentCount }` sorted by name.
-- [ ] T049 [P] [US3] Create `src/app/(private)/students/empty-state.tsx` with two exports:
+- [ ] T048 [P] [US3] Create `src/app/(private)/students/filter.ts` with the pure `filterAndSortStudents(items: StudentListItem[], { q?: string; tagId?: string })`. It matches `q` against `displayName` and `familyName` with `toLocaleLowerCase('en-GB').includes(...)`, and sorts with `a.displayName.localeCompare(b.displayName, 'en-GB', { sensitivity: 'base' })`.
+- [ ] T049 [P] [US3] Create `src/app/(private)/students/tags/data.ts` with `listTags()`: select `id, name, student_tags(count)`, returning `TagWithCount { id, name, studentCount }` sorted by name.
+- [ ] T050 [P] [US3] Create `src/app/(private)/students/empty-state.tsx` with two exports:
   - `EmptyStudents` (`data-testid="student-list-empty"`): "No students yet" plus an "Add student" link to `/students/new`.
   - `NoMatches` (`data-testid="student-list-no-matches"`): "No students match" plus a "Clear search" link to `/students`.
-- [ ] T050 [US3] Create `src/app/(private)/students/student-filters.tsx`: a `GET` `<form role="search">` with a labelled "Search students" input (`name="q"`, `data-testid="student-search"`) and a labelled "Filter by tag" native `<select name="tag">` (`data-testid="tag-filter"`) listing tags with an "All tags" option. Submit is a button labelled "Search". With JS, `onChange` on the select submits via `requestSubmit()`. It works without JS (R4).
-- [ ] T051 [US3] Update `src/app/(private)/students/page.tsx`:
+- [ ] T051 [US3] Create `src/app/(private)/students/student-filters.tsx`: a `GET` `<form role="search">` with a labelled "Search students" input (`name="q"`, `data-testid="student-search"`) and a labelled "Filter by tag" native `<select name="tag">` (`data-testid="tag-filter"`) listing tags with an "All tags" option. Submit is a button labelled "Search". With JS, `onChange` on the select submits via `requestSubmit()`. It works without JS (R4).
+- [ ] T052 [US3] Update `src/app/(private)/students/page.tsx`:
   1. Await `searchParams` (`q`, `tag`) and load `listStudents()` and `listTags()` in parallel with `Promise.all`.
   2. Apply `filterAndSortStudents`.
   3. Render `StudentFilters` (prefilled), `EmptyStudents` when the tutor has no students at all, `NoMatches` when the filter result is empty, or `StudentList`.
   4. Add a "Manage tags" link to `/students/tags`.
-- [ ] T052 [US3] Update `src/app/(private)/students/student-row.tsx` to show tag `Badge`s (wrapping, small, `aria-label="Tags"` list). Make sure the row stays within 375px (`min-w-0`, `truncate` on the name, and tags wrapping below).
+- [ ] T053 [US3] Update `src/app/(private)/students/student-row.tsx` to show tag `Badge`s (wrapping, small, `aria-label="Tags"` list). Make sure the row stays within 375px (`min-w-0`, `truncate` on the name, and tags wrapping below).
 
 **Checkpoint**: US1–US3 pass, and the list is usable at 375px.
 
@@ -372,25 +380,25 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 4 (write first, they must fail)
 
-- [ ] T053 [P] [US4] Add `test.describe('US4 edit a student')` to `e2e/students.spec.ts`, covering spec US4 AC1–AC4:
+- [ ] T054 [P] [US4] Add `test.describe('US4 edit a student')` to `e2e/students.spec.ts`, covering spec US4 AC1–AC4:
   - AC1: change a seeded child's level "Year 10" → "GCSE", and the list shows "GCSE".
   - AC2: seeded adult Daniel Hughes with an email and phone. Choose Child → `type-switch-confirm` appears. Confirm, pick Taylor and save. Reopening shows no Last name/Email/Phone, and `contact-details` shows Sarah Taylor. Verify via `adminClient` that `last_name`, `email` and `phone` are `null` (FR-013: deleted, not hidden).
   - AC3: switch a child to Adult. The family is kept, and saving without a last name shows "Enter a last name.".
   - AC4: edit the first name, click "Cancel", and the list still shows the old name.
-- [ ] T054 [P] [US4] Extend `src/app/(private)/students/student-form.test.tsx`:
+- [ ] T055 [P] [US4] Extend `src/app/(private)/students/student-form.test.tsx`:
   - Switching Adult → Child when last name, email or phone hold values opens `type-switch-confirm` with the text "Last name, email and phone will be removed. A family is required."
   - "Cancel" keeps Adult and its values. "Remove and switch" sets Child and clears the values.
   - Switching when those fields are empty switches immediately.
 
 ### Implementation for User Story 4
 
-- [ ] T055 [US4] Create `src/app/(private)/students/type-switch-confirm.tsx`, using shadcn `AlertDialog` (`data-testid="type-switch-confirm"`), title "Switch to child?", body "Last name, email and phone will be removed. A family is required.", actions "Cancel" and "Remove and switch".
-- [ ] T056 [US4] Update `src/app/(private)/students/student-form.tsx`:
+- [ ] T056 [US4] Create `src/app/(private)/students/type-switch-confirm.tsx`, using shadcn `AlertDialog` (`data-testid="type-switch-confirm"`), title "Switch to child?", body "Last name, email and phone will be removed. A family is required.", actions "Cancel" and "Remove and switch".
+- [ ] T057 [US4] Update `src/app/(private)/students/student-form.tsx`:
   - **Intercept type changes:** if Adult → Child and any of `lastName`/`email`/`phone` is non-empty, open `TypeSwitchConfirm`. On confirm, `setValue('type', 'child')` and `setValue` those fields to `''`. On cancel, leave everything unchanged.
   - **Child → Adult:** keep `familyId`.
   - **Edit mode** (`student` prop present): prefill `defaultValues` from `StudentDetail`, include the hidden `id`, and title the page "Edit student".
   - **Focus:** keep the default RHF `shouldFocusError` so focus moves to the first invalid field.
-- [ ] T057 [US4] Update `src/app/(private)/students/actions.ts`. On update, also call `revalidatePath(`/students/${id}`)`. Make sure `P0002` from `save_student` calls `notFound()` (FR-026), and that a duplicate-name clash caused by an edit, type change or family change returns the `firstName` field error (FR-016).
+- [ ] T058 [US4] Update `src/app/(private)/students/actions.ts`. On update, also call `revalidatePath(`/students/${id}`)`. Make sure `P0002` from `save_student` calls `notFound()` (FR-026), and that a duplicate-name clash caused by an edit, type change or family change returns the `firstName` field error (FR-016).
 
 **Checkpoint**: All P1 stories (US1–US4) are complete. This is the MVP.
 
@@ -404,23 +412,23 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 5 (write first, they must fail)
 
-- [ ] T058 [P] [US5] Write `e2e/families-tags.spec.ts` with `test.describe('US5 manage families')`, covering spec US5 AC1–AC4 and SC-004:
+- [ ] T059 [P] [US5] Write `e2e/families-tags.spec.ts` with `test.describe('US5 manage families')`, covering spec US5 AC1–AC4 and SC-004:
   - AC1: on `/families`, "Add family" Smith/"Jo Smith" → appears in `family-list`, then appears as an option in `family-picker` on `/students/new`.
   - AC2: family Taylor with seeded children Emily and Oliver → `family-students` lists both, and each link opens `/students/<id>`.
   - AC3: `family-delete` on Taylor shows "Move or remove this family's students first." and the family remains.
   - AC4: deleting an empty family after confirming removes it from the list.
   - SC-004: change Taylor's phone to `07700 900999`, and Emily's `contact-details` shows it.
-- [ ] T059 [P] [US5] Write `src/app/(private)/families/family-form.test.tsx`: the labels render, required errors appear ("Enter a family name.", "Enter a contact name."), and with `intent="inline"` a mocked SUCCESS calls `onSaved` with the payload.
+- [ ] T060 [P] [US5] Write `src/app/(private)/families/family-form.test.tsx`: the labels render, required errors appear ("Enter a family name.", "Enter a contact name."), and with `intent="inline"` a mocked SUCCESS calls `onSaved` with the payload.
 
 ### Implementation for User Story 5
 
-- [ ] T060 [US5] Add `getFamily(id)` to `src/app/(private)/families/data.ts`. It returns `FamilyDetail { id, name, contactName, contactEmail, contactPhone, students: { id, displayName, type }[] }`, or `null` when there's no row.
-- [ ] T061 [US5] Add `deleteFamily(state, formData)` to `src/app/(private)/families/actions.ts`. It first counts students with `family_id = id`. If there are any, it returns `toFormState('ERROR', "Move or remove this family's students first.")` without attempting the delete (FR-022, R14). Otherwise it deletes by `id`, and a race-condition `23503` maps to the same message via `mapDbError`. On success, `revalidatePath('/families')` and `redirect('/families')`.
-- [ ] T062 [P] [US5] Create `src/app/(private)/families/family-row.tsx` and `src/app/(private)/families/page.tsx`:
+- [ ] T061 [US5] Add `getFamily(id)` to `src/app/(private)/families/data.ts`. It returns `FamilyDetail { id, name, contactName, contactEmail, contactPhone, students: { id, displayName, type }[] }`, or `null` when there's no row.
+- [ ] T062 [US5] Add `deleteFamily(state, formData)` to `src/app/(private)/families/actions.ts`. It first counts students with `family_id = id`. If there are any, it returns `toFormState('ERROR', "Move or remove this family's students first.")` without attempting the delete (FR-022, R14). Otherwise it deletes by `id`, and a race-condition `23503` maps to the same message via `mapDbError`. On success, `revalidatePath('/families')` and `redirect('/families')`.
+- [ ] T063 [P] [US5] Create `src/app/(private)/families/family-row.tsx` and `src/app/(private)/families/page.tsx`:
   - **Page:** an async page calling `listFamilies()` and rendering an "Add family" link to `/families/new`, a `<ul data-testid="family-list">` of `family-row` links (`data-testid="family-row"`) showing the name, contact name and "n students", and an empty state "No families yet".
   - **Mobile:** contents fit 375px.
-- [ ] T063 [P] [US5] Create `src/app/(private)/families/new/page.tsx`, rendering `<FamilyForm />` in the same container as `students/new`.
-- [ ] T064 [US5] Create `src/app/(private)/families/[id]/page.tsx`:
+- [ ] T064 [P] [US5] Create `src/app/(private)/families/new/page.tsx`, rendering `<FamilyForm />` in the same container as `students/new`.
+- [ ] T065 [US5] Create `src/app/(private)/families/[id]/page.tsx`:
   - Await `params` and call `getFamily`. If it's `null`, call `notFound()`.
   - Render `<FamilyForm family={…} />` and a `<section data-testid="family-students">` heading "Students" listing linked students (links to `/students/<id>`).
   - Render a delete control (`data-testid="family-delete"`) as an `ActionForm` around `deleteFamily`, preceded by an `AlertDialog` "Delete this family?". Show `FormMessage` for the blocked case.
@@ -437,7 +445,7 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 6 (write first, they must fail)
 
-- [ ] T065 [P] [US6] Add `test.describe('US6 manage tags')` to `e2e/families-tags.spec.ts`, covering spec US6 AC1–AC4:
+- [ ] T066 [P] [US6] Add `test.describe('US6 manage tags')` to `e2e/families-tags.spec.ts`, covering spec US6 AC1–AC4:
   - AC1: on a student, type "Exam soon" in `tag-picker` and choose "Create 'Exam soon'". Save, and the row shows the tag.
   - AC2: seed "Yr 11" on 5 students. On `/students/tags`, rename it via `tag-rename` to "Year 11", and all 5 rows show "Year 11".
   - AC3: `tag-delete` on a tag used by 3 students and confirm. The tag disappears from `tag-list` and from those rows, and the students remain.
@@ -445,18 +453,18 @@ Write each story's tests first and check they fail before implementing.
 
   Also: renaming to an existing name shows "You already have a tag with this name.".
 
-- [ ] T066 [P] [US6] Write `src/app/(private)/students/tag-picker.test.tsx`, mocking `createTag`: choosing "Create 'Exam soon'" calls `createTag('Exam soon')` and adds the returned tag to the selection. Selected tags render hidden `tagIds` inputs. An `{ ok: false }` result shows the error text. The hint "For organising your list, e.g. Year 11. Don't add health or personal details." is visible and linked to the input with `aria-describedby` (FR-024).
+- [ ] T067 [P] [US6] Write `src/app/(private)/students/tag-picker.test.tsx`, mocking `createTag`: choosing "Create 'Exam soon'" calls `createTag('Exam soon')` and adds the returned tag to the selection. Selected tags render hidden `tagIds` inputs. An `{ ok: false }` result shows the error text. The hint "For organising your list, e.g. Year 11. Don't add health or personal details." is visible and linked to the input with `aria-describedby` (FR-024).
 
 ### Implementation for User Story 6
 
-- [ ] T067 [US6] Create `src/app/(private)/students/tags/actions.ts` (`'use server'`) with three actions:
+- [ ] T068 [US6] Create `src/app/(private)/students/tags/actions.ts` (`'use server'`) with three actions:
   - **`createTag(name: string): Promise<{ ok: true; tag: { id: string; name: string } } | { ok: false; error: string }>`**: validates with `tagNameSchema`, then calls `supabase.rpc('create_tag', { p_name })`, which returns the new or existing tag without raising on a duplicate (US6 AC4, R14). Then it calls `revalidatePath('/students/tags')`.
   - **`renameTag(state, formData)`**: validates with `renameTagSchema` and calls `supabase.rpc('rename_tag', { p_id, p_name })`. A `tags_tutor_name_unique` error returns the `name` field error via `mapDbError`, then calls `revalidatePath('/students')` and `revalidatePath('/students/tags')`.
   - **`deleteTag(state, formData)`**: cascade removes the links (FR-025). Revalidates the same paths.
-- [ ] T068 [US6] Create `src/app/(private)/students/tag-picker.tsx` (`'use client'`), using `ComboboxField` with `multiple`, `name="tagIds"`, label "Tags (optional)" and `data-testid="tag-picker"`. Options come from `listTags()` passed as props. `onCreate` calls `createTag` and appends the result to options and value. Selected tags show as removable chips with an accessible "Remove tag <name>" button. Under the field it shows the hint "For organising your list, e.g. Year 11. Don't add health or personal details.", linked with `aria-describedby` (FR-024, constitution IV).
-- [ ] T069 [US6] Update `src/app/(private)/students/student-form.tsx` to render `<TagPicker tags={…} />` before Notes, prefilled from `student.tagIds`. Update `src/app/(private)/students/new/page.tsx` and `src/app/(private)/students/[id]/page.tsx` to load `listTags()` alongside families with `Promise.all`.
-- [ ] T070 [US6] Create `src/app/(private)/students/tags/tag-row.tsx` (`'use client'`). It has `data-testid="tag-row"` and shows the name and "n students". A "Rename" button (`data-testid="tag-rename"`) switches to an inline `ActionForm` around `renameTag` with a "Tag name" field. A "Delete" button (`data-testid="tag-delete"`) opens an `AlertDialog` ("Delete '<name>'? It will be removed from n students.") that submits `deleteTag`.
-- [ ] T071 [US6] Create `src/app/(private)/students/tags/page.tsx`, an async page calling `listTags()` that renders `<ul data-testid="tag-list">` of `TagRow`s, with an empty state "No tags yet: add them from a student's form".
+- [ ] T069 [US6] Create `src/app/(private)/students/tag-picker.tsx` (`'use client'`), using `ComboboxField` with `multiple`, `name="tagIds"`, label "Tags (optional)" and `data-testid="tag-picker"`. Options come from `listTags()` passed as props. `onCreate` calls `createTag` and appends the result to options and value. Selected tags show as removable chips with an accessible "Remove tag <name>" button. Under the field it shows the hint "For organising your list, e.g. Year 11. Don't add health or personal details.", linked with `aria-describedby` (FR-024, constitution IV).
+- [ ] T070 [US6] Update `src/app/(private)/students/student-form.tsx` to render `<TagPicker tags={…} />` before Notes, prefilled from `student.tagIds`. Update `src/app/(private)/students/new/page.tsx` and `src/app/(private)/students/[id]/page.tsx` to load `listTags()` alongside families with `Promise.all`.
+- [ ] T071 [US6] Create `src/app/(private)/students/tags/tag-row.tsx` (`'use client'`). It has `data-testid="tag-row"` and shows the name and "n students". A "Rename" button (`data-testid="tag-rename"`) switches to an inline `ActionForm` around `renameTag` with a "Tag name" field. A "Delete" button (`data-testid="tag-delete"`) opens an `AlertDialog` ("Delete '<name>'? It will be removed from n students.") that submits `deleteTag`.
+- [ ] T072 [US6] Create `src/app/(private)/students/tags/page.tsx`, an async page calling `listTags()` that renders `<ul data-testid="tag-list">` of `TagRow`s, with an empty state "No tags yet: add them from a student's form".
 
 **Checkpoint**: All six stories work on their own.
 
@@ -464,16 +472,16 @@ Write each story's tests first and check they fail before implementing.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T072 [P] Write `e2e/isolation.spec.ts` (FR-026, SC-005). Tutor A (via `newTutor`) creates a student and a family. Tutor B, in a second context via `newTutor`, opens A's `/students/<id>` and `/families/<id>` and sees the not-found page. B's `/students` doesn't list A's student.
-- [ ] T073 [P] Write `e2e/mobile-layout.spec.ts`. For `/students`, `/students/new`, `/students/<id>`, `/students/tags`, `/families`, `/families/new` and `/families/<id>`, assert `document.documentElement.scrollWidth - clientWidth <= 0`, using the same check as `e2e/auth.spec.ts` (FR-029, SC-006).
-- [ ] T074 Add `@axe-core/playwright` as a devDependency (already justified in plan.md Complexity Tracking). Extend `e2e/mobile-layout.spec.ts` to run `new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze()` on each route and expect no violations.
-- [ ] T075 [P] Privacy audit (FR-015, FR-027, R14).
+- [ ] T073 [P] Write `e2e/isolation.spec.ts` (FR-026, SC-005). Tutor A (via `newTutor`) creates a student and a family. Tutor B, in a second context via `newTutor`, opens A's `/students/<id>` and `/families/<id>` and sees the not-found page. B's `/students` doesn't list A's student.
+- [ ] T074 [P] Write `e2e/mobile-layout.spec.ts`. For `/students`, `/students/new`, `/students/<id>`, `/students/tags`, `/families`, `/families/new` and `/families/<id>`, assert `document.documentElement.scrollWidth - clientWidth <= 0`, using the same check as `e2e/auth.spec.ts` (FR-029, SC-006).
+- [ ] T075 Add `@axe-core/playwright` as a devDependency (already justified in plan.md Complexity Tracking). Extend `e2e/mobile-layout.spec.ts` to run `new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze()` on each route and expect no violations.
+- [ ] T076 [P] Privacy audit (FR-015, FR-027, R14).
   - Run `grep -rn "console\." src/app/(private)/students src/app/(private)/families src/utils/db-errors.ts src/hooks/use-action-form.ts` and confirm the only logging is `mapDbError`'s `{ action, code }`.
   - Confirm no `payload` echo includes notes beyond the form's own round trip.
   - With the local stack, trigger a duplicate student name, reuse an existing tag, and rename a tag onto an existing name. Then run `docker logs supabase_db_mytutorhour 2>&1 | grep -i -E "emily|online"` and confirm there are no matches.
-- [ ] T076 [P] Add the new commands to `CLAUDE.md` under Commands: `npx supabase start`, `npx supabase db reset`, `npx supabase test db` (pgTAP RLS tests) and `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`. Note that E2E needs the local stack and `SUPABASE_SECRET_KEY` in `.env.local` (test-only use).
-- [ ] T077 Run every gate and fix any failures: `npm run lint`, `npm run check-types`, `npm run test:unitRun`, `npx supabase test db` and `npm run test:e2e` (all four projects).
-- [ ] T078 Walk through [quickstart.md](./quickstart.md) at 375px (steps 1–9 and the privacy spot check), and time step 2 against SC-001 (< 90 s). For SC-006, complete the core flows (add child with new family, add adult, edit and switch type, manage tags) using only the keyboard, and again with VoiceOver (macOS Safari or iOS). Labels, errors, the family dialog, comboboxes and the confirm dialog must all be announced and operable.
+- [ ] T077 [P] Add the new commands to `CLAUDE.md` under Commands: `npx supabase start`, `npx supabase db reset`, `npx supabase test db` (pgTAP RLS tests) and `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`. Note that E2E needs the local stack and `SUPABASE_SECRET_KEY` in `.env.local` (test-only use).
+- [ ] T078 Run every gate and fix any failures: `npm run lint`, `npm run check-types`, `npm run test:unitRun`, `npx supabase test db` and `npm run test:e2e` (all four projects).
+- [ ] T079 Walk through [quickstart.md](./quickstart.md) at 375px (steps 1–9 and the privacy spot check), and time step 2 against SC-001 (< 90 s). For SC-006, complete the core flows (add child with new family, add adult, edit and switch type, manage tags) using only the keyboard, and again with VoiceOver (macOS Safari or iOS). Labels, errors, the family dialog, comboboxes and the confirm dialog must all be announced and operable.
 
 ---
 
@@ -482,7 +490,7 @@ Write each story's tests first and check they fail before implementing.
 ### Phase dependencies
 
 - **Setup (Phase 1)**: none.
-- **Foundational (Phase 2)**: depends on Setup and blocks every story. T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 must run in that order (same migration, then generated types). T012–T022 can run in parallel after T010/T011. T023 needs T001 and T003. T024 needs T023.
+- **Foundational (Phase 2)**: depends on Setup and blocks every story. T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 must run in that order (same migration, then generated types). T012–T022 can run in parallel after T010/T011. T023 needs T001 and T003. T024 needs T023. T025 needs T016 and T023 (it changes the field components and the fixture).
 - **User stories (Phases 3–8)**: all depend on Phase 2.
 - **Polish (Phase 9)**: after the stories you plan to ship.
 
@@ -523,15 +531,15 @@ T017 use-action-form.ts            T018 form-message.tsx
 ### User Story 1
 
 ```text
-Tests:  T025 e2e/students.spec.ts   T026 student-form.test.tsx   T027 mappers.test.ts
-Impl:   T028 mappers.ts             T029 families/data.ts
-then:   T030 → T031 → T032 (families), T033 → T034 (students), then T035 → T036 → T037–T039
+Tests:  T026 e2e/students.spec.ts   T027 student-form.test.tsx   T028 mappers.test.ts
+Impl:   T029 mappers.ts             T030 families/data.ts
+then:   T031 → T032 → T033 (families), T034 → T035 (students), then T036 → T037 → T038–T040
 ```
 
 ### After US1 (one developer each)
 
 ```text
-US2 (T040–T044)    US3 (T045–T052)    US5 (T058–T064)
+US2 (T041–T045)    US3 (T046–T053)    US5 (T059–T065)
 ```
 
 ---
