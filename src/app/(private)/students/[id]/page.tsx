@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { StudentForm } from '../../../../components/form-student/form';
-import { listFamilies } from '../../families/data';
+import { listFamilies } from '@/services/db/family';
+import { StudentForm } from '@/components/form-student/form';
 import { getStudent } from '../data';
 
 type Props = { params: Promise<{ id: string }> };

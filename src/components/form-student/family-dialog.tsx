@@ -2,7 +2,7 @@
 
 import { type RefObject } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FamilyForm, type SavedFamily } from './family-form';
+import { FamilyForm, type SavedFamily } from '../form-family/form';
 
 type Props = {
   open: boolean;

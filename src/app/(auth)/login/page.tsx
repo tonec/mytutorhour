@@ -1,7 +1,7 @@
 import { routes } from '@/config/routes';
 import Link from 'next/link';
+import { LoginForm } from '@/components/form-login/form';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { LoginForm } from './login-form';
 
 export default function LoginPage() {
   return (

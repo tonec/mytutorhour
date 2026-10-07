@@ -1,7 +1,7 @@
 import { routes } from '@/config/routes';
 import Link from 'next/link';
+import { SignUpForm } from '@/components/form-signup/form';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { SignUpForm } from './signup-form';
 
 export default function SignupPage() {
   return (
