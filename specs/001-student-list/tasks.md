@@ -240,7 +240,7 @@ Write each story's tests first and check they fail before implementing.
 
 ### Tests for User Story 1 (write first, they must fail)
 
-- [ ] T026 [P] [US1] Write E2E tests in `e2e/students.spec.ts` (`test.describe('US1 add a child')`, using the `tutor` fixture) covering spec US1 AC1–AC5:
+- [X] T026 [P] [US1] Write E2E tests in `e2e/students.spec.ts` (`test.describe('US1 add a child')`, using the `tutor` fixture) covering spec US1 AC1–AC5:
   - AC1: Emily (GCSE, Maths) with a new family "Taylor", contact "Sarah Taylor", email `sarah.taylor@example.test`, phone `07700 900123` → `student-row` shows Emily, `student-type-badge` "Child", and "Taylor". Opening the row shows Sarah Taylor's email and phone in `contact-details`.
   - AC2: with Child selected there is no "Last name", "Email" or "Phone" field, and saving without a family shows "Choose or add a family."
   - AC3: Oliver added to the existing Taylor family shows the same contact.
@@ -250,35 +250,35 @@ Write each story's tests first and check they fail before implementing.
 
   Also add a no-horizontal-scroll check on `/students/new`, as in `e2e/auth.spec.ts`.
 
-- [ ] T027 [P] [US1] Write component tests in `src/app/(private)/students/student-form.test.tsx`, mocking `./actions`, `../families/actions` and `next/navigation`:
+- [X] T027 [P] [US1] Write component tests in `src/app/(private)/students/student-form.test.tsx`, mocking `./actions`, `../families/actions` and `next/navigation`:
   - Child is the default type, and no last-name, email or phone inputs render.
   - Submitting without a family shows "Choose or add a family." and doesn't call `saveStudent`.
   - Choosing `family-picker-add-new` opens `family-dialog`. A mocked `saveFamily` SUCCESS with `payload { id, name: 'Taylor', contactName: 'Sarah Taylor' }` closes the dialog and selects Taylor.
   - The notes counter shows `0/2000`.
   - FR-017: when mocked `saveStudent` rejects (network error), the form shows the network error and the typed first name, subject, level and notes are still in their inputs.
   - When mocked `saveStudent` returns a server `firstName` field error, the error shows under First name and First name has focus.
-- [ ] T028 [P] [US1] Write tests for pure mappers in `src/app/(private)/students/mappers.test.ts`:
+- [X] T028 [P] [US1] Write tests for pure mappers in `src/app/(private)/students/mappers.test.ts`:
   - `toStudentListItem` (child `displayName` = first name, `familyName` set)
   - `toStudentDetail` (child `contact` = family `contactName`/`contactEmail`/`contactPhone`; child whose family has no email or phone → `contact.isEmpty = true`)
 
 ### Implementation for User Story 1
 
-- [ ] T029 [P] [US1] Create `src/app/(private)/students/mappers.ts` with the types `StudentListItem` (`id`, `type`, `displayName`, `familyId`, `familyName`, `subject`, `level`, `tags: { id; name }[]`) and `StudentDetail` (all editable fields plus `contact: { source: 'family' | 'student'; name?; email?; phone?; isEmpty }`, `familyName` and `tagIds`). Add the pure functions `toStudentListItem(row)` and `toStudentDetail(row)` over the generated `Database` row types with an embedded `families(...)` and `student_tags(tags(id, name))`. Handle the child branch here; US2 adds the adult branch.
-- [ ] T030 [P] [US1] Create `src/app/(private)/families/data.ts` with `listFamilies()`: select `id, name, contact_name, students(count)` ordered by name. Return `FamilyListItem { id, name, contactName, studentCount }` sorted with `localeCompare(…, 'en-GB', { sensitivity: 'base' })`.
-- [ ] T031 [US1] Create `src/app/(private)/families/actions.ts` (`'use server'`) with `saveFamily(state, formData)`:
+- [X] T029 [P] [US1] Create `src/app/(private)/students/mappers.ts` with the types `StudentListItem` (`id`, `type`, `displayName`, `familyId`, `familyName`, `subject`, `level`, `tags: { id; name }[]`) and `StudentDetail` (all editable fields plus `contact: { source: 'family' | 'student'; name?; email?; phone?; isEmpty }`, `familyName` and `tagIds`). Add the pure functions `toStudentListItem(row)` and `toStudentDetail(row)` over the generated `Database` row types with an embedded `families(...)` and `student_tags(tags(id, name))`. Handle the child branch here; US2 adds the adult branch.
+- [X] T030 [P] [US1] Create `src/app/(private)/families/data.ts` with `listFamilies()`: select `id, name, contact_name, students(count)` ordered by name. Return `FamilyListItem { id, name, contactName, studentCount }` sorted with `localeCompare(…, 'en-GB', { sensitivity: 'base' })`.
+- [X] T031 [US1] Create `src/app/(private)/families/actions.ts` (`'use server'`) with `saveFamily(state, formData)`:
   1. Parse `familySchema` and insert or update `families` (`name`, `contact_name`, `contact_email`, `contact_phone`), mapping errors via `mapDbError`.
   2. When `intent === 'inline'`, return `toFormState('SUCCESS', 'Family added.', { id, name, contactName })` with no redirect.
   3. Otherwise `revalidatePath('/families')`, `revalidatePath('/students')`, then `redirect(`/families/${id}`)`.
-- [ ] T032 [US1] Create `src/app/(private)/families/family-form.tsx` (`'use client'`), using `useActionForm({ schema: familySchema, action: saveFamily, defaultValues })`, `data-testid="family-form"`, `FormField`s labelled "Family name", "Contact name", "Contact email (optional)" and "Contact phone (optional)", a hidden `id` and `intent`, `FormMessage` and a full-width submit button. It takes the props `family?`, `intent?: 'inline'` and `onSaved?(payload)`, and calls `onSaved` when `actionState.status === 'SUCCESS'` and the intent is inline.
-- [ ] T033 [US1] Create `src/app/(private)/families/family-dialog.tsx`: a shadcn `Dialog` (`data-testid="family-dialog"`, title "Add family") rendering `<FamilyForm intent="inline" onSaved={…} />` in a portal (not nested inside the student `<form>`). It takes `open`, `onOpenChange` and `onCreated({ id, name, contactName })`, and returns focus to `family-picker` on close.
-- [ ] T034 [US1] Create `src/app/(private)/students/actions.ts` (`'use server'`) with `saveStudent(state, formData)`:
+- [X] T032 [US1] Create `src/app/(private)/families/family-form.tsx` (`'use client'`), using `useActionForm({ schema: familySchema, action: saveFamily, defaultValues })`, `data-testid="family-form"`, `FormField`s labelled "Family name", "Contact name", "Contact email (optional)" and "Contact phone (optional)", a hidden `id` and `intent`, `FormMessage` and a full-width submit button. It takes the props `family?`, `intent?: 'inline'` and `onSaved?(payload)`, and calls `onSaved` when `actionState.status === 'SUCCESS'` and the intent is inline.
+- [X] T033 [US1] Create `src/app/(private)/families/family-dialog.tsx`: a shadcn `Dialog` (`data-testid="family-dialog"`, title "Add family") rendering `<FamilyForm intent="inline" onSaved={…} />` in a portal (not nested inside the student `<form>`). It takes `open`, `onOpenChange` and `onCreated({ id, name, contactName })`, and returns focus to `family-picker` on close.
+- [X] T034 [US1] Create `src/app/(private)/students/actions.ts` (`'use server'`) with `saveStudent(state, formData)`:
   1. `studentSchema.parse(studentFormDataToInput(formData))`.
   2. `supabase.rpc('save_student', { p_id, p_type, p_first_name, p_last_name, p_family_id, p_subject, p_level, p_exam_board, p_notes, p_email, p_phone, p_tag_ids })`.
   3. Map errors with `mapDbError(error, 'saveStudent')`: a field error → `toFieldErrorState`, `notFound` → `notFound()`, form → `toFormState('ERROR', …, payload)`. Echo submitted strings as `payload` so values survive no-JS failures (FR-017).
   4. On success, `revalidatePath('/students')`, `revalidatePath('/families/[id]', 'page')`, then `redirect('/students')`.
-- [ ] T035 [US1] Create `src/app/(private)/students/data.ts`, exporting `listStudents()` and `getStudent(id)`. Both use the server client to select students with `families(id, name, contact_name, contact_email, contact_phone)` and `student_tags(tags(id, name))`, mapped through `mappers.ts`. `getStudent` returns `null` when no row (another tutor's or missing). Only server modules import this file.
-- [ ] T036 [US1] Create `src/app/(private)/students/family-picker.tsx` (`'use client'`) using `ComboboxField` (`name="familyId"`, label "Family", `data-testid="family-picker"`). It lists families as "Name (Contact name)" with `extraOption` "Add new family…" (`data-testid="family-picker-add-new"`), which opens `FamilyDialog`. `onCreated` appends the new family to local options and calls `setValue('familyId', id, { shouldValidate: true })`.
-- [ ] T037 [US1] Create `src/app/(private)/students/student-form.tsx` (`'use client'`), using `useActionForm({ schema: studentSchema, action: saveStudent, defaultValues })`, `data-testid="student-form"`, and fields in this order:
+- [X] T035 [US1] Create `src/app/(private)/students/data.ts`, exporting `listStudents()` and `getStudent(id)`. Both use the server client to select students with `families(id, name, contact_name, contact_email, contact_phone)` and `student_tags(tags(id, name))`, mapped through `mappers.ts`. `getStudent` returns `null` when no row (another tutor's or missing). Only server modules import this file.
+- [X] T036 [US1] Create `src/app/(private)/students/family-picker.tsx` (`'use client'`) using `ComboboxField` (`name="familyId"`, label "Family", `data-testid="family-picker"`). It lists families as "Name (Contact name)" with `extraOption` "Add new family…" (`data-testid="family-picker-add-new"`), which opens `FamilyDialog`. `onCreated` appends the new family to local options and calls `setValue('familyId', id, { shouldValidate: true })`.
+- [X] T037 [US1] Create `src/app/(private)/students/student-form.tsx` (`'use client'`), using `useActionForm({ schema: studentSchema, action: saveStudent, defaultValues })`, `data-testid="student-form"`, and fields in this order:
   - `RadioGroupField` "Student type" (`data-testid="student-type"`, options Child/Adult, default `child`)
   - "First name"
   - `FamilyPicker` (child: required)
@@ -289,9 +289,9 @@ Write each story's tests first and check they fail before implementing.
 
   Props: `student?: StudentDetail` and `families: FamilyListItem[]`. Adult-only fields come in US2.
 
-- [ ] T038 [US1] Create `src/app/(private)/students/new/page.tsx` (async Server Component) that loads `listFamilies()` and renders `<StudentForm families={…} />` in a mobile-first container (`max-w-xl`, `px-4`).
-- [ ] T039 [US1] Create `src/app/(private)/students/[id]/page.tsx`, which awaits `params` (Promise) and calls `getStudent(id)`. If it's `null`, call `notFound()`. Otherwise render `<StudentForm student={…} families={…} />` (this also supports edits used later by US4).
-- [ ] T040 [US1] Create `src/app/(private)/students/student-row.tsx` and `src/app/(private)/students/student-list.tsx`:
+- [X] T038 [US1] Create `src/app/(private)/students/new/page.tsx` (async Server Component) that loads `listFamilies()` and renders `<StudentForm families={…} />` in a mobile-first container (`max-w-xl`, `px-4`).
+- [X] T039 [US1] Create `src/app/(private)/students/[id]/page.tsx`, which awaits `params` (Promise) and calls `getStudent(id)`. If it's `null`, call `notFound()`. Otherwise render `<StudentForm student={…} families={…} />` (this also supports edits used later by US4).
+- [X] T040 [US1] Create `src/app/(private)/students/student-row.tsx` and `src/app/(private)/students/student-list.tsx`:
   - **Row:** a link to `/students/<id>` with `data-testid="student-row"`, showing `displayName`, a `Badge` "Child"/"Adult" (`data-testid="student-type-badge"`), the family name, and "subject · level".
   - **List:** a `<ul data-testid="student-list">`.
 

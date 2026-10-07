@@ -134,8 +134,9 @@ export function ComboboxField({
               onValueChange={(next) =>
                 handleChange(next as ComboboxOption | ComboboxOption[] | null)
               }
-              inputValue={inputValue}
-              onInputValueChange={setInputValue}
+              // Only track the typed text when it's needed to offer "Create '…'"; otherwise
+              // Base UI keeps the input showing the selected option, including one set in code.
+              {...(onCreate ? { inputValue, onInputValueChange: setInputValue } : {})}
               itemToStringLabel={(option: ComboboxOption) => option.label}
               itemToStringValue={(option: ComboboxOption) => option.value}
               isItemEqualToValue={(a: ComboboxOption, b: ComboboxOption) => a.value === b.value}
