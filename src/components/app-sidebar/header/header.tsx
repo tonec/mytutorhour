@@ -2,10 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/app-sidebar-header/logo';
-import { Notifications } from '@/components/notifications/notifications';
+import { Notifications } from '@/components/app-sidebar/notifications/notifications';
 import { useSidebar } from '@/components/ui/sidebar';
 import { SidebarHeader, SidebarTrigger } from '@/components/ui/sidebar';
+import { Logo } from './logo';
 
 const sampleNotifications = [
   {

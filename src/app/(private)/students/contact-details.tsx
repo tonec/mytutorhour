@@ -28,7 +28,7 @@ export function ContactDetails({ heading, contact, emptyMessage }: Props) {
           {contact.email ? (
             <>
               <dt className="text-muted-foreground">Email</dt>
-              <dd className="min-w-0 break-words">{contact.email}</dd>
+              <dd className="min-w-0 wrap-break-word">{contact.email}</dd>
             </>
           ) : null}
           {contact.phone ? (

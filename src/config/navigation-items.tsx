@@ -1,5 +1,5 @@
 import { BanknoteArrowDown, Calendar, CreditCard, Home, Users } from 'lucide-react';
-import type { NavigationItem } from '@/components/navigation/types';
+import type { NavigationItem } from '@/components/app-sidebar/navigation/types';
 import { routes } from './routes';
 
 export const navigationItems: NavigationItem[] = [

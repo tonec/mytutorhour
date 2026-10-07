@@ -1,8 +1,8 @@
 import { navigationItems } from '@/config/navigation-items';
 import { Sidebar, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
-import { UserMenu } from '@/components/user-menu/user-menu';
-import { AppSidebarHeader } from '../app-sidebar-header/header';
-import { Navigation } from '../navigation/navigation';
+import { AppSidebarHeader } from './header/header';
+import { Navigation } from './navigation/navigation';
+import { UserMenu } from './user-menu/user-menu';
 
 export function DashboardSidebar() {
   return (
