@@ -37,7 +37,7 @@ describe('Navigation', () => {
     renderAt('/dashboard');
 
     // Assert
-    expect(currentLinks()).toEqual([screen.getByRole('link', { name: 'Home' })]);
+    expect(currentLinks()).toEqual([screen.getByRole('link', { name: 'Dashboard' })]);
   });
 
   it('expands the group and marks the sub-link as current on a nested page', () => {

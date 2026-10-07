@@ -5,7 +5,7 @@ import { routes } from './routes';
 export const navigationItems: NavigationItem[] = [
   {
     type: 'prime',
-    id: 'home',
+    id: 'dashboard',
     title: routes.dashboard.title,
     icon: <Home className="size-4" />,
     link: routes.dashboard.url,
@@ -13,7 +13,7 @@ export const navigationItems: NavigationItem[] = [
   {
     type: 'sub',
     id: 'students',
-    title: routes.students.title,
+    title: 'Students & Families',
     icon: <Users className="size-4" />,
     subs: [
       {
