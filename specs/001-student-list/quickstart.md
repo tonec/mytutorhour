@@ -14,10 +14,12 @@ acceptance scenarios are in [spec.md](./spec.md).
 
 ```bash
 npx supabase start                 # local Postgres + Auth
-npx supabase db reset              # apply all migrations (incl. students/families/tags)
-npx supabase gen types typescript --local > src/lib/supabase/database.types.ts
+npm run db:reset                   # apply all migrations and load supabase/seed.sql
+npm run db:types                   # regenerate src/lib/supabase/database.types.ts
 npm run dev
 ```
+
+For exploring by hand, log in as the seeded tutor `tutor@example.test` / `password123`, who has 9 families, 25 students and 6 tags. The walkthrough below starts from a fresh sign-up instead, so it begins with an empty account.
 
 ## Automated checks (all must pass before merge)
 

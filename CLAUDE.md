@@ -23,7 +23,13 @@ npm run test:e2e          # Playwright E2E, all browser projects (starts or reus
 npm run test:e2e:ui       # Playwright UI mode for debugging
 npx playwright test --project=mobile   # one project: chromium | firefox | webkit | mobile
 npx playwright install    # one-off: download the browser binaries
+npx supabase start        # start the local Supabase stack (Docker)
+npm run db:reset          # local only: reapply migrations and load supabase/seed.sql
+npm run db:types          # regenerate src/lib/supabase/database.types.ts after a migration
+npx supabase test db      # pgTAP database tests (RLS and data rules)
 ```
+
+`supabase/seed.sql` creates a local test tutor, `tutor@example.test` / `password123`, with 9 families, 25 students (20 children, 5 adults) and 6 tags for manual testing. E2E tests don't use it: each test signs up its own throwaway tutor.
 
 Unit tests use Vitest + React Testing Library (`vitest.config.mts`, `vitest.setup.ts`), colocated as `src/**/*.test.ts(x)`. Tests import `describe`/`it`/`expect` from `vitest` explicitly (no globals). Vitest can't render `async` Server Components, so cover those with E2E tests.
 
