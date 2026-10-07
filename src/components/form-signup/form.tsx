@@ -1,12 +1,12 @@
 'use client';
 
 import { useActionForm } from '@/hooks/use-action-form';
+import { signupSchema } from '@/components/form-signup/schema';
 import { ActionForm } from '@/components/ui/action-form';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { signup } from './actions';
-import { signupSchema } from './schema';
 
 export function SignUpForm() {
   const signupForm = useActionForm({

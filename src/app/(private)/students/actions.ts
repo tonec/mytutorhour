@@ -6,7 +6,7 @@ import { type ActionState } from '@/utils/form';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { studentFormDataToInput, studentSchema } from './schema';
+import { studentFormDataToInput, studentSchema } from '@/components/form-student/schema';
 
 const FIELDS = [
   'id',

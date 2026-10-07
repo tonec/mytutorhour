@@ -13,10 +13,10 @@ import { RadioGroupField } from '@/components/ui/radio-group-field';
 import { TextareaField } from '@/components/ui/textarea-field';
 import type { FamilyListItem } from '../../app/(private)/families/data';
 import { saveStudent } from '../../app/(private)/students/actions';
-import { studentSchema } from '../../app/(private)/students/schema';
-import type { StudentDetail } from '../student-list/mappers';
+import type { StudentDetail } from '../list-student/mappers';
 import { ContactDetails } from './contact-details';
 import { FamilyPicker } from './family-picker';
+import { studentSchema } from './schema';
 
 const TYPE_OPTIONS = [
   { value: 'child', label: 'Child' },

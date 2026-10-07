@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { phoneSchema } from './phoneSchema';
+import { phoneSchema } from './phone-schema';
 
 describe('phoneSchema', () => {
   it.each(['07700 900123', '+44 7700 900123', '(020) 7946 0958', '+1-202-555-0143'])(

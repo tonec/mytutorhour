@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { DashboardSidebar } from '@/components/app-sidebar/app-sidebar';
-import { PageHeader } from '@/components/page-header/header';
+import { PageHeader } from '@/components/header-page/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default function PrivateLayout({ children }: PropsWithChildren) {

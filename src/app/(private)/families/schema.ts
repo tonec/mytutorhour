@@ -1,5 +1,5 @@
 import { optionalEmail, optionalUuid, requiredText } from '@/schema/fields';
-import { phoneSchema } from '@/schema/phoneSchema';
+import { phoneSchema } from '@/schema/phone/phone-schema';
 import { z } from 'zod';
 
 export const familySchema = z.object({

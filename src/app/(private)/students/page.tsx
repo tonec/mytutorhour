@@ -1,7 +1,7 @@
 import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
-import { StudentList } from '../../../components/student-list/student-list';
+import { StudentList } from '../../../components/list-student/student-list';
 import { listStudents } from './data';
 
 export default async function StudentsPage() {

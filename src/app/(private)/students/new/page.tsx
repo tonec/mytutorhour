@@ -1,4 +1,4 @@
-import { StudentForm } from '../../../../components/student-form/student-form';
+import { StudentForm } from '../../../../components/form-student/form';
 import { listFamilies } from '../../families/data';
 
 export default async function NewStudentPage() {

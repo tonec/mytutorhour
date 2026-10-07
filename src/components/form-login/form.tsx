@@ -1,12 +1,12 @@
 'use client';
 
 import { useActionForm } from '@/hooks/use-action-form';
+import { loginSchema } from '@/components/form-login/schema';
 import { ActionForm } from '@/components/ui/action-form';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { login } from './actions';
-import { loginSchema } from './schema';
 
 export function LoginForm() {
   const loginForm = useActionForm({

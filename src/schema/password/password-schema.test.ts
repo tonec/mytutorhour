@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { passwordSchema } from './passwordSchema';
+import { passwordSchema } from './password-schema';
 
 describe('passwordSchema', () => {
   it.each([8, 20])('accepts a password of %i characters', (length) => {

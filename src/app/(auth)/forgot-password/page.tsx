@@ -1,7 +1,7 @@
 import { routes } from '@/config/routes';
 import Link from 'next/link';
+import { ForgotPasswordForm } from '@/components/form-forgot-password/form';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { ForgotPasswordForm } from './forgot-password-form';
 
 export default function ForgotPasswordPage() {
   return (

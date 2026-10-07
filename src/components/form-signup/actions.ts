@@ -4,7 +4,7 @@ import { routes } from '@/config/routes';
 import { fromErrorToFormState, toFormState } from '@/utils/form';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { signupSchema } from './schema';
+import { signupSchema } from '@/components/form-signup/schema';
 
 export async function signup(initialState: unknown, formData: FormData) {
   const supabase = await createClient();

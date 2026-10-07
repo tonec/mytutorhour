@@ -1,4 +1,4 @@
-import { passwordSchema } from '@/schema/passwordSchema';
+import { passwordSchema } from '@/schema/password/password-schema';
 import { z } from 'zod';
 
 export const signupSchema = z

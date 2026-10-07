@@ -4,7 +4,7 @@ import { routes } from '@/config/routes';
 import { fromErrorToFormState, toFormState } from '@/utils/form';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { loginSchema } from './schema';
+import { loginSchema } from '@/components/form-login/schema';
 
 export async function login(initialState: unknown, formData: FormData) {
   const supabase = await createClient();
