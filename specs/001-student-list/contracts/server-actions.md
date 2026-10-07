@@ -38,7 +38,7 @@ Keys: `id?`, `name`, `contactName`, `contactEmail`, `contactPhone`, `intent?` (`
 ### `deleteFamily(state, formData)`
 
 Key: `id`. It counts linked students first. If there are any, it returns `ERROR` "Move or remove
-this family's students first." without attempting the delete (FR-022). `ON DELETE RESTRICT`
+this family's students first." without attempting the delete (FR-022). `ON DELETE NO ACTION`
 (`23503`) is the backstop for races and maps to the same message. On success it redirects to
 `/families`.
 

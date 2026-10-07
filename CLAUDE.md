@@ -32,7 +32,7 @@ E2E tests live in `e2e/*.spec.ts` (`playwright.config.ts`). They run against des
 ## Stack and code layout
 
 - **Next.js 16 App Router + React 19**, TypeScript strict, Tailwind CSS v4 (via `@tailwindcss/postcss`; no `tailwind.config`). Source lives in `src/`, and the `@/*` path alias maps to `src/*`. As AGENTS.md says, check `node_modules/next/dist/docs/` before using Next.js APIs.
-- **Supabase** (Postgres + Auth) and **Cloudflare R2** (file storage), hosted on Cloudflare via vinext. `src/lib/db.ts` and `src/lib/storage/client.ts` are empty placeholders for those clients. Every table needs row-level security scoped to `tutor_id = auth.uid()`. The Supabase service-role key is server-side only.
+- **Supabase** (Postgres + Auth) and **Cloudflare R2** (file storage), hosted on Cloudflare via vinext. `src/lib/db.ts` and `src/lib/storage/client.ts` are empty placeholders for those clients. Every table needs row-level security scoped to `tutor_id = auth.uid()`. The Supabase secret key (`sb_secret_…`, which replaces the legacy service-role key) is server-side only; app code never reads it, and only the E2E fixtures use it (as `SUPABASE_SECRET_KEY`).
 - Env files (`.env*`) are gitignored. Claude is denied read access to them in `.claude/settings.json`.
 - Formatting (`.prettierrc`): single quotes, semicolons, 100-column lines, ES5 trailing commas, LF line endings.
 

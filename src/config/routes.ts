@@ -21,9 +21,21 @@ export const routes = {
     url: '/students',
     title: 'Students',
   },
+  studentNew: {
+    url: '/students/new',
+    title: 'Add student',
+  },
+  studentTags: {
+    url: '/students/tags',
+    title: 'Tags',
+  },
   families: {
     url: '/families',
     title: 'Families',
+  },
+  familyNew: {
+    url: '/families/new',
+    title: 'Add family',
   },
   calendar: {
     url: '/calendar',
@@ -43,14 +55,14 @@ export const routes = {
   },
 } as const;
 
-const urlToTitleMap = Object.values(routes).reduce(
-  (acc, route) => {
-    acc[route.url] = route.title;
-    return acc;
-  },
-  {} as Record<string, string>
-);
+// Longest URLs first, so the most specific route wins when matching by prefix.
+const routesBySpecificity = Object.values(routes).toSorted((a, b) => b.url.length - a.url.length);
 
+// Exact match first; otherwise the longest route the path sits under, so a detail page such as
+// /students/<id> gets its section's title ("Students").
 export function getTitleByUrl(url: string): string | undefined {
-  return urlToTitleMap[url];
+  return (
+    routesBySpecificity.find((route) => route.url === url) ??
+    routesBySpecificity.find((route) => url.startsWith(`${route.url}/`))
+  )?.title;
 }

@@ -12,7 +12,8 @@ export function FormMessage({ actionState }: Props) {
           ? 'text-sm text-red-400 empty:sr-only'
           : 'text-sm empty:sr-only'
       }
-      aria-live="polite"
+      // Always mounted so new messages are announced as soon as they appear.
+      role="alert"
     >
       {actionState.message ? (
         <span

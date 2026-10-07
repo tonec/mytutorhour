@@ -11,7 +11,7 @@ NEEDS CLARIFICATION items remain.
   - **Isolation:** RLS on every table uses `(select auth.uid()) = tutor_id`. Composite foreign keys `(family_id, tutor_id)` and `(tag_id, tutor_id)` make it impossible to link a student to another tutor's family or tag.
   - **Child/adult shape:** check constraints. A child has no last name, email or phone and must have a family. An adult must have a last name.
   - **Duplicate names within a family:** a unique expression index.
-  - **Family delete:** `ON DELETE RESTRICT` blocks deleting a family that still has students.
+  - **Family delete:** `ON DELETE NO ACTION` (checked at the end of the statement, so deleting a tutor's account can still cascade) blocks deleting a family that still has students.
 - **Rationale**: Constitution IV requires that no query path bypasses isolation. FR-007, FR-013, FR-016 and FR-022 are integrity rules, and the database is the only place that holds them under every code path (form, RPC, future imports). The Zod schema gives the same rules as instant inline errors.
 - **Alternatives considered**: Application-only checks. Rejected because one missed check leaks or corrupts children's data. Triggers instead of constraints. Rejected because they are more code for the same guarantees.
 
@@ -90,11 +90,11 @@ NEEDS CLARIFICATION items remain.
     - composite foreign keys block linking another tutor's family or tag
     - the check constraints work
     - the duplicate-name index works
-    - `ON DELETE RESTRICT` works
+    - a family with students can't be deleted, and deleting a tutor's account cascades
 
     The constitution requires automated tests for RLS changes.
 
-  - **E2E (Playwright):** run against the local Supabase stack. A `tutor` fixture creates a fresh confirmed user through the Supabase Admin API (service-role key read from the test environment only, never the app bundle), signs in through `/login`, and deletes the user afterwards. Each test gets an empty account (for the empty state) and parallel projects don't collide. A second tutor in one test covers the not-found isolation case.
+  - **E2E (Playwright):** run against the local Supabase stack. A `tutor` fixture creates a fresh confirmed user through the Supabase Admin API (secret key (`sb_secret_…`) read from the test environment only, never the app bundle), signs in through `/login`, and deletes the user afterwards. Each test gets an empty account (for the empty state) and parallel projects don't collide. A second tutor in one test covers the not-found isolation case.
 - **Rationale**: Covers the constitution's quality gates. Fresh users avoid shared-state flakiness without fixed waits.
 
 ## R14. Keeping student data out of database logs (constitution IV, FR-027)

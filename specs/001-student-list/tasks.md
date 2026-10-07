@@ -36,9 +36,9 @@ Write each story's tests first and check they fail before implementing.
 
 **Purpose**: Dependencies, UI primitives and test plumbing.
 
-- [X] T001 Add `@supabase/supabase-js` (`^2.114.0`, already installed as a peer of `@supabase/ssr`) as an explicit dependency: `npm i @supabase/supabase-js@^2.114.0`. This updates `package.json` and `package-lock.json`.
-- [X] T002 [P] Add the Base UI shadcn components with `npx shadcn@latest add combobox radio-group alert-dialog badge`, creating `src/components/ui/combobox.tsx`, `src/components/ui/radio-group.tsx`, `src/components/ui/alert-dialog.tsx` and `src/components/ui/badge.tsx`. Confirm they import from `@base-ui/react` (style `base-vega` in `components.json`), then run `npx eslint --fix src/components/ui`.
-- [X] T003 [P] In `playwright.config.ts`, load `.env.local` for the test runner only with `if (existsSync('.env.local')) process.loadEnvFile('.env.local');` (Node 24). This makes `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` available to fixtures. App code must never read `SUPABASE_SERVICE_ROLE_KEY`.
+- [x] T001 Add `@supabase/supabase-js` (`^2.114.0`, already installed as a peer of `@supabase/ssr`) as an explicit dependency: `npm i @supabase/supabase-js@^2.114.0`. This updates `package.json` and `package-lock.json`.
+- [x] T002 [P] Add the Base UI shadcn components with `npx shadcn@latest add combobox radio-group alert-dialog badge`, creating `src/components/ui/combobox.tsx`, `src/components/ui/radio-group.tsx`, `src/components/ui/alert-dialog.tsx` and `src/components/ui/badge.tsx`. Confirm they import from `@base-ui/react` (style `base-vega` in `components.json`), then run `npx eslint --fix src/components/ui`.
+- [x] T003 [P] In `playwright.config.ts`, load `.env.local` for the test runner only with `if (existsSync('.env.local')) process.loadEnvFile('.env.local');` (Node 24). This makes `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SECRET_KEY` available to fixtures. App code must never read `SUPABASE_SECRET_KEY`.
 
 ---
 
@@ -50,7 +50,7 @@ Write each story's tests first and check they fail before implementing.
 
 ### Database (one migration, sequential: same file)
 
-- [ ] T004 Create the migration with `npx supabase migration new students_families_tags` (→ `supabase/migrations/<timestamp>_students_families_tags.sql`). Add:
+- [x] T004 Create the migration with `npx supabase migration new students_families_tags` (→ `supabase/migrations/<timestamp>_students_families_tags.sql`). Add:
   - `create type public.student_type as enum ('adult', 'child');`
   - The trigger function `public.set_updated_at()` (`security invoker`, `set search_path = ''`, sets `new.updated_at = now()`).
   - Table `public.families` with these columns:
@@ -63,7 +63,7 @@ Write each story's tests first and check they fail before implementing.
     - `created_at`/`updated_at timestamptz not null default now()`
 
     Also add `unique (id, tutor_id)`, index `families_tutor_id_idx (tutor_id)` and the `set_updated_at` trigger.
-- [ ] T005 In the same migration, add table `public.students`. Columns:
+- [x] T005 In the same migration, add table `public.students`. Columns:
   - `id uuid pk default gen_random_uuid()`
   - `tutor_id` (as for families)
   - `type public.student_type not null`
@@ -79,7 +79,7 @@ Write each story's tests first and check they fail before implementing.
   - `created_at`, `updated_at`
 
   Constraints:
-  - composite FK `(family_id, tutor_id) references public.families (id, tutor_id) on delete restrict`
+  - composite FK `(family_id, tutor_id) references public.families (id, tutor_id) on delete no action` (NO ACTION rather than RESTRICT so account deletion can cascade)
   - `students_child_shape: type <> 'child' OR (last_name IS NULL AND email IS NULL AND phone IS NULL AND family_id IS NOT NULL)`
   - `students_adult_shape: type <> 'adult' OR (last_name IS NOT NULL AND char_length(btrim(last_name)) between 1 and 50)`
   - `unique (id, tutor_id)`
@@ -91,7 +91,7 @@ Write each story's tests first and check they fail before implementing.
 
   Add the `set_updated_at` trigger.
 
-- [ ] T006 In the same migration, add the two tag tables.
+- [x] T006 In the same migration, add the two tag tables.
   - **`public.tags`**:
     - Columns: `id uuid pk`, `tutor_id`, `name text not null` with check `char_length(btrim(name)) between 1 and 30`, `created_at`, `updated_at`.
     - Constraints and indexes: unique index `tags_tutor_name_unique on public.tags (tutor_id, lower(btrim(name)))`, `unique (id, tutor_id)`, `tags_tutor_id_idx`, plus the trigger.
@@ -99,8 +99,8 @@ Write each story's tests first and check they fail before implementing.
     - Columns: `student_id uuid not null`, `tag_id uuid not null`, `tutor_id uuid not null default auth.uid() references auth.users (id) on delete cascade`.
     - Constraints: `primary key (student_id, tag_id)`, FK `(student_id, tutor_id) references public.students (id, tutor_id) on delete cascade`, FK `(tag_id, tutor_id) references public.tags (id, tutor_id) on delete cascade`.
     - Indexes: `student_tags_tag_id_idx (tag_id, tutor_id)`, `student_tags_tutor_id_idx (tutor_id)`.
-- [ ] T007 In the same migration, enable RLS on all four tables. On each, create `select`, `insert`, `update` and `delete` policies `to authenticated`, with `using ((select auth.uid()) = tutor_id)` and, for insert and update, `with check ((select auth.uid()) = tutor_id)`. Add no `anon` policies. Grant table privileges to `authenticated` only.
-- [ ] T008 In the same migration, add `public.save_student(p_id uuid, p_type public.student_type, p_first_name text, p_last_name text, p_family_id uuid, p_subject text, p_level text, p_exam_board text, p_notes text, p_email text, p_phone text, p_tag_ids uuid[]) returns uuid`, declared `language plpgsql security invoker set search_path = ''`. Behaviour (data-model.md):
+- [x] T007 In the same migration, enable RLS on all four tables. On each, create `select`, `insert`, `update` and `delete` policies `to authenticated`, with `using ((select auth.uid()) = tutor_id)` and, for insert and update, `with check ((select auth.uid()) = tutor_id)`. Add no `anon` policies. Grant table privileges to `authenticated` only.
+- [x] T008 In the same migration, add `public.save_student(p_id uuid, p_type public.student_type, p_first_name text, p_last_name text, p_family_id uuid, p_subject text, p_level text, p_exam_board text, p_notes text, p_email text, p_phone text, p_tag_ids uuid[]) returns uuid`, declared `language plpgsql security invoker set search_path = ''`. Behaviour (data-model.md):
   1. Trim text and turn `''` into null.
   2. If `p_type = 'child'`, force `last_name`, `email` and `phone` to null.
   3. If `p_family_id is not null` and `exists (select 1 from public.students where family_id = p_family_id and lower(btrim(first_name)) = lower(v_first_name) and lower(coalesce(btrim(last_name), '')) = lower(coalesce(v_last_name, '')) and id is distinct from p_id)`, then `raise exception using errcode = '23505', message = 'students_family_name_unique'`. Add no `detail` or `hint`, so no names reach the Postgres logs (research R14).
@@ -110,16 +110,16 @@ Write each story's tests first and check they fail before implementing.
 
   Finally: `revoke execute … from public, anon; grant execute … to authenticated`.
 
-- [ ] T009 In the same migration, add the tag functions (data-model.md § create_tag / rename_tag, research R14). Both are `language plpgsql security invoker set search_path = ''`, with `revoke execute … from public, anon; grant execute … to authenticated`.
-  - **`public.create_tag(p_name text) returns table (id uuid, name text)`**: `insert into public.tags (name) values (btrim(p_name)) on conflict (tutor_id, (lower(btrim(name)))) do nothing returning id, name`. If no row was returned, return the existing tag `where tutor_id = (select auth.uid()) and lower(btrim(name)) = lower(btrim(p_name))`. It never raises on a duplicate.
+- [x] T009 In the same migration, add the tag functions (data-model.md § create_tag / rename_tag, research R14). Both are `language plpgsql security invoker set search_path = ''`, with `revoke execute … from public, anon; grant execute … to authenticated`.
+  - **`public.create_tag(p_name text) returns public.tags`**: `insert into public.tags (name) values (btrim(p_name)) on conflict (tutor_id, (lower(btrim(name)))) do nothing returning id, name`. If no row was returned, return the existing tag `where tutor_id = (select auth.uid()) and lower(btrim(name)) = lower(btrim(p_name))`. It never raises on a duplicate.
   - **`public.rename_tag(p_id uuid, p_name text) returns void`**: if another of the tutor's tags (`id <> p_id`) has the same `lower(btrim(name))`, `raise exception using errcode = '23505', message = 'tags_tutor_name_unique'` (no detail). Otherwise `update public.tags set name = btrim(p_name) where id = p_id`, and raise `P0002` if no row changed.
 
-- [ ] T010 Apply and generate types: run `npx supabase db reset`, then `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`.
-- [ ] T011 Type the Supabase clients with `Database` from `./database.types`: `createServerClient<Database>` in `src/lib/supabase/server.ts` and `createBrowserClient<Database>` in `src/lib/supabase/client.ts`. Run `npm run check-types`.
+- [x] T010 Apply and generate types: run `npx supabase db reset`, then `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`.
+- [x] T011 Type the Supabase clients with `Database` from `./database.types`: `createServerClient<Database>` in `src/lib/supabase/server.ts` and `createBrowserClient<Database>` in `src/lib/supabase/client.ts`. Run `npm run check-types`.
 
 ### Database tests (pgTAP, run with `npx supabase test db`)
 
-- [ ] T012 [P] Write `supabase/tests/database/students_rls.test.sql`.
+- [x] T012 [P] Write `supabase/tests/database/students_rls.test.sql`.
   - **Setup:** `begin; create extension if not exists pgtap with schema extensions; select plan(n);`. Insert two users into `auth.users` (tutor A, tutor B). Switch identity with `set local role authenticated; select set_config('request.jwt.claims', json_build_object('sub', <id>, 'role', 'authenticated')::text, true);`.
   - **Assertions:**
     - Tutor B can't select, update or delete tutor A's families, students, tags or student_tags (0 rows / no effect).
@@ -129,7 +129,7 @@ Write each story's tests first and check they fail before implementing.
     - B calling `rename_tag` with A's tag id raises `P0002`. B calling `create_tag` with the name of A's tag creates a separate tag for B.
     - `anon` sees 0 rows.
   - **Teardown:** end with `select * from finish(); rollback;`.
-- [ ] T013 [P] Write `supabase/tests/database/students_constraints.test.sql`, with the same setup as T012, asserting:
+- [x] T013 [P] Write `supabase/tests/database/students_constraints.test.sql`, with the same setup as T012, asserting:
   - A child with a last name, email or phone, or without a family, fails `students_child_shape`.
   - An adult with a null or blank last name fails `students_adult_shape`.
   - Two children "Emily" and "emily " in one family raise `23505` on `students_family_name_unique`. A child "Emily" and an adult "Emily Taylor" in the same family are allowed. Two "Emily"s with no family are allowed.
@@ -145,11 +145,11 @@ Write each story's tests first and check they fail before implementing.
 
 ### Shared schemas, helpers and components
 
-- [ ] T014 [P] Create `src/schema/phoneSchema.ts`, exporting `phoneSchema`: an optional trimmed string that accepts an optional leading `+`, digits, spaces, `-` and `()`, and requires 7–15 digits after stripping punctuation. Error message: "Enter a valid phone number." Write AAA tests in `src/schema/phoneSchema.test.ts`:
+- [x] T014 [P] Create `src/schema/phoneSchema.ts`, exporting `phoneSchema`: an optional trimmed string that accepts an optional leading `+`, digits, spaces, `-` and `()`, and requires 7–15 digits after stripping punctuation. Error message: "Enter a valid phone number." Write AAA tests in `src/schema/phoneSchema.test.ts`:
   - accepts: `07700 900123`, `+44 7700 900123`, `(020) 7946 0958`, `+1-202-555-0143`
   - rejects: `12345`, `phone`, `+44 7700 900123 999 999`
   - treats an empty string as undefined
-- [ ] T015 [P] Create `src/utils/db-errors.ts`, exporting `mapDbError(error: { code?: string; message?: string } | null, action: string): { kind: 'field'; field: string; message: string } | { kind: 'form'; message: string } | { kind: 'notFound' }`, using the table in data-model.md § Error mapping.
+- [x] T015 [P] Create `src/utils/db-errors.ts`, exporting `mapDbError(error: { code?: string; message?: string } | null, action: string): { kind: 'field'; field: string; message: string } | { kind: 'form'; message: string } | { kind: 'notFound' }`, using the table in data-model.md § Error mapping.
   - Match constraint names by searching `error.message`. This works for both the custom errors raised by `save_student`/`rename_tag` and the backstop constraint errors. Never read or log `error.details`, which can contain values (R14).
   - `23505` + `students_family_name_unique` → field `firstName` with "Another student in this family has this name. Add something to tell them apart, e.g. 'Emily T'."
   - `23505` + `tags_tutor_name_unique` → field `name` with "You already have a tag with this name."
@@ -160,14 +160,14 @@ Write each story's tests first and check they fail before implementing.
 
   Add `toFieldErrorState(field, message, payload)` building an `ActionState` whose `fieldErrors.properties[field].errors = [message]`. Write tests in `src/utils/db-errors.test.ts`, including a spy asserting the logged object has only `action` and `code`.
 
-- [ ] T016 [P] Create field components next to `src/components/ui/form-field.tsx`, using the same wiring (`useActionStateContext`, `useFormContext`, `aria-invalid`, `aria-describedby={`${name}-error`}`, `<FieldError>`):
+- [x] T016 [P] Create field components next to `src/components/ui/form-field.tsx`, using the same wiring (`useActionStateContext`, `useFormContext`, `aria-invalid`, `aria-describedby={`${name}-error`}`, `<FieldError>`):
   - `src/components/ui/textarea-field.tsx`: wraps `Textarea`. Optional `maxLength` shows a live `n/2000` counter (`aria-live="polite"`) and stops input at the limit.
   - `src/components/ui/radio-group-field.tsx`: RHF `Controller` + the shadcn `RadioGroup` with a visible group label (`role="radiogroup"` labelled), and props `options: { value; label }[]`.
   - `src/components/ui/combobox-field.tsx`: RHF `Controller` + shadcn `Combobox`. Supports `multiple`, an `onCreate?(text)` "Create '…'" option and an `extraOption` ("Add new family…"). It renders hidden `<input name>` elements (one per value when multiple) so `FormData` carries the selection.
 
   Write AAA tests in `src/components/ui/textarea-field.test.tsx` and `src/components/ui/radio-group-field.test.tsx` (label association, error rendering from `ActionState`, counter).
 
-- [ ] T017 [P] Update `src/hooks/use-action-form.ts` so failed saves keep the input and server errors get focus (FR-017, research R15).
+- [x] T017 [P] Update `src/hooks/use-action-form.ts` so failed saves keep the input and server errors get focus (FR-017, research R15).
   - Keep `useActionState(action, EMPTY_FORM_STATE)` and its `formAction` as the form's `action` (the no-JS path).
   - Add a second `useActionState` whose action wraps the server action in `try/catch`, and use it from `onSubmit`. Rethrow Next.js control-flow errors with `unstable_rethrow` from `next/navigation` (check `node_modules/next/dist/docs/` first). Map any other error (for example `TypeError: Failed to fetch`) to `toFormState('ERROR', "We couldn't reach the server. Check your connection and try again.")`.
   - Return the state with the newer `timestamp` as `actionState`, and `pending` from either.
@@ -178,9 +178,9 @@ Write each story's tests first and check they fail before implementing.
   - A later successful call replaces the error.
   - A server `ERROR` with `fieldErrors.properties.firstName` focuses `firstName`.
 
-- [ ] T018 [P] Change `src/components/ui/form-message.tsx` to use `role="alert"` on its always-mounted container, replacing `aria-live="polite"` (contract ui-routes.md). Write `src/components/ui/form-message.test.tsx`: an `ERROR` state renders the message inside `getByRole('alert')`. Run `npx playwright test e2e/auth.spec.ts` to confirm the auth forms still pass.
-- [ ] T019 [P] In `src/config/routes.ts`, add `studentNew: { url: '/students/new', title: 'Add student' }`, `studentTags: { url: '/students/tags', title: 'Tags' }` and `familyNew: { url: '/families/new', title: 'Add family' }`. Change `getTitleByUrl` to fall back to the longest route whose `url` prefixes the path (so `/students/<uuid>` → "Students" and `/families/<uuid>` → "Families"). Write tests in `src/config/routes.test.ts`.
-- [ ] T020 Create `src/app/(private)/students/schema.ts` with `studentSchema`, a `z.discriminatedUnion('type', …)`.
+- [x] T018 [P] Change `src/components/ui/form-message.tsx` to use `role="alert"` on its always-mounted container, replacing `aria-live="polite"` (contract ui-routes.md). Write `src/components/ui/form-message.test.tsx`: an `ERROR` state renders the message inside `getByRole('alert')`. Run `npx playwright test e2e/auth.spec.ts` to confirm the auth forms still pass.
+- [x] T019 [P] In `src/config/routes.ts`, add `studentNew: { url: '/students/new', title: 'Add student' }`, `studentTags: { url: '/students/tags', title: 'Tags' }` and `familyNew: { url: '/families/new', title: 'Add family' }`. Change `getTitleByUrl` to fall back to the longest route whose `url` prefixes the path (so `/students/<uuid>` → "Students" and `/families/<uuid>` → "Families"). Write tests in `src/config/routes.test.ts`.
+- [x] T020 Create `src/app/(private)/students/schema.ts` with `studentSchema`, a `z.discriminatedUnion('type', …)`.
   - **Shared fields:**
     - `id` optional uuid
     - `firstName` trimmed 1–50 ("Enter a first name.")
@@ -195,7 +195,7 @@ Write each story's tests first and check they fail before implementing.
 
   Also export `studentFormDataToInput(formData: FormData)`, which reads `tagIds` with `getAll`. Write tests in `src/app/(private)/students/schema.test.ts` covering each rule, including that a child payload with `lastName`/`email`/`phone` drops those keys after parsing.
 
-- [ ] T021 [P] Create `src/app/(private)/families/schema.ts` with `familySchema`:
+- [x] T021 [P] Create `src/app/(private)/families/schema.ts` with `familySchema`:
   - `id` optional uuid
   - `name` trimmed 1–60 ("Enter a family name.")
   - `contactName` trimmed 1–100 ("Enter a contact name.")
@@ -205,12 +205,12 @@ Write each story's tests first and check they fail before implementing.
 
   Write tests in `src/app/(private)/families/schema.test.ts`.
 
-- [ ] T022 [P] Create `src/app/(private)/students/tags/schema.ts` with `tagNameSchema`, trimmed 1–30 ("Tag names must be 1–30 characters."), plus `renameTagSchema` (`id`, `name`) and `deleteTagSchema` (`id`). Write tests in `src/app/(private)/students/tags/schema.test.ts`, including whitespace-only and 31-char rejections.
+- [x] T022 [P] Create `src/app/(private)/students/tags/schema.ts` with `tagNameSchema`, trimmed 1–30 ("Tag names must be 1–30 characters."), plus `renameTagSchema` (`id`, `name`) and `deleteTagSchema` (`id`). Write tests in `src/app/(private)/students/tags/schema.test.ts`, including whitespace-only and 31-char rejections.
 
 ### E2E fixtures
 
-- [ ] T023 Create `e2e/fixtures/tutor.ts` (needs T001's `@supabase/supabase-js` and T003's env loading), exporting `test` (extended from `@playwright/test`) and `expect`.
-  - **`adminClient`** fixture: `createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } })` from `@supabase/supabase-js`.
+- [X] T023 Create `e2e/fixtures/tutor.ts` (needs T001's `@supabase/supabase-js` and T003's env loading), exporting `test` (extended from `@playwright/test`) and `expect`.
+  - **`adminClient`** fixture: `createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } })` from `@supabase/supabase-js`.
   - **`newTutor()`** fixture factory:
     1. Creates a confirmed user with `auth.admin.createUser({ email: `tutor-${randomUUID()}@example.test`, password, email_confirm: true })`.
     2. Signs in through `/login` using `getByLabel('Email')`, `getByLabel('Password')` and `getByRole('button', { name: 'Log in' })`.
@@ -218,7 +218,7 @@ Write each story's tests first and check they fail before implementing.
     4. Returns `{ id, email, page }`.
   - **`tutor`** fixture: signs in a fresh user on the default `page`.
   - **Teardown:** `auth.admin.deleteUser(id)` for every user created (rows cascade).
-- [ ] T024 Create `e2e/fixtures/seed.ts` (after T023, which provides the `adminClient` fixture) with helpers that take `(adminClient, tutorId)` and insert rows through the service role with an explicit `tutor_id`: `seedFamily({ name, contactName, contactEmail?, contactPhone? })`, `seedStudent({ type, firstName, lastName?, familyId?, subject, level })` and `seedTag(name, studentIds[])`. Each returns ids. They are used for list, search, filter and tag tests so those tests don't depend on other stories' UI.
+- [X] T024 Create `e2e/fixtures/seed.ts` (after T023, which provides the `adminClient` fixture) with helpers that take `(adminClient, tutorId)` and insert rows with the secret key with an explicit `tutor_id`: `seedFamily({ name, contactName, contactEmail?, contactPhone? })`, `seedStudent({ type, firstName, lastName?, familyId?, subject, level })` and `seedTag(name, studentIds[])`. Each returns ids. They are used for list, search, filter and tag tests so those tests don't depend on other stories' UI.
 
 **Checkpoint**: `npx supabase test db` and `npm run test:unitRun` are green, and the schema and fixtures are ready.
 
@@ -471,7 +471,7 @@ Write each story's tests first and check they fail before implementing.
   - Run `grep -rn "console\." src/app/(private)/students src/app/(private)/families src/utils/db-errors.ts src/hooks/use-action-form.ts` and confirm the only logging is `mapDbError`'s `{ action, code }`.
   - Confirm no `payload` echo includes notes beyond the form's own round trip.
   - With the local stack, trigger a duplicate student name, reuse an existing tag, and rename a tag onto an existing name. Then run `docker logs supabase_db_mytutorhour 2>&1 | grep -i -E "emily|online"` and confirm there are no matches.
-- [ ] T076 [P] Add the new commands to `CLAUDE.md` under Commands: `npx supabase start`, `npx supabase db reset`, `npx supabase test db` (pgTAP RLS tests) and `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`. Note that E2E needs the local stack and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (test-only use).
+- [ ] T076 [P] Add the new commands to `CLAUDE.md` under Commands: `npx supabase start`, `npx supabase db reset`, `npx supabase test db` (pgTAP RLS tests) and `npx supabase gen types typescript --local > src/lib/supabase/database.types.ts`. Note that E2E needs the local stack and `SUPABASE_SECRET_KEY` in `.env.local` (test-only use).
 - [ ] T077 Run every gate and fix any failures: `npm run lint`, `npm run check-types`, `npm run test:unitRun`, `npx supabase test db` and `npm run test:e2e` (all four projects).
 - [ ] T078 Walk through [quickstart.md](./quickstart.md) at 375px (steps 1–9 and the privacy spot check), and time step 2 against SC-001 (< 90 s). For SC-006, complete the core flows (add child with new family, add adult, edit and switch type, manage tags) using only the keyboard, and again with VoiceOver (macOS Safari or iOS). Labels, errors, the family dialog, comboboxes and the confirm dialog must all be announced and operable.
 

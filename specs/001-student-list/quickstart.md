@@ -8,7 +8,7 @@ acceptance scenarios are in [spec.md](./spec.md).
 
 - Docker running (for the local Supabase stack).
 - `.env.local` points at the **local** stack (`NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321`, plus the local publishable key).
-- For E2E only: `SUPABASE_SERVICE_ROLE_KEY` is set in the shell or a test-only env file. The Playwright `tutor` fixture reads it to create and delete throwaway users. It is never imported by app code.
+- For E2E only: `SUPABASE_SECRET_KEY` is set in the shell or a test-only env file. The Playwright `tutor` fixture reads it to create and delete throwaway users. It is never imported by app code.
 
 ## Set up
 
@@ -25,7 +25,7 @@ npm run dev
 npm run lint
 npm run check-types
 npm run test:unitRun               # schemas, filterAndSortStudents, error mapping, StudentForm
-npx supabase test db               # pgTAP: RLS isolation, composite FKs, checks, unique name, RESTRICT
+npx supabase test db               # pgTAP: RLS isolation, composite FKs, checks, unique name, family delete, account cascade
 npm run test:e2e                   # chromium, firefox, webkit, mobile (375px)
 ```
 

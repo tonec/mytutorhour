@@ -36,21 +36,21 @@ student_type: 'adult' | 'child'
 
 ## students
 
-| Column                  | Type                  | Rules                                                                             |
-| ----------------------- | --------------------- | --------------------------------------------------------------------------------- |
-| id                      | uuid PK               |                                                                                   |
-| tutor_id                | uuid                  | see above                                                                         |
-| type                    | student_type not null | FR-006                                                                            |
-| first_name              | text not null         | `char_length(btrim(first_name)) between 1 and 50`                                 |
-| last_name               | text null             | adults only, required for adults (see checks); `<= 50`                            |
-| family_id               | uuid null             | composite FK `(family_id, tutor_id) → families (id, tutor_id) on delete restrict` |
-| subject                 | text not null         | 1–50 chars (e.g. "Maths")                                                         |
-| level                   | text not null         | 1–50 chars (e.g. "GCSE", "Year 10")                                               |
-| exam_board              | text null             | `<= 50`                                                                           |
-| notes                   | text null             | `char_length(notes) <= 2000` (FR-015)                                             |
-| email                   | text null             | adults only; `<= 254`                                                             |
-| phone                   | text null             | adults only; `<= 30`                                                              |
-| created_at / updated_at | timestamptz           |                                                                                   |
+| Column                  | Type                  | Rules                                                                                                                                                                                |
+| ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| id                      | uuid PK               |                                                                                                                                                                                      |
+| tutor_id                | uuid                  | see above                                                                                                                                                                            |
+| type                    | student_type not null | FR-006                                                                                                                                                                               |
+| first_name              | text not null         | `char_length(btrim(first_name)) between 1 and 50`                                                                                                                                    |
+| last_name               | text null             | adults only, required for adults (see checks); `<= 50`                                                                                                                               |
+| family_id               | uuid null             | composite FK `(family_id, tutor_id) → families (id, tutor_id) on delete no action` (not RESTRICT: NO ACTION is checked at the end of the statement, so account deletion can cascade) |
+| subject                 | text not null         | 1–50 chars (e.g. "Maths")                                                                                                                                                            |
+| level                   | text not null         | 1–50 chars (e.g. "GCSE", "Year 10")                                                                                                                                                  |
+| exam_board              | text null             | `<= 50`                                                                                                                                                                              |
+| notes                   | text null             | `char_length(notes) <= 2000` (FR-015)                                                                                                                                                |
+| email                   | text null             | adults only; `<= 254`                                                                                                                                                                |
+| phone                   | text null             | adults only; `<= 30`                                                                                                                                                                 |
+| created_at / updated_at | timestamptz           |                                                                                                                                                                                      |
 
 **Check constraints** (FR-007, FR-009, FR-013):
 
@@ -62,7 +62,7 @@ students_adult_shape: type <> 'adult' OR (last_name IS NOT NULL AND char_length(
 **Indexes**
 
 - `students_tutor_id_idx (tutor_id)`
-- `students_family_id_idx (family_id, tutor_id)`: FK index for joins and RESTRICT checks
+- `students_family_id_idx (family_id, tutor_id)`: FK index for joins and the family-delete check
 - `students_family_name_unique` (FR-016, R3):
   `unique (family_id, lower(btrim(first_name)), lower(coalesce(btrim(last_name), ''))) where family_id is not null`
 - `unique (id, tutor_id)`: target of the `student_tags` composite FK
@@ -109,13 +109,17 @@ auth.users 1─* families 1─* students *─* tags   (via student_tags)
 
 `security invoker`, `set search_path = ''`, `language plpgsql`.
 
-| Param                                                                                  | Type                 |
-| -------------------------------------------------------------------------------------- | -------------------- |
-| p_id                                                                                   | uuid (null = create) |
-| p_type                                                                                 | public.student_type  |
-| p_first_name, p_last_name, p_subject, p_level, p_exam_board, p_notes, p_email, p_phone | text                 |
-| p_family_id                                                                            | uuid                 |
-| p_tag_ids                                                                              | uuid[]               |
+| Param                                                                                  | Type                               |
+| -------------------------------------------------------------------------------------- | ---------------------------------- |
+| p_id                                                                                   | uuid, default null (null = create) |
+| p_type                                                                                 | public.student_type                |
+| p_first_name, p_last_name, p_subject, p_level, p_exam_board, p_notes, p_email, p_phone | text                               |
+| p_family_id                                                                            | uuid                               |
+| p_tag_ids                                                                              | uuid[]                             |
+
+Required parameters are `p_type`, `p_first_name`, `p_subject` and `p_level`. All others
+default to null (`p_tag_ids` to `'{}'`) and come last, so callers can omit them; PostgREST calls
+by name, so parameter order doesn't matter to callers.
 
 Behaviour:
 
@@ -130,7 +134,7 @@ Revoke `execute` from `anon` and `public`, and grant it to `authenticated`.
 
 ## Function: `public.create_tag`
 
-`create_tag(p_name text) returns table (id uuid, name text)`. It is `security invoker`, `set search_path = ''`, `language plpgsql`.
+`create_tag(p_name text) returns public.tags` (the full tag row). It is `security invoker`, `set search_path = ''`, `language plpgsql`.
 
 1. `v_name := btrim(p_name)`.
 2. `insert into public.tags (name) values (v_name) on conflict (tutor_id, (lower(btrim(name)))) do nothing returning …`.

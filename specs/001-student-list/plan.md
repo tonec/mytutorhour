@@ -16,7 +16,7 @@ Postgres enforces the rules, with Zod mirroring them for instant inline errors:
 - **Isolation:** RLS plus composite foreign keys.
 - **Adult/child shape:** check constraints.
 - **Duplicate names:** two students in the same family can't share a name (unique index).
-- **Family delete:** blocked while students remain (`ON DELETE RESTRICT`).
+- **Family delete:** blocked while students remain (`ON DELETE NO ACTION`, which still lets account deletion cascade).
 
 A student and their tags are saved atomically through one `security invoker` function. The UI
 reuses the existing `useActionForm`/`ActionForm` server-action pattern, with Base UI Combobox,
@@ -92,7 +92,7 @@ supabase/
 ├── migrations/<timestamp>_students_families_tags.sql   # enum, 4 tables, RLS, indexes, trigger, save_student, create_tag, rename_tag
 └── tests/database/
     ├── students_rls.test.sql                           # pgTAP: isolation for all 4 tables, composite FKs
-    └── students_constraints.test.sql                   # child/adult checks, duplicate name, RESTRICT, tag uniqueness
+    └── students_constraints.test.sql                   # child/adult checks, duplicate name, family delete, tag uniqueness, account cascade
 
 src/
 ├── lib/supabase/
@@ -134,7 +134,7 @@ src/
 
 e2e/
 ├── fixtures/tutor.ts            # fresh confirmed tutor per test via the Admin API; signs in; cleanup
-├── fixtures/seed.ts             # service-role seed helpers (families, students, tags)
+├── fixtures/seed.ts             # secret-key seed helpers (families, students, tags)
 ├── students.spec.ts             # US1–US4, duplicate name, failed-save retry
 ├── families-tags.spec.ts        # US5, US6
 ├── isolation.spec.ts            # FR-026, SC-005
