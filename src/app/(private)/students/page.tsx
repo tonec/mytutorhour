@@ -1,8 +1,8 @@
 import { routes } from '@/config/routes';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
+import { StudentList } from '../../../components/student-list/student-list';
 import { listStudents } from './data';
-import { StudentList } from './student-list';
 
 export default async function StudentsPage() {
   const students = await listStudents();

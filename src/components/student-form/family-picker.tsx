@@ -3,9 +3,9 @@
 import { useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { ComboboxField } from '@/components/ui/combobox-field';
-import type { FamilyListItem } from '../families/data';
-import { FamilyDialog } from '../families/family-dialog';
-import type { SavedFamily } from '../families/family-form';
+import type { FamilyListItem } from '../../app/(private)/families/data';
+import { FamilyDialog } from '../../app/(private)/families/family-dialog';
+import type { SavedFamily } from '../../app/(private)/families/family-form';
 
 type Props = {
   families: FamilyListItem[];

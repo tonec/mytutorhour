@@ -6,7 +6,7 @@ import {
   type StudentRow,
   toStudentDetail,
   toStudentListItem,
-} from './mappers';
+} from '../../../components/student-list/mappers';
 
 // A student with their family's contact details (children show these) and their tags.
 const STUDENT_SELECT =

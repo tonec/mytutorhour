@@ -1,5 +1,5 @@
+import { StudentForm } from '../../../../components/student-form/student-form';
 import { listFamilies } from '../../families/data';
-import { StudentForm } from '../student-form';
 
 export default async function NewStudentPage() {
   const families = await listFamilies();

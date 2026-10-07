@@ -11,12 +11,12 @@ import { FormField } from '@/components/ui/form-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { RadioGroupField } from '@/components/ui/radio-group-field';
 import { TextareaField } from '@/components/ui/textarea-field';
-import type { FamilyListItem } from '../families/data';
-import { saveStudent } from './actions';
+import type { FamilyListItem } from '../../app/(private)/families/data';
+import { saveStudent } from '../../app/(private)/students/actions';
+import { studentSchema } from '../../app/(private)/students/schema';
+import type { StudentDetail } from '../student-list/mappers';
 import { ContactDetails } from './contact-details';
 import { FamilyPicker } from './family-picker';
-import type { StudentDetail } from './mappers';
-import { studentSchema } from './schema';
 
 const TYPE_OPTIONS = [
   { value: 'child', label: 'Child' },

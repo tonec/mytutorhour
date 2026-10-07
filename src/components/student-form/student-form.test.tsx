@@ -4,9 +4,9 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NETWORK_ERROR_MESSAGE } from '@/hooks/use-action-form';
+import { StudentForm } from '../../../components/student-form/student-form';
 import { saveFamily } from '../families/actions';
 import { saveStudent } from './actions';
-import { StudentForm } from './student-form';
 
 vi.mock('./actions', () => ({ saveStudent: vi.fn() }));
 vi.mock('../families/actions', () => ({ saveFamily: vi.fn() }));
