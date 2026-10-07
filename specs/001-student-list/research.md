@@ -23,9 +23,9 @@ NEEDS CLARIFICATION items remain.
 
 ## R3. Duplicate-name rule (FR-016)
 
-- **Decision**: A unique index on `students (family_id, lower(btrim(first_name)), lower(coalesce(btrim(last_name), '')))` where `family_id is not null`. The server action maps Postgres error `23505` on this index to a field error on `firstName`: "Another student in this family has this name. Add something to tell them apart, e.g. 'Emily T'." The client doesn't pre-check, because the server round trip is fast and authoritative.
-- **Rationale**: Children have a null last name, which is compared as `''`. The child "Emily" and the adult "Emily Taylor" are therefore distinct, while two children called "Emily"/"emily " clash. This matches the spec, and the index also covers edits, type changes and family moves.
-- **Alternatives considered**: A check in the action only. Rejected because two tabs could race past it.
+- **Decision**: Keep a unique index on `students (family_id, lower(btrim(first_name)), lower(coalesce(btrim(last_name), '')))` where `family_id is not null` as the backstop. The normal path never reaches it: `save_student` first checks for a clash, and if there is one it raises its own error with `errcode = '23505'`, `message = 'students_family_name_unique'` and no detail. That way no name values are written to the database logs (R14). The server action maps it to a field error on `firstName`: "Another student in this family has this name. Add something to tell them apart, e.g. 'Emily T'."
+- **Rationale**: Children have a null last name, which is compared as `''`. The child "Emily" and the adult "Emily Taylor" are therefore distinct, while two children called "Emily"/"emily " clash. The pre-check covers adds, edits, type changes and family moves. The index still catches the rare race between two tabs.
+- **Alternatives considered**: Rely on the index alone. Rejected because Postgres would log the clashing names on every duplicate (R14). A check in the action only. Rejected because two tabs could race past it.
 
 ## R4. Searching, filtering and sorting the list (FR-002–FR-004)
 
@@ -43,7 +43,7 @@ NEEDS CLARIFICATION items remain.
 
 - **Decision**: Use Base UI `Combobox` (already a dependency via `@base-ui/react`) through shadcn wrappers:
   - **Family picker:** a single-select combobox with an "Add new family…" option. That option opens a `Dialog` with the family form, and on success the new family is auto-selected.
-  - **Tags:** a multi-select combobox. Typing a name that doesn't exist offers "Create tag 'x'". Choosing it calls `createTag`, which returns the existing tag on a case-insensitive match (FR-023, US6 AC4), and the tag is added to the selection.
+  - **Tags:** a multi-select combobox. Typing a name that doesn't exist offers "Create tag 'x'". Choosing it calls `createTag`, which returns the existing tag on a case-insensitive match (FR-023, US6 AC4) without raising a database error (R14), and the tag is added to the selection. A hint under the field says tags are for organising the list and must not hold health, SEN or other sensitive details (FR-024, constitution IV).
 
   Tags created this way persist even if the student form is then cancelled, because tags are the tutor's library rather than part of the student.
 
@@ -68,7 +68,7 @@ NEEDS CLARIFICATION items remain.
 
 ## R10. Privacy in errors and logs (FR-015, FR-027)
 
-- **Decision**: Server actions never log payloads or rows. Unexpected Supabase errors are logged as `{ action, code }` only, and the user gets a generic message. Notes aren't included in any `payload` echo beyond the form itself, and never in analytics (there is no analytics yet). Student notes are not given to LLM generation by this feature; that is spec 001's decision.
+- **Decision**: Server actions never log payloads or rows. Unexpected Supabase errors are logged as `{ action, code }` only, and the user gets a generic message. Notes aren't included in any `payload` echo beyond the form itself, and never in analytics (there is no analytics yet). Student notes are not given to LLM generation by this feature; that is spec 002's decision. Data never reaching Postgres logs is covered in R14.
 - **Rationale**: Constitution II and IV.
 
 ## R11. Primary keys
@@ -77,9 +77,9 @@ NEEDS CLARIFICATION items remain.
 - **Rationale**: IDs appear in URLs (`/students/[id]`), so they shouldn't be guessable. Postgres 17 (the local `major_version`) has no built-in UUIDv7, and per-tutor tables stay tiny, so v4 fragmentation doesn't matter at this scale.
 - **Alternatives considered**: `bigint identity`. It is better for index locality but exposes enumerable IDs.
 
-## R12. Reconciling with spec 001 (Guardian → Family)
+## R12. Reconciling with spec 002 (Guardian → Family)
 
-- **Decision**: This feature's `families` table **replaces** spec 001's per-student `Guardian`. A child's updates go to the family `contact_name`/`contact_email`, and an adult's go to the student's own email. The 'preferred channel' is dropped. Spec 001 (US3, FR-001, FR-002, FR-020, Key Entities) was amended on 2026-10-07 to match.
+- **Decision**: This feature's `families` table **replaces** spec 002's per-student `Guardian`. A child's updates go to the family `contact_name`/`contact_email`, and an adult's go to the student's own email. The 'preferred channel' is dropped. Spec 002 (US3, FR-001, FR-002, FR-020, Key Entities) was amended on 2026-10-07 to match.
 
 ## R13. Testing approach
 
@@ -96,3 +96,29 @@ NEEDS CLARIFICATION items remain.
 
   - **E2E (Playwright):** run against the local Supabase stack. A `tutor` fixture creates a fresh confirmed user through the Supabase Admin API (service-role key read from the test environment only, never the app bundle), signs in through `/login`, and deletes the user afterwards. Each test gets an empty account (for the empty state) and parallel projects don't collide. A second tutor in one test covers the not-found isolation case.
 - **Rationale**: Covers the constitution's quality gates. Fresh users avoid shared-state flakiness without fixed waits.
+
+## R14. Keeping student data out of database logs (constitution IV, FR-027)
+
+- **Decision**: Postgres writes constraint errors to its log with the offending values. A unique violation logs `Key (…)=(…)`, and a check violation logs `Failing row contains (…)`, which is the whole row, including notes. Supabase keeps these logs. So the app must never rely on a constraint error for an expected outcome:
+  - **Duplicate student names:** `save_student` checks for a clash first and raises its own error, which carries only the constraint name (R3).
+  - **Tags:** two `security invoker` functions handle the expected duplicate cases.
+    - `create_tag(p_name)` runs `insert … on conflict (tutor_id, (lower(btrim(name)))) do nothing returning`, then selects the existing tag. Reusing a tag never raises an error.
+    - `rename_tag(p_id, p_name)` checks for another tag with the same name first and raises its own `23505` error with message `tags_tutor_name_unique` and no detail.
+  - **Check constraints:** server actions always run the Zod schema before calling the database, so check violations (`23514`) can't be reached from the app. The constraints only guard against direct database access.
+  - **Family delete:** a blocked delete (`23503`) logs only ids (UUIDs). That is acceptable, but `deleteFamily` counts linked students first anyway and returns the message without attempting the delete.
+
+  `mapDbError` (`src/utils/db-errors.ts`) matches constraint names in `error.message`, so it handles both the custom errors and the backstop errors.
+
+- **Rationale**: The constitution forbids student data in error logs. Supabase's Postgres logs are error logs we control.
+- **Alternatives considered**: Lowering `log_min_messages` or the log verbosity on the hosted project. Rejected because it isn't fully under our control on Supabase, and it would hide real errors.
+
+## R15. Failed saves keep the tutor's input (FR-017)
+
+- **Decision**: `useActionForm` (`src/hooks/use-action-form.ts`) keeps the server action as the form's `action` for the no-JS path. On the JS path (`onSubmit`), it dispatches through a second `useActionState` whose action wraps the server action in `try/catch`.
+  - **Network failure:** a failed request (for example `TypeError: Failed to fetch`) becomes an `ERROR` state, "We couldn't reach the server. Check your connection and try again." The form keeps every value, and pressing Save again retries.
+  - **Framework errors:** redirect and not-found errors are rethrown.
+  - **Which state shows:** the hook returns whichever of the two states has the newer `timestamp`.
+- **Focus (contract ui-routes.md)**: after any `ERROR` state with field errors from the server, the hook calls `form.setFocus(<first field with an error>)`, because React Hook Form only focuses errors it found itself.
+- **Form messages**: `FormMessage` uses `role="alert"`, so form-level errors are announced straight away.
+- **Rationale**: Without the wrapper, a failed request throws into the route's error boundary and the tutor loses what they typed.
+- **Verify during implementation**: check the behaviour against `node_modules/next/dist/docs/` and React 19 `useActionState` (rethrow detection uses `unstable_rethrow` from `next/navigation`, or `isRedirectError`/`isNotFoundError` if available).

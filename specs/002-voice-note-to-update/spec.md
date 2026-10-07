@@ -9,7 +9,7 @@
 **Input**: User description: "voice note to lesson log and parent update"
 
 **Revised**: 2026-10-07. Students, families and tags are now defined by
-[spec 002 (Student List)](../002-student-list/spec.md). The per-student Guardian is replaced by a
+[spec 001 (Student List)](../001-student-list/spec.md). The per-student Guardian is replaced by a
 shared Family with one contact, and students can be children or adults. Affected: US1 intro, US3,
 edge cases, FR-001, FR-002, FR-020 and Key Entities.
 
@@ -21,7 +21,7 @@ Straight after a lesson, a solo tutor picks a student on their phone and records
 note about the lesson. The app turns it into three things: a structured lesson log, a
 parent-friendly update and next steps for the next lesson. The tutor reads and edits them,
 approves the parent update, then copies it to paste into WhatsApp or a text message.
-Students are added from the student list (spec 002). A child needs only a first name, subject,
+Students are added from the student list (spec 001). A child needs only a first name, subject,
 level and a family, which can be created on the spot, so the tutor can start straight away.
 
 **Why this priority**: This is the core promise of the product: getting the tutor's evenings
@@ -81,7 +81,7 @@ outputs appear and can be reviewed, approved and copied.
 
 After approving an update, the tutor sends it by email from the app, and the app records that it
 was sent and when. For a child, the email goes to their family's contact email. For an adult
-student, it goes to the student's own email (spec 002, FR-008 and FR-010).
+student, it goes to the student's own email (spec 001, FR-008 and FR-010).
 
 **Why this priority**: Many parents prefer email, and sending from the app gives the tutor a
 record of what was sent. Copying (Story 1) already covers the other channels.
@@ -119,6 +119,12 @@ notes, transcripts, logs or updates can be found afterwards.
    updates for that student are permanently deleted.
 2. **Given** a tutor archives a student, **Then** the student is hidden from the main list but
    their history is kept and they can be restored.
+3. **Given** Emily is the only student in the Taylor family, **When** the tutor deletes Emily,
+   **Then** the delete confirmation offers "Also delete the Taylor family and its contact
+   details", **And** if ticked, the family is permanently deleted with her. If not ticked, the
+   family is kept with no students.
+4. **Given** the Taylor family also has Oliver, **When** the tutor deletes Emily, **Then** the
+   family option is not offered and the family is kept.
 
 ---
 
@@ -187,15 +193,17 @@ each time and private notes never appear.
 
 **Students and families**
 
-- **FR-001**: Tutors MUST be able to create and edit students as defined in spec 002 (FR-006 to
+- **FR-001**: Tutors MUST be able to create and edit students as defined in spec 001 (FR-006 to
   FR-017). A child has a first name, subject and level, an optional exam board and notes, and a
   required family. An adult also has a last name and an optional email and phone of their own.
   No other personal details are collected.
 - **FR-002**: The contact for a child's parent updates MUST be their family's contact (name,
-  optional email, optional phone) as defined in spec 002 (FR-018 to FR-022). The contact for an
+  optional email, optional phone) as defined in spec 001 (FR-018 to FR-022). The contact for an
   adult student is the student.
 - **FR-003**: Tutors MUST be able to archive a student (hidden, history kept, restorable) or
-  delete a student (all related data permanently removed).
+  delete a student (all related data permanently removed). When the student is the last one in
+  their family, the delete confirmation MUST offer to delete the family and its contact details
+  too.
 
 **Capture**
 
@@ -264,9 +272,9 @@ each time and private notes never appear.
 ### Key Entities
 
 - **Tutor**: The signed-in user who owns all the data below. Name, email.
-- **Student**: A child or adult the tutor teaches, as defined in spec 002, plus an archived flag
+- **Student**: A child or adult the tutor teaches, as defined in spec 001, plus an archived flag
   added by this feature. Belongs to one tutor.
-- **Family**: Defined in spec 002. A household with one contact (name, optional email and
+- **Family**: Defined in spec 001. A household with one contact (name, optional email and
   phone) who receives updates about its child students. Replaces the earlier per-student
   Guardian.
 - **Lesson**: One tutoring session for a student. Date, optional duration, processing status.
@@ -317,6 +325,6 @@ each time and private notes never appear.
   same draft → approved → sent/copied flow.
 - The earlier "preferred channel" on a guardian is dropped. "Email" is offered whenever there is
   an email address to send to, and "Copy" is always available.
-- Student notes (spec 002) are separate from the tutor's private lesson notes. They are never
+- Student notes (spec 001) are separate from the tutor's private lesson notes. They are never
   shown to parents. Whether they are given to generation as context is decided in this spec's
   plan.

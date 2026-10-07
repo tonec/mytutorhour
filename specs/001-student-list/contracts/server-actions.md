@@ -7,7 +7,7 @@ All actions are `'use server'` functions that use `createClient()` from
 payloads (FR-027).
 
 On success they call `revalidatePath` on the affected routes and then `redirect` (Next 16
-`07-mutating-data.md`), unless noted otherwise.
+`07-mutating-data.md`), unless noted otherwise. Database errors are mapped by `mapDbError` in `src/utils/db-errors.ts`.
 
 ## Students: `src/app/(private)/students/actions.ts`
 
@@ -30,27 +30,30 @@ On success they call `revalidatePath` on the affected routes and then `redirect`
 
 ### `saveFamily(state, formData)`
 
-Keys: `id?`, `name`, `contactName`, `contactEmail`, `contactPhone`, `returnTo?`.
+Keys: `id?`, `name`, `contactName`, `contactEmail`, `contactPhone`, `intent?` (`inline`).
 
 - **From the families screens**: redirects to `/families/[id]`.
 - **From the inline dialog** (`intent=inline`): **does not redirect**. It returns `SUCCESS` with `payload: { id, name, contactName }` so the student form can auto-select the new family (FR-018).
 
 ### `deleteFamily(state, formData)`
 
-Key: `id`. If students are still linked, the DB returns `23503` and the action returns `ERROR`
-"Move or remove this family's students first." (FR-022). On success it redirects to `/families`.
+Key: `id`. It counts linked students first. If there are any, it returns `ERROR` "Move or remove
+this family's students first." without attempting the delete (FR-022). `ON DELETE RESTRICT`
+(`23503`) is the backstop for races and maps to the same message. On success it redirects to
+`/families`.
 
 ## Tags: `src/app/(private)/students/tags/actions.ts`
 
 ### `createTag(name: string): Promise<{ ok: true; tag: { id: string; name: string } } | { ok: false; error: string }>`
 
-This is a plain async action called from the tag combobox, not a form action. It does an insert,
-and on `23505` it selects and returns the existing tag that matches case-insensitively
-(US6 AC4). It has no redirect.
+This is a plain async action called from the tag combobox, not a form action. It validates with
+`tagNameSchema`, then calls `rpc('create_tag', { p_name })`, which returns the new tag or the
+existing case-insensitive match without raising a database error (US6 AC4, research R14). It
+revalidates `/students/tags` and has no redirect.
 
 ### `renameTag(state, formData)`
 
-Keys: `id`, `name`. On `23505` it returns a field error on `name`. It revalidates `/students` and `/students/tags`.
+Keys: `id`, `name`. It calls `rpc('rename_tag', { p_id, p_name })`. A `tags_tutor_name_unique` error (raised by the function without values) returns a field error on `name`. It revalidates `/students` and `/students/tags`.
 
 ### `deleteTag(state, formData)`
 

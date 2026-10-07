@@ -1,10 +1,12 @@
 <!--
 Sync Impact Report
-- Version change: 1.2.0 → 1.2.1 (PATCH: clarification)
-- Modified sections: IV. Children's Data Privacy by Default (minimum-data list applies to child
-  students; adult students may hold a surname and their own email/phone)
+- Version change: 1.2.1 → 1.2.2 (PATCH: clarification)
+- Modified sections: IV. Children's Data Privacy by Default (students may carry tutor-defined
+  organisational tags; tags are student data and must not hold sensitive information)
 - Templates: no template changes needed
-- Previous: 1.1.0 → 1.2.0 added Playwright E2E coverage to Development Workflow & Quality Gates
+- Previous: 1.2.0 → 1.2.1 clarified the minimum-data list applies to child students and adult
+  students may hold a surname and their own email/phone; 1.1.0 → 1.2.0 added Playwright E2E
+  coverage to Development Workflow & Quality Gates
 - Added sections: none
 - Removed sections: none
 - Deferred TODOs: none
@@ -55,6 +57,10 @@ Rationale: parents receive these words as the tutor's own; fabricated detail is 
   details come from their family.
 - An **adult** student MAY also have a surname and their own email and phone, because they are
   the person being contacted. No DOB or other extra fields.
+- Any student MAY carry tutor-defined tags for organising the list (e.g. "Year 11", "Online",
+  "Exam soon"). Tags MUST be presented as organisational labels, not a place for health, SEN,
+  safeguarding or other sensitive information, and they are treated as student data (never in
+  logs or analytics).
 - Every table MUST have row-level security scoped to `tutor_id = auth.uid()`. No query path may
   bypass per-tutor isolation.
 - The Supabase service-role key and all provider secrets MUST be server-side only and never in
@@ -131,4 +137,4 @@ Rationale: a solo builder with low fixed costs can only sustain a small, focused
 - Compliance: every feature plan and code review MUST verify adherence; any deviation MUST be
   justified in the plan's Complexity Tracking section or the constitution amended first.
 
-**Version**: 1.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-07
+**Version**: 1.2.2 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-07

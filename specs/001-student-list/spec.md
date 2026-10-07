@@ -1,6 +1,6 @@
 # Feature Specification: Student List
 
-**Feature Branch**: `002-student-list`
+**Feature Branch**: `001-student-list`
 **Created**: 2026-10-07
 **Status**: Draft
 **Input**: User description: "student list so that a tutor can add and edit students. The information required is whether they are an adult or a child. Name (first name only if child), family (this will link to a seperate family table in the db), notes, tags (user editable from tags table), email if adult (if child this will come from family), phone if adult otherwise family."
@@ -10,7 +10,7 @@
 ### Session 2026-10-07
 
 - Q: Does this feature include creating and editing families? → A: Yes. It includes full family management (a families list where families are added, edited and viewed) and creating a family from the student form.
-- Q: Do students keep subject and level? → A: Yes. Subject and level are required and exam board is optional, as in spec 001. Tags are extra.
+- Q: Do students keep subject and level? → A: Yes. Subject and level are required and exam board is optional, as in spec 002. Tags are extra.
 - Q: What name is recorded for adults? → A: First name and last name are both required. Children are first name only.
 - Q: What happens if two students in the same family have the same name? → A: Saving is blocked. The tutor must adjust a name so the students can be told apart.
 
@@ -23,7 +23,7 @@ subject and level. They then pick the child's family or create a new one on the 
 contact name, email and phone. The child's contact details come from the family, so the tutor
 never types them twice.
 
-**Why this priority**: Most students of solo UK tutors are children. Lesson logging (spec 001)
+**Why this priority**: Most students of solo UK tutors are children. Lesson logging (spec 002)
 needs a student to exist first.
 
 **Independent Test**: With an empty account, add a child and create a new family from the student
@@ -179,7 +179,7 @@ rename shows on every tagged student and the delete removes it from all of them.
 ### Families
 
 - **FR-018**: Tutors MUST be able to create a family either from the student form (inline, then auto-selected) or from a families list.
-- **FR-019**: A family MUST have a name (required) and a primary contact name (required), and MAY have a contact email and phone (optional, validated as in FR-011).
+- **FR-019**: A family MUST have a name (required) and a contact name (required), and MAY have a contact email and phone (optional, validated as in FR-011).
 - **FR-020**: Tutors MUST be able to view a families list (sorted alphabetically) and a family's detail showing its contact details and linked students.
 - **FR-021**: Tutors MUST be able to edit a family's name and contact details, and changes MUST be reflected immediately on every linked child.
 - **FR-022**: Deleting a family MUST be blocked while any student is linked to it. A family with no students MAY be deleted after confirmation, which removes it permanently.
@@ -187,20 +187,20 @@ rename shows on every tagged student and the delete removes it from all of them.
 ### Tags
 
 - **FR-023**: Each tutor MUST have their own set of tags. Tag names MUST be 1–30 characters after trimming and unique per tutor (case-insensitive).
-- **FR-024**: Tutors MUST be able to create a tag while assigning tags to a student, and assign zero or more tags per student.
+- **FR-024**: Tutors MUST be able to create a tag while assigning tags to a student, and assign zero or more tags per student. The tag field MUST show a hint that tags are for organising the list (e.g. "Year 11") and must not hold health, SEN or other sensitive details (constitution IV).
 - **FR-025**: Tutors MUST be able to rename and delete tags. A rename applies everywhere the tag is used. A delete (after confirmation) removes it from all students without changing anything else on them.
 
 ### Privacy, isolation and accessibility
 
 - **FR-026**: A tutor MUST only ever see, search, edit or link their own students, families and tags. Requests for another tutor's records MUST behave as not found.
 - **FR-027**: Student and family names, contact details, notes and tags MUST NOT appear in error reports, logs or analytics events.
-- **FR-028**: No data beyond the fields listed here MUST be collected for students. In particular, children have no surname, date of birth, school, email or phone of their own.
+- **FR-028**: No data beyond the fields listed here MUST be collected for students (for children, see also FR-007). In particular, no date of birth or school is collected for any student.
 - **FR-029**: The student list, student form, families list, family form and tag management MUST be fully usable at 375px width and meet WCAG 2.2 AA, including labelled fields, error messages linked to their fields, and keyboard operation.
 
 ### Key Entities
 
 - **Student**: A person the tutor teaches. Type (adult or child), first name, last name (adults only, required), subject, level, optional exam board, notes (tutor-only), optional email and phone (adults only), optional link to one family (required for children), zero or more tags. Belongs to one tutor.
-- **Family**: A household that one or more students belong to. Name (e.g. "Taylor"), primary contact name, optional contact email and phone. Supplies contact details for its child students. Belongs to one tutor.
+- **Family**: A household that one or more students belong to. Name (e.g. "Taylor"), contact name, optional contact email and phone. Supplies contact details for its child students. Belongs to one tutor.
 - **Tag**: A tutor-defined label. Name, unique per tutor. Linked to zero or more students.
 - **Student–Tag assignment**: Records which tags are on which student.
 
@@ -213,15 +213,16 @@ rename shows on every tagged student and the delete removes it from all of them.
 - **SC-003**: 100% of child records hold no last name, email or phone of their own, verified across all test cases including Adult → Child switches.
 - **SC-004**: Updating a family's contact details shows the new details on every linked child immediately, with zero stale values in test cases.
 - **SC-005**: Zero cross-tutor visibility: in isolation tests, no tutor can see or change another tutor's students, families or tags.
-- **SC-006**: All screens in this feature pass WCAG 2.2 AA checks and are fully usable at 375px width, with no horizontal scrolling.
+- **SC-006**: All screens in this feature have zero automated accessibility violations against WCAG 2.2 AA rules, pass a manual keyboard-only and screen-reader walkthrough of the core flows, and are fully usable at 375px width with no horizontal scrolling.
 - **SC-007**: At least 90% of test tutors add their first student without help.
 
 ## Assumptions
 
-- **Spec 001 overlap**: This spec replaces spec 001's per-student **Guardian** with a shared **Family** carrying one primary contact (FR-001/FR-002 of spec 001). Spec 001 has been amended to match: emails go to the family contact for children and to the student for adults. Multiple contacts per family are out of scope for now.
-- Archiving and deleting students are already covered by spec 001 (US4, FR-003) and are out of scope here.
+- **Spec 002 overlap**: This spec replaces spec 002's per-student **Guardian** with a shared **Family** carrying one contact (FR-001/FR-002 of spec 002). Spec 002 has been amended to match: emails go to the family contact for children and to the student for adults. Multiple contacts per family are out of scope for now.
+- Archiving and deleting students are already covered by spec 002 (US4, FR-003) and are out of scope here.
 - Adding adult-only fields (last name, own contact details) is consistent with constitution Principle IV, because its minimum-data rule targets children. Children stay first-name only.
-- Contact details are optional for both adults and families, so a tutor can add a student before having them. Sending email (spec 001) requires an email at send time.
-- Student notes are tutor-only reference notes. Whether they are given to generation as context is decided in the spec 001 plan. They are never shown to parents.
+- Contact details are optional for both adults and families, so a tutor can add a student before having them. Sending email (spec 002) requires an email at send time.
+- Student notes are tutor-only reference notes. Whether they are given to generation as context is decided in the spec 002 plan. They are never shown to parents.
+- Deleting students is out of scope here. When a family's last child is deleted (spec 002's delete flow), spec 002 offers to delete the now-empty family and its contact details at the same time (spec 002 US4, FR-003).
 - A single tutor uses the account, so concurrent edits use last-save-wins.
 - Users are already signed in. Authentication exists.

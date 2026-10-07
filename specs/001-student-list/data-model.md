@@ -2,7 +2,7 @@
 
 **Feature**: [spec.md](./spec.md) | **Research**: [research.md](./research.md)
 
-There are four new tables in `public`, created in one migration
+There are four new tables and three functions (`save_student`, `create_tag`, `rename_tag`) in `public`, created in one migration
 (`supabase/migrations/<timestamp>_students_families_tags.sql`) together with their RLS policies
 (constitution: "Every new table MUST ship with its RLS policy in the same migration").
 
@@ -98,7 +98,7 @@ auth.users 1─* families 1─* students *─* tags   (via student_tags)
 
 - A child belongs to exactly one family. An adult has zero or one family.
 - A family can't be deleted while students reference it (FR-022). The DB raises `23503`, which is mapped to "Move or remove this family's students first."
-- Deleting a student (spec 001) cascades to `student_tags`. Deleting a tag cascades to `student_tags` only.
+- Deleting a student (spec 002) cascades to `student_tags`. Deleting a tag cascades to `student_tags` only.
 
 ## Derived values (not stored)
 
@@ -121,11 +121,31 @@ Behaviour:
 
 1. Trim every text value and turn empty strings into null.
 2. If `p_type = 'child'`, force `last_name`, `email` and `phone` to null (FR-013: deleted, not hidden).
-3. If `p_id` is null, insert. Otherwise update `where id = p_id`; if no row is updated (missing or another tutor's), raise `P0002`.
-4. `delete from student_tags where student_id = id and tag_id <> all(p_tag_ids)`, then `insert … select unnest(p_tag_ids) on conflict do nothing`.
-5. Return the student `id`.
+3. If `p_family_id` is not null, check for a clash: `exists (select 1 from public.students where family_id = p_family_id and lower(btrim(first_name)) = lower(v_first_name) and lower(coalesce(btrim(last_name), '')) = lower(coalesce(v_last_name, '')) and id is distinct from p_id)`. If one exists, `raise exception using errcode = '23505', message = 'students_family_name_unique'` (no detail, no values; R3, R14).
+4. If `p_id` is null, insert. Otherwise update `where id = p_id`; if no row is updated (missing or another tutor's), raise `P0002`.
+5. `delete from student_tags where student_id = id and tag_id <> all(p_tag_ids)`, then `insert … select unnest(p_tag_ids) on conflict do nothing`.
+6. Return the student `id`.
 
 Revoke `execute` from `anon` and `public`, and grant it to `authenticated`.
+
+## Function: `public.create_tag`
+
+`create_tag(p_name text) returns table (id uuid, name text)`. It is `security invoker`, `set search_path = ''`, `language plpgsql`.
+
+1. `v_name := btrim(p_name)`.
+2. `insert into public.tags (name) values (v_name) on conflict (tutor_id, (lower(btrim(name)))) do nothing returning …`.
+3. If nothing was inserted, return the existing row `where tutor_id = (select auth.uid()) and lower(btrim(name)) = lower(v_name)`.
+
+Reusing an existing tag never raises an error, so no tag names reach the logs (R14, US6 AC4).
+
+## Function: `public.rename_tag`
+
+`rename_tag(p_id uuid, p_name text) returns void`. It is `security invoker`, `set search_path = ''`, `language plpgsql`.
+
+1. If another of the tutor's tags (`id <> p_id`) has `lower(btrim(name)) = lower(btrim(p_name))`, `raise exception using errcode = '23505', message = 'tags_tutor_name_unique'`.
+2. Otherwise `update public.tags set name = btrim(p_name) where id = p_id`; if no row is updated, raise `P0002`.
+
+Both functions: revoke `execute` from `anon` and `public`, and grant it to `authenticated`.
 
 ## Validation (app layer, Zod: `src/app/(private)/students/schema.ts`)
 
@@ -138,13 +158,17 @@ discriminated union on `type`:
 The family schema (`src/app/(private)/families/schema.ts`) has `name`, `contactName`, an optional
 `contactEmail` and an optional `contactPhone`. The tag schema has `name` (1–30 after trim).
 
-## Error mapping (`src/app/(private)/students/errors.ts`)
+## Error mapping (`src/utils/db-errors.ts`)
+
+`mapDbError` matches the constraint name in `error.message`. It handles both the custom errors
+raised by the functions above and the constraint errors that act as a backstop. It never reads
+`error.details`, which can contain values.
 
 | Postgres code / constraint            | Field       | Message                                                                                           |
 | ------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
 | `23505` `students_family_name_unique` | firstName   | "Another student in this family has this name. Add something to tell them apart, e.g. 'Emily T'." |
 | `23505` `tags_tutor_name_unique`      | name        | "You already have a tag with this name."                                                          |
-| `23503` on families delete            | form        | "Move or remove this family's students first."                                                    |
+| `23503` on families delete            | form        | "Move or remove this family's students first." (normally pre-empted by a student count; R14)      |
 | `23514` check violation               | form        | "Please check the highlighted fields." (should be unreachable after Zod)                          |
 | `P0002`                               | (not found) | `notFound()`                                                                                      |
 | anything else                         | form        | "We couldn't save this. Please try again." (log `{ action, code }` only)                          |

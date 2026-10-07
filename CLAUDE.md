@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-MyTutorHour turns a tutor's short post-lesson voice note (or typed bullets) into a structured lesson log, a parent-friendly update and next steps. The tutor reviews everything before it is sent. The audience is solo UK tutors, mostly on mobile. The repo is at a very early stage: a `create-next-app` scaffold with empty placeholders for the DB and storage clients. Most product thinking so far lives in `docs/`.
+MyTutorHour turns a tutor's short post-lesson voice note (or typed bullets) into a structured lesson log, a parent-friendly update and next steps. The tutor reviews everything before it is sent. The audience is solo UK tutors, mostly on mobile. The repo is at a very early stage: a `create-next-app` scaffold with empty placeholders for the DB and storage clients. Product thinking lives in the Spec Kit files (see Specs below).
 
 ## Commands
 
@@ -36,18 +36,19 @@ E2E tests live in `e2e/*.spec.ts` (`playwright.config.ts`). They run against des
 - Env files (`.env*`) are gitignored. Claude is denied read access to them in `.claude/settings.json`.
 - Formatting (`.prettierrc`): single quotes, semicolons, 100-column lines, ES5 trailing commas, LF line endings.
 
-## Docs (source of truth for product decisions)
+## Specs (source of truth for product decisions)
 
-`docs/` is also an Obsidian vault (`.obsidian/` sits at the repo root). Read these before building features:
+Product decisions live in Spec Kit files. Read these before building features:
 
-- `docs/mission.md`: target users, product principles, non-goals and open decisions.
-- `docs/tech-stack.md`: stack decisions, the pipeline architecture, the data model sketch and the privacy/security checklist.
-- `docs/specs/voice-note-to-update.md`: the MVP feature spec, with numbered FR/NFR/AC IDs and the LLM output JSON contract. Use those IDs when referring to requirements.
-- `docs/research/`: background research behind the specs.
+- `.specify/memory/constitution.md`: the project principles and quality gates. It overrides other guidance.
+- `specs/001-student-list/`: students (adult or child), families and tags. Built first.
+- `specs/002-voice-note-to-update/`: the voice note → lesson log and parent update flow.
+
+Each feature folder holds `spec.md` (numbered FR/SC IDs; use them when referring to requirements) and, once planned, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` and `tasks.md`. `.specify/feature.json` points to the feature currently being worked on.
 
 ## Product rules that shape the code
 
-These come from the docs and are hard requirements, not nice-to-haves:
+These come from the constitution and specs and are hard requirements, not nice-to-haves:
 
 - **Nothing reaches a parent without explicit tutor approval.** A parent update moves through `draft` → `approved` → `sent`/`copied`, and only `approved` content can be sent or copied.
 - **Tutor private notes are never included in parent updates**, analytics or logs. This holds even after a regenerate.

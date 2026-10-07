@@ -32,5 +32,5 @@
 ## Notes
 
 - Four clarifications were resolved with the user before writing: family scope (full management), subject/level (kept as required fields), adult last name (required), and duplicate names in a family (blocked).
-- This spec replaces spec 001's per-student Guardian with a shared Family. Reconcile spec 001's data model (FR-001, FR-002, Guardian entity) during `/speckit-plan`.
-- Archiving and deleting students stay in spec 001 (US4, FR-003).
+- This spec replaces spec 002's per-student Guardian with a shared Family. Reconcile spec 002's data model (FR-001, FR-002, Guardian entity) during `/speckit-plan`.
+- Archiving and deleting students stay in spec 002 (US4, FR-003).

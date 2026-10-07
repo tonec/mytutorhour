@@ -43,20 +43,22 @@ to the longest matching route prefix, so `/students/<id>` gets the heading "Stud
 
 ## Form field labels (also used by role/label selectors)
 
-| Field                       | Label                                                                 | Shown when          |
-| --------------------------- | --------------------------------------------------------------------- | ------------------- |
-| Type                        | "Adult" / "Child" radios, group label "Student type"                  | always              |
-| First name                  | "First name"                                                          | always              |
-| Last name                   | "Last name"                                                           | adult               |
-| Family                      | "Family" (child: required; adult: "(optional)")                       | always              |
-| Subject                     | "Subject"                                                             | always              |
-| Level                       | "Level"                                                               | always              |
-| Exam board                  | "Exam board (optional)"                                               | always              |
-| Email / Phone               | "Email (optional)" / "Phone (optional)"                               | adult               |
-| Contact details (read-only) | "Contact (from family)"                                               | child with a family |
-| Tags                        | "Tags (optional)"                                                     | always              |
-| Notes                       | "Notes (only you can see these)" with a live character count `n/2000` | always              |
+| Field                       | Label                                                                                                   | Shown when          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------- |
+| Type                        | "Adult" / "Child" radios, group label "Student type"                                                    | always              |
+| First name                  | "First name"                                                                                            | always              |
+| Last name                   | "Last name"                                                                                             | adult               |
+| Family                      | "Family" (child: required; adult: "(optional)")                                                         | always              |
+| Subject                     | "Subject"                                                                                               | always              |
+| Level                       | "Level"                                                                                                 | always              |
+| Exam board                  | "Exam board (optional)"                                                                                 | always              |
+| Email / Phone               | "Email (optional)" / "Phone (optional)"                                                                 | adult               |
+| Contact details (read-only) | "Contact (from family)"                                                                                 | child with a family |
+| Tags                        | "Tags (optional)", hint "For organising your list, e.g. Year 11. Don't add health or personal details." | always              |
+| Notes                       | "Notes (only you can see these)" with a live character count `n/2000`                                   | always              |
 
 Error messages are linked to their inputs with `aria-describedby` and `aria-invalid`, and form-level
 messages use `FormMessage` (`role="alert"`). On a failed submit, focus moves to the first invalid
 field.
+This applies to errors found in the browser and to field errors returned by the server, such as a
+duplicate name (research R15).
