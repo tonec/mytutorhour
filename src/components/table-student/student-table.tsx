@@ -2,7 +2,17 @@
 
 import { createColumnHelper } from '@tanstack/react-table';
 import { useTable } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 import type { StudentListItem } from '@/services/db/student/mappers';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -36,6 +46,30 @@ export const columns = columnHelper.columns([
   }),
   columnHelper.accessor('tags', {
     header: 'Tags',
+  }),
+  columnHelper.display({
+    id: 'actions',
+    cell: ({ row }) => {
+      const payment = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0" />}>
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
+              Copy payment ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View customer</DropdownMenuItem>
+            <DropdownMenuItem>View payment details</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   }),
 ]);
 
