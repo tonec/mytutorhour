@@ -126,7 +126,13 @@ NEEDS CLARIFICATION items remain.
 ## R16. Keeping text typed before hydration (FR-017)
 
 - **Problem**: Forms are server-rendered, so a tutor on a slow phone can start typing before React hydrates the page. When `FormField` hydrates, React Hook Form's `register` ref runs `updateValidAndValue`. Because the field has a defined default (`''`), it calls `setFieldValue(name, defaultValue)`, which overwrites the DOM value and loses the typed text. In react-hook-form 7.89.0 this is `updateValidAndValue` in `dist/index.esm.mjs`. The E2E login hit it on mobile WebKit, where the email vanished while the password typed after hydration survived.
-- **Decision**: Wrap the registration ref in `FormField` and `TextareaField`. Read the element's value before registering; if it held typed text that registering cleared, restore it with `setValue(name, typed, { shouldDirty: true })`. No inputs are disabled, so forms still work without JS.
+- **Decision**: `useHydrationSafeRegister` (`src/components/ui/use-hydration-safe-register.ts`) wraps the registration ref in `FormField` and `TextareaField`. It reads the element's value before registering. If registering cleared typed text, it does two things:
+  - It writes the text straight back to the input, so the field never shows empty.
+  - It sets it in form state with `setValue` from a microtask queued in an effect. Watchers (`useWatch`, a parent's `watch`) subscribe after the ref runs, and `setValue` only notifies on a real change, so setting it inside the ref would leave them stale. React flushes passive effects in one synchronous pass, so the microtask runs after every subscriber exists.
+
+  No inputs are disabled, so forms still work without JS.
+
+- **Tests**: unit tests server-render a form, type into it, then hydrate. The E2E test `e2e/auth.spec.ts` holds back the page's JavaScript, types, then releases it and waits until React has attached to the input. It fails without the fix on all four projects.
 - **Alternatives considered**:
   - Remove `''` text defaults so React Hook Form reads the DOM instead. Rejected because it weakens typing and `reset()` for every form.
   - Disable inputs until hydrated. Rejected because it breaks the no-JS path and blocks fast typists.

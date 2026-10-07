@@ -74,16 +74,10 @@ export const test = base.extend<Fixtures>({
       }
 
       await tutorPage.goto('/login');
-      // Text typed before React hydrates the form can be reset to the default value (seen on
-      // mobile WebKit), so retry until the login lands on the dashboard.
-      const loginPage = tutorPage;
-      await expect(async () => {
-        await loginPage.getByLabel('Email').fill(email);
-        await loginPage.getByLabel('Password').fill(PASSWORD);
-        await expect(loginPage.getByLabel('Email')).toHaveValue(email);
-        await loginPage.getByRole('button', { name: 'Log in' }).click();
-        await expect(loginPage).toHaveURL('/dashboard', { timeout: 5_000 });
-      }).toPass({ timeout: 30_000 });
+      await tutorPage.getByLabel('Email').fill(email);
+      await tutorPage.getByLabel('Password').fill(PASSWORD);
+      await tutorPage.getByRole('button', { name: 'Log in' }).click();
+      await expect(tutorPage).toHaveURL('/dashboard');
 
       return { id: data.user.id, email, page: tutorPage };
     });

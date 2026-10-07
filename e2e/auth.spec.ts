@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { type Route, expect, test } from '@playwright/test';
 
 test.describe('Login page', () => {
   test('shows the login form', async ({ page }) => {
@@ -21,6 +21,34 @@ test.describe('Login page', () => {
 
     // Assert
     await expect(page).toHaveURL('/signup');
+  });
+
+  test('keeps text typed before the page finishes loading', async ({ page }) => {
+    // Arrange: hold back the page's JavaScript so the form is guaranteed to be un-hydrated
+    const heldScripts: Route[] = [];
+    let released = false;
+    await page.route('**/_next/static/**/*.js', async (route) => {
+      if (released) await route.continue();
+      else heldScripts.push(route);
+    });
+    await page.goto('/login', { waitUntil: 'commit' });
+
+    // Act: type into the server-rendered form, then let React load and hydrate it (research R16)
+    await page.getByLabel('Email').fill('emily.taylor@example.test');
+    await page.getByLabel('Password').fill('not-a-real-password');
+    released = true;
+    await Promise.all(heldScripts.map((route) => route.continue()));
+    await page.waitForFunction(() => {
+      const email = document.getElementById('email');
+      return email !== null && Object.keys(email).some((key) => key.startsWith('__reactProps'));
+    });
+
+    // Assert: the typed text survived hydration and is what gets submitted
+    await expect(page.getByLabel('Email')).toHaveValue('emily.taylor@example.test');
+    await page.getByRole('button', { name: 'Log in' }).click();
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'Incorrect email or password.' })
+    ).toBeVisible();
   });
 
   test('fits the viewport without horizontal scrolling', async ({ page }) => {

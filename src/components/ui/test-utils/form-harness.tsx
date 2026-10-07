@@ -1,5 +1,7 @@
 import { type ActionState, EMPTY_FORM_STATE } from '@/utils/form';
+import { render } from '@testing-library/react';
 import { type PropsWithChildren } from 'react';
+import { renderToString } from 'react-dom/server';
 import { type FieldValues, useForm } from 'react-hook-form';
 import { ActionForm } from '@/components/ui/action-form';
 
@@ -45,4 +47,16 @@ export function errorState(field: string, message: string): ActionState {
     fieldErrors: { errors: [], properties: { [field]: { errors: [message] } } },
     timestamp: Date.now(),
   };
+}
+
+// Server-renders the form, lets the "user" type before React hydrates it, then hydrates.
+export function hydrateWithTypedValue(ui: React.ReactElement, id: string, typed?: string) {
+  const container = document.createElement('div');
+  container.innerHTML = renderToString(ui);
+  document.body.appendChild(container);
+  if (typed !== undefined) {
+    const input = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`);
+    if (input) input.value = typed;
+  }
+  return render(ui, { container, hydrate: true });
 }

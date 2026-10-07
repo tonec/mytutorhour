@@ -6,6 +6,7 @@ import { useActionStateContext } from '@/components/ui/action-form';
 import { FieldError } from '@/components/ui/field-error';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useHydrationSafeRegister } from '@/components/ui/use-hydration-safe-register';
 
 type Props = Omit<React.ComponentProps<'textarea'>, 'name' | 'defaultValue'> & {
   name: string;
@@ -15,10 +16,10 @@ type Props = Omit<React.ComponentProps<'textarea'>, 'name' | 'defaultValue'> & {
 export function TextareaField({ name, label, id = name, maxLength, ...textareaProps }: Props) {
   const actionState = useActionStateContext();
   const {
-    register,
     control,
     formState: { errors },
   } = useFormContext();
+  const registerField = useHydrationSafeRegister();
   const value = useWatch({ control, name }) as string | undefined;
   const clientError = errors[name]?.message as string | undefined;
   const countId = `${name}-count`;
@@ -35,7 +36,7 @@ export function TextareaField({ name, label, id = name, maxLength, ...textareaPr
         aria-invalid={Boolean(clientError ?? getFieldError(actionState, name))}
         aria-describedby={maxLength ? `${name}-error ${countId}` : `${name}-error`}
         {...textareaProps}
-        {...register(name)}
+        {...registerField(name)}
       />
       {maxLength ? (
         <span

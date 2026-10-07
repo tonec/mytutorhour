@@ -6,6 +6,7 @@ import { useActionStateContext } from '@/components/ui/action-form';
 import { FieldError } from '@/components/ui/field-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useHydrationSafeRegister } from '@/components/ui/use-hydration-safe-register';
 
 type Props = Omit<React.ComponentProps<'input'>, 'name' | 'defaultValue'> & {
   name: string;
@@ -15,9 +16,9 @@ type Props = Omit<React.ComponentProps<'input'>, 'name' | 'defaultValue'> & {
 export function FormField({ name, label, id = name, ...inputProps }: Props) {
   const actionState = useActionStateContext();
   const {
-    register,
     formState: { errors },
   } = useFormContext();
+  const registerField = useHydrationSafeRegister();
   const clientError = errors[name]?.message as string | undefined;
 
   return (
@@ -32,7 +33,7 @@ export function FormField({ name, label, id = name, ...inputProps }: Props) {
         aria-invalid={Boolean(clientError ?? getFieldError(actionState, name))}
         aria-describedby={`${name}-error`}
         {...inputProps}
-        {...register(name)}
+        {...registerField(name)}
       />
       <FieldError actionState={actionState} name={name} clientError={clientError} />
     </div>

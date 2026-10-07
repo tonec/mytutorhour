@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { FormHarness, errorState } from './test-utils/form-harness';
+import { FormHarness, errorState, hydrateWithTypedValue } from './test-utils/form-harness';
 import { TextareaField } from './textarea-field';
 
 describe('TextareaField', () => {
@@ -64,5 +64,21 @@ describe('TextareaField', () => {
     const textarea = screen.getByLabelText('Notes');
     expect(textarea).toHaveAttribute('aria-invalid', 'true');
     expect(textarea).toHaveAccessibleDescription('Notes are too long.');
+  });
+
+  it('keeps text typed before hydration and counts it', async () => {
+    // Arrange
+    const ui = (
+      <FormHarness defaultValues={{ notes: '' }}>
+        <TextareaField name="notes" label="Notes" maxLength={2000} />
+      </FormHarness>
+    );
+
+    // Act
+    hydrateWithTypedValue(ui, 'notes', 'Working on fractions');
+
+    // Assert
+    expect(screen.getByLabelText('Notes')).toHaveValue('Working on fractions');
+    expect(await screen.findByText('20/2000')).toBeInTheDocument();
   });
 });
