@@ -59,7 +59,9 @@ export function StudentTableBody({ table, rowVirtualizer }: StudentTableBodyProp
                 className="flex shrink-0 items-center overflow-hidden"
                 style={{ width: cell.column.getSize() }}
               >
-                <table.FlexRender cell={cell} />
+                <div className="truncate">
+                  <table.FlexRender cell={cell} />
+                </div>
               </TableCell>
             ))}
           </TableRow>
