@@ -10,7 +10,7 @@ export default function PrivateLayout({ children }: PropsWithChildren) {
         <DashboardSidebar />
         <SidebarInset className="flex flex-col">
           <PageHeader />
-          <div>{children}</div>
+          <div className="h-full w-full">{children}</div>
         </SidebarInset>
       </div>
     </SidebarProvider>

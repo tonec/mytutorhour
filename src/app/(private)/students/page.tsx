@@ -5,7 +5,7 @@ export default async function StudentsPage() {
   const students = await listStudents();
 
   return (
-    <div className="w-full">
+    <div className="h-full w-full">
       <StudentTable students={students} />
     </div>
   );

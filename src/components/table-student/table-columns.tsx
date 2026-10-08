@@ -68,8 +68,8 @@ export const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor('type', {
-    header: headerWithSort('Title'),
-    size: 100,
+    header: headerWithSort('Type'),
+    size: 80,
     cell: ({ getValue }) => (
       <Badge variant="secondary" data-testid="student-type-badge">
         {getValue() === 'child' ? 'Child' : 'Adult'}

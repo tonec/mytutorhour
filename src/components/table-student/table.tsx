@@ -132,10 +132,7 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
       </div>
 
       {/* Rows are absolutely positioned, so the table uses grid/flex layout with fixed column widths */}
-      <div
-        ref={tableContainerRef}
-        className="relative h-[70dvh] w-full overflow-auto rounded-md border"
-      >
+      <div ref={tableContainerRef} className="relative h-[calc(100vh-116px)] w-full overflow-auto">
         <table className="grid min-w-full text-sm" style={{ width: table.getTotalSize() }}>
           <StudentTableHeader table={table} />
           <StudentTableBody table={table} rowVirtualizer={rowVirtualizer} />
