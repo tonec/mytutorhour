@@ -213,3 +213,165 @@ test.describe('US1 add a child', () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 });
+
+test.describe('student list actions', () => {
+  test('the actions menu opens the student to edit', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    const familyId = await seedFamily(adminClient, tutor.id, {
+      name: 'Taylor',
+      contactName: 'Sarah Taylor',
+    });
+    const studentId = await seedStudent(adminClient, tutor.id, {
+      type: 'child',
+      firstName: 'Emily',
+      familyId,
+      subject: 'Maths',
+      level: 'GCSE',
+    });
+    await page.goto('/students');
+
+    // Act
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await row.getByTestId('student-actions').click();
+    await page.getByRole('menuitem', { name: 'Edit student' }).click();
+
+    // Assert
+    await expect(page).toHaveURL(`/students/${studentId}`);
+  });
+
+  test('shows a child’s family contact and offers to copy it', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    const familyId = await seedFamily(adminClient, tutor.id, {
+      name: 'Taylor',
+      contactName: 'Sarah Taylor',
+      contactEmail: 'sarah.taylor@example.test',
+    });
+    await seedStudent(adminClient, tutor.id, {
+      type: 'child',
+      firstName: 'Emily',
+      familyId,
+      subject: 'Maths',
+      level: 'GCSE',
+    });
+    await page.goto('/students');
+
+    // Act
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await row.getByTestId('student-actions').click();
+
+    // Assert
+    await expect(row).toContainText('sarah.taylor@example.test');
+    await expect(page.getByRole('menuitem', { name: 'Copy email' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Copy phone' })).toHaveCount(0);
+  });
+
+  test('offers to copy an adult’s own email and phone', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    await seedStudent(adminClient, tutor.id, {
+      type: 'adult',
+      firstName: 'James',
+      lastName: 'Wilson',
+      subject: 'English',
+      level: 'A level',
+      email: 'james.wilson@example.test',
+      phone: '07700 900456',
+    });
+    await page.goto('/students');
+
+    // Act
+    const row = page.getByTestId('student-row').filter({ hasText: 'James' });
+    await row.getByTestId('student-actions').click();
+
+    // Assert
+    await expect(page.getByRole('menuitem', { name: 'Copy email' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Copy phone' })).toBeVisible();
+  });
+});
+
+test.describe('student notes from the list', () => {
+  async function seedEmily(tutor: { id: string }, adminClient: Parameters<typeof seedFamily>[0]) {
+    const familyId = await seedFamily(adminClient, tutor.id, {
+      name: 'Taylor',
+      contactName: 'Sarah Taylor',
+    });
+    return seedStudent(adminClient, tutor.id, {
+      type: 'child',
+      firstName: 'Emily',
+      familyId,
+      subject: 'Maths',
+      level: 'GCSE',
+      notes: 'Working on fractions',
+    });
+  }
+
+  async function openNotes(page: Page) {
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await row.getByTestId('student-actions').click();
+    await page.getByRole('menuitem', { name: 'View/edit notes' }).click();
+    return page.getByTestId('student-notes-dialog');
+  }
+
+  test('notes are not shown as a column in the list', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    await seedEmily(tutor, adminClient);
+
+    // Act
+    await page.goto('/students');
+
+    // Assert
+    await expect(page.getByTestId('student-row').filter({ hasText: 'Emily' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Notes' })).toHaveCount(0);
+    await expect(page.getByText('Working on fractions')).toHaveCount(0);
+  });
+
+  test('views and edits a student’s notes in a dialog', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    const studentId = await seedEmily(tutor, adminClient);
+    await page.goto('/students');
+
+    // Act
+    const dialog = await openNotes(page);
+    const notes = dialog.getByLabel('Notes (only you can see these)');
+    await expect(notes).toHaveValue('Working on fractions');
+    await notes.fill('Fractions done, start on algebra');
+    await dialog.getByRole('button', { name: 'Save notes' }).click();
+
+    // Assert
+    await expect(dialog).toBeHidden();
+    await expect(page.getByTestId('student-actions').first()).toBeFocused();
+    const reopened = await openNotes(page);
+    await expect(reopened.getByLabel('Notes (only you can see these)')).toHaveValue(
+      'Fractions done, start on algebra'
+    );
+    const { data } = await adminClient
+      .from('students')
+      .select('notes, subject')
+      .eq('id', studentId)
+      .single();
+    expect(data).toEqual({ notes: 'Fractions done, start on algebra', subject: 'Maths' });
+  });
+
+  test('cancelling discards unsaved notes', async ({ tutor, adminClient }) => {
+    // Arrange
+    const { page } = tutor;
+    await seedEmily(tutor, adminClient);
+    await page.goto('/students');
+
+    // Act
+    const dialog = await openNotes(page);
+    await dialog.getByLabel('Notes (only you can see these)').fill('Not saved');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+
+    // Assert
+    await expect(dialog).toBeHidden();
+    const reopened = await openNotes(page);
+    await expect(reopened.getByLabel('Notes (only you can see these)')).toHaveValue(
+      'Working on fractions'
+    );
+  });
+});

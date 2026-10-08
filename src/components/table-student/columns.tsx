@@ -1,17 +1,13 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
+import Link from 'next/link';
 import { StudentListItem } from '@/services/db/student/mappers';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { type DataTableFeatures } from '../data-table/data-table-features';
+import { StudentActions } from './student-actions';
+import { studentUrl } from './student-url';
 
 const columnHelper = createColumnHelper<DataTableFeatures, StudentListItem>();
 
@@ -48,12 +44,23 @@ export const columns = columnHelper.columns([
         </Button>
       );
     },
+    cell: ({ row, getValue }) => (
+      <Link href={studentUrl(row.original.id)} className="font-medium hover:underline">
+        {getValue()}
+      </Link>
+    ),
+  }),
+  columnHelper.accessor('type', {
+    header: 'Type',
+    size: 100,
+    cell: ({ getValue }) => (
+      <Badge variant="secondary" data-testid="student-type-badge">
+        {getValue() === 'child' ? 'Child' : 'Adult'}
+      </Badge>
+    ),
   }),
   columnHelper.accessor('familyName', {
     header: 'Family',
-  }),
-  columnHelper.accessor('notes', {
-    header: 'Notes',
   }),
   columnHelper.accessor('email', {
     header: 'Contact email',
@@ -69,26 +76,6 @@ export const columns = columnHelper.columns([
   // }),
   columnHelper.display({
     id: 'actions',
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0" />}>
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <StudentActions student={row.original} />,
   }),
 ]);

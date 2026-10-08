@@ -76,6 +76,15 @@ function contactOf(row: StudentRow): StudentContact {
   };
 }
 
+// Children are contacted through their family (FR-008); adults use their own details (FR-010).
+function listContactOf(row: StudentRow): Pick<StudentListItem, 'email' | 'phone'> {
+  if (row.type === 'child') {
+    const { email, phone } = contactOf(row);
+    return { email, phone };
+  }
+  return { email: orUndefined(row.email), phone: orUndefined(row.phone) };
+}
+
 export function toStudentListItem(row: StudentRow): StudentListItem {
   return {
     id: row.id,
@@ -84,8 +93,7 @@ export function toStudentListItem(row: StudentRow): StudentListItem {
     familyId: orUndefined(row.family_id),
     familyName: row.families?.name,
     notes: orUndefined(row.notes),
-    email: orUndefined(row.email),
-    phone: orUndefined(row.phone),
+    ...listContactOf(row),
     subject: row.subject,
     level: row.level,
     tags: tagsOf(row),

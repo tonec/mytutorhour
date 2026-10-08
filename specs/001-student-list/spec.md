@@ -14,6 +14,10 @@
 - Q: What name is recorded for adults? → A: First name and last name are both required. Children are first name only.
 - Q: What happens if two students in the same family have the same name? → A: Saving is blocked. The tutor must adjust a name so the students can be told apart.
 
+### Session 2026-10-08
+
+- Q: Are a student's notes shown in the student list? → A: No. Notes aren't a list column. Each row's actions menu has a "View/edit notes" option that opens a dialog where the tutor reads and edits the notes in place, without leaving the list.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Add a child student with their family (Priority: P1)
@@ -97,6 +101,7 @@ changes persist and the adult-only fields are removed.
 2. **Given** an adult with a last name, email and phone, **When** the tutor switches the type to "Child", **Then** they are warned that the last name, email and phone will be removed and that a family is required, **And** on confirm those values are removed and the student uses the family's contact details.
 3. **Given** a child, **When** switched to "Adult", **Then** the family link is kept (optional) and empty email, phone and last-name fields appear, **And** the student can't be saved until a last name is entered.
 4. **Given** the tutor edits and then cancels, **Then** no changes are saved.
+5. **Given** a student with notes, **When** the tutor chooses "View/edit notes" from the student's actions in the list, **Then** a dialog shows the notes, **And** saving updates only the notes and closes the dialog, **And** cancelling discards the changes.
 
 ---
 
@@ -155,11 +160,12 @@ rename shows on every tagged student and the delete removes it from all of them.
 
 ### Student list
 
-- **FR-001**: The system MUST show the tutor a list of all their students with first name (plus last name for adults), adult/child indicator, family name (if any), subject, level and tags.
+- **FR-001**: The system MUST show the tutor a list of all their students with first name (plus last name for adults), adult/child indicator, family name (if any), subject, level and tags. Notes MUST NOT be shown in the list (see FR-030).
 - **FR-002**: The list MUST be sorted alphabetically by first name, case-insensitive.
 - **FR-003**: Tutors MUST be able to search the list by student name or family name (case-insensitive, partial match).
 - **FR-004**: Tutors MUST be able to filter the list by one tag at a time and clear the filter.
 - **FR-005**: The list MUST show an empty state with an "Add student" action when the tutor has no students, and a "no matches" state when a search or filter returns nothing.
+- **FR-030**: Each student in the list MUST have a "View/edit notes" action that opens a dialog showing the student's notes in an editable field (with the FR-015 limit and character count). Saving MUST update only the notes and keep the tutor on the list, and cancelling MUST discard the changes (FR-017).
 
 ### Adding and editing students
 

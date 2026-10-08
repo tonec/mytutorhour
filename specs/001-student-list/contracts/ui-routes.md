@@ -37,6 +37,8 @@ to the longest matching route prefix, so `/students/<id>` gets the heading "Stud
 | `family-dialog`                                                                | inline family dialog                                                               |
 | `tag-picker`                                                                   | tags combobox                                                                      |
 | `contact-details`                                                              | read-only contact block on a child (family details / "No contact details" message) |
+| `student-actions`                                                              | actions menu button in a row ("Edit student", "View/edit notes", copy contact)     |
+| `student-notes-dialog`                                                         | "View/edit notes" dialog opened from a row (FR-030)                                |
 | `type-switch-confirm`                                                          | adult → child confirmation dialog                                                  |
 | `family-list`, `family-row`, `family-form`, `family-students`, `family-delete` | family screens                                                                     |
 | `tag-list`, `tag-row`, `tag-rename`, `tag-delete`                              | tag management                                                                     |

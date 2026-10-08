@@ -26,6 +26,16 @@ On success they call `revalidatePath` on the affected routes and then `redirect`
 - **Duplicate name**: returns `ERROR` with `fieldErrors.properties.firstName` (see data-model error mapping).
 - **Not found (`P0002`)**: `notFound()`.
 
+### `saveStudentNotes(state, formData)`: `src/components/form-student-notes/actions.ts`
+
+Keys: `id` (uuid), `notes` (string, up to 2,000 characters; blank clears the notes). Used by the
+"View/edit notes" dialog in the student list (FR-030).
+
+- **Success**: updates only `students.notes`, calls `revalidatePath('/students', 'layout')`, and
+  **does not redirect**. It returns `SUCCESS` so the dialog can close.
+- **Validation error**: returns `ERROR` with `fieldErrors` and `payload`.
+- **Not found** (no row updated, i.e. missing or another tutor's): `notFound()`.
+
 ## Families: `src/app/(private)/families/actions.ts`
 
 ### `saveFamily(state, formData)`

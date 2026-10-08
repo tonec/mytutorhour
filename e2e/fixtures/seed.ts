@@ -19,6 +19,7 @@ type SeedStudent = {
   level: string;
   email?: string;
   phone?: string;
+  notes?: string;
 };
 
 function fail(what: string, error: { code?: string } | null): never {
@@ -55,6 +56,7 @@ export async function seedStudent(admin: AdminClient, tutorId: string, student: 
       level: student.level,
       email: student.email ?? null,
       phone: student.phone ?? null,
+      notes: student.notes ?? null,
     })
     .select('id')
     .single();

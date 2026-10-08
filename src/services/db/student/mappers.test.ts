@@ -35,7 +35,7 @@ function childRow(overrides: Partial<StudentRow> = {}): StudentRow {
 }
 
 describe('toStudentListItem', () => {
-  it('shows a child by first name with their family and tags', () => {
+  it('shows a child by first name with their family, family contact and tags', () => {
     // Arrange
     const row = childRow();
 
@@ -49,6 +49,9 @@ describe('toStudentListItem', () => {
       displayName: 'Emily',
       familyId: taylor.id,
       familyName: 'Taylor',
+      notes: 'Working on fractions',
+      email: 'sarah.taylor@example.test',
+      phone: '07700 900123',
       subject: 'Maths',
       level: 'GCSE',
       tags: [
@@ -56,6 +59,36 @@ describe('toStudentListItem', () => {
         { id: 'd2e3f4a5-b6c7-4d8e-9f0a-1b2c3d4e5f6a', name: 'Online' },
       ],
     });
+  });
+
+  it('leaves a child’s contact empty when the family has no email or phone', () => {
+    // Arrange
+    const row = childRow({ families: { ...taylor, contact_email: null, contact_phone: null } });
+
+    // Act
+    const item = toStudentListItem(row);
+
+    // Assert
+    expect(item.email).toBeUndefined();
+    expect(item.phone).toBeUndefined();
+  });
+
+  it('shows an adult’s own contact details even when linked to a family', () => {
+    // Arrange
+    const row = childRow({
+      type: 'adult',
+      first_name: 'James',
+      last_name: 'Wilson',
+      email: 'james.wilson@example.test',
+      phone: '07700 900456',
+    });
+
+    // Act
+    const item = toStudentListItem(row);
+
+    // Assert
+    expect(item.email).toBe('james.wilson@example.test');
+    expect(item.phone).toBe('07700 900456');
   });
 });
 

@@ -1,11 +1,10 @@
 import {
   columnFilteringFeature,
+  columnSizingFeature,
   columnVisibilityFeature,
   createFilteredRowModel,
-  createPaginatedRowModel,
   createSortedRowModel,
   filterFn_includesString,
-  rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
   sortFn_alphanumeric,
@@ -17,12 +16,11 @@ import {
 // register is tree-shaken out of the bundle.
 export const features = tableFeatures({
   columnFilteringFeature,
+  columnSizingFeature,
   columnVisibilityFeature,
-  rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
   filteredRowModel: createFilteredRowModel(),
-  paginatedRowModel: createPaginatedRowModel(),
   sortedRowModel: createSortedRowModel(),
   filterFns: { includesString: filterFn_includesString },
   sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text },
