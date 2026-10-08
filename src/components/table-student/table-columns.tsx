@@ -55,12 +55,14 @@ export const columns = columnHelper.columns([
         aria-label="Select row"
       />
     ),
-    size: 58,
+    size: 48,
+    maxSize: 48,
     enableSorting: false,
     enableHiding: false,
   }),
   columnHelper.accessor('displayName', {
     header: headerWithSort('Name'),
+    size: 180,
     cell: ({ row, getValue }) => (
       <Link href={studentUrl(row.original.id)} className="font-medium hover:underline">
         {getValue()}
@@ -69,7 +71,8 @@ export const columns = columnHelper.columns([
   }),
   columnHelper.accessor('type', {
     header: headerWithSort('Type'),
-    size: 80,
+    size: 90,
+    maxSize: 90,
     cell: ({ getValue }) => (
       <Badge variant="secondary" data-testid="student-type-badge">
         {getValue() === 'child' ? 'Child' : 'Adult'}
@@ -78,18 +81,23 @@ export const columns = columnHelper.columns([
   }),
   columnHelper.accessor('familyName', {
     header: headerWithSort('Family'),
+    size: 140,
   }),
   columnHelper.accessor('email', {
     header: headerWithSort('Contact email'),
+    size: 220,
   }),
   columnHelper.accessor('phone', {
     header: headerWithSort('Contact phone'),
+    size: 140,
   }),
   columnHelper.accessor('subject', {
     header: headerWithSort('Subject'),
+    size: 130,
   }),
   columnHelper.accessor('tags', {
     header: 'Tags',
+    size: 180,
     cell: ({ getValue }) => (
       <div className="flex flex-wrap gap-1">
         {getValue().map((tag: { id: string; name: string }) => (
@@ -102,6 +110,8 @@ export const columns = columnHelper.columns([
   }),
   columnHelper.display({
     id: 'actions',
+    size: 56,
+    maxSize: 56,
     cell: ({ row }) => <StudentActions student={row.original} />,
   }),
 ]);

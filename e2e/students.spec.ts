@@ -44,7 +44,7 @@ test.describe('US1 add a child', () => {
     await expect(row).toContainText('Taylor');
     await expect(row.getByTestId('student-type-badge')).toHaveText('Child');
 
-    await row.click();
+    await row.getByRole('link', { name: 'Emily' }).click();
     const contact = page.getByTestId('contact-details');
     await expect(contact).toContainText('Sarah Taylor');
     await expect(contact).toContainText('sarah.taylor@example.test');
@@ -90,7 +90,11 @@ test.describe('US1 add a child', () => {
 
     // Assert
     await expect(page).toHaveURL('/students');
-    await page.getByTestId('student-row').filter({ hasText: 'Oliver' }).click();
+    await page
+      .getByTestId('student-row')
+      .filter({ hasText: 'Oliver' })
+      .getByRole('link', { name: 'Oliver' })
+      .click();
     await expect(page.getByTestId('contact-details')).toContainText('sarah.taylor@example.test');
   });
 

@@ -1,5 +1,6 @@
 import { Virtualizer } from '@tanstack/react-virtual';
 import { TableBody, TableCell, TableRow } from '../ui/table';
+import { columnStyle } from './column-style';
 import { StudentReactTable } from './table-types';
 
 export interface StudentTableBodyProps {
@@ -40,8 +41,8 @@ export function StudentTableBody({ table, rowVirtualizer }: StudentTableBodyProp
             {row.getVisibleCells().map((cell) => (
               <TableCell
                 key={cell.id}
-                className="flex shrink-0 items-center overflow-hidden"
-                style={{ width: cell.column.getSize() }}
+                className="flex items-center overflow-hidden"
+                style={columnStyle(cell.column)}
               >
                 <div className="truncate">
                   <table.FlexRender cell={cell} />

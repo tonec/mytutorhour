@@ -131,9 +131,10 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
         </div>
       </div>
 
-      {/* Rows are absolutely positioned, so the table uses grid/flex layout with fixed column widths */}
+      {/* Rows are absolutely positioned, so the table uses grid/flex layout. Columns grow to fill the
+          container but never shrink below their size; past that, the container scrolls sideways */}
       <div ref={tableContainerRef} className="relative h-[calc(100vh-116px)] w-full overflow-auto">
-        <table className="grid min-w-full text-sm" style={{ width: table.getTotalSize() }}>
+        <table className="grid w-full text-sm" style={{ minWidth: table.getTotalSize() }}>
           <StudentTableHeader table={table} />
           <StudentTableBody table={table} rowVirtualizer={rowVirtualizer} />
         </table>
