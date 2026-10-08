@@ -8,6 +8,7 @@ import {
   useTable,
 } from '@tanstack/react-table';
 import { type Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
+import { Columns3Cog } from 'lucide-react';
 import { type MouseEvent, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { StudentListItem } from '@/services/db/student/mappers';
@@ -67,6 +68,7 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
   // Owned here, not in the body: React attaches refs and runs layout effects child-first, so a
   // virtualizer inside the scroll container would mount before `tableContainerRef` is set and
   // render no rows until something else triggered a re-render.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLTableRowElement>({
     count: rows.length,
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
@@ -81,33 +83,39 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 py-4">
-        <Input
-          placeholder="Filter students..."
-          value={(table.getColumn('displayName')?.getFilterValue() as string) ?? ''}
-          onChange={(event) => table.getColumn('displayName')?.setFilterValue(event.target.value)}
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" className="ml-auto" />}>
-            Columns
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center gap-2 p-2">
+        <div>
+          <Input
+            variant="flat"
+            compact
+            placeholder="Filter students..."
+            value={(table.getColumn('displayName')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('displayName')?.setFilterValue(event.target.value)}
+            className="max-w-xs"
+          />
+        </div>
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="secondary" size="icon" />}>
+              <Columns3Cog />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {/* Rows are absolutely positioned, so the table uses grid/flex layout with fixed column widths */}
       <div
