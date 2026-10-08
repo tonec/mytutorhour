@@ -3,6 +3,7 @@ import { toFormState } from '@/utils/form';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { StudentDetail } from '@/services/db/student/mappers';
 import { NETWORK_ERROR_MESSAGE } from '@/hooks/use-action-form';
 import { saveFamily } from '@/components/form-family/actions';
 import { saveStudent } from './actions';
@@ -28,17 +29,39 @@ const families = [
 ];
 
 async function chooseFamily(user: UserEvent, label: string) {
-  await user.click(screen.getByLabelText('Family'));
+  await user.click(screen.getByRole('combobox', { name: 'Family' }));
   await user.click(await screen.findByRole('option', { name: label }));
 }
 
+async function next(user: UserEvent) {
+  await user.click(screen.getByTestId('wizard-next'));
+}
+
+const progress = () => screen.getByTestId('wizard-progress');
+
+// Goes through every step, ending on Notes with the Save button showing.
 async function fillChild(user: UserEvent) {
   await user.type(screen.getByLabelText('First name'), 'Emily');
+  await next(user);
   await chooseFamily(user, 'Taylor (Sarah Taylor)');
+  await next(user);
   await user.type(screen.getByLabelText('Subject'), 'Maths');
   await user.type(screen.getByLabelText('Level'), 'GCSE');
+  await next(user);
   await user.type(screen.getByLabelText('Notes (only you can see these)'), 'Working on fractions');
 }
+
+const emily: StudentDetail = {
+  id: '3a2b1c0d-9e8f-4a7b-8c6d-5e4f3a2b1c0d',
+  type: 'child',
+  firstName: 'Emily',
+  familyId: TAYLOR_ID,
+  subject: 'Maths',
+  level: 'GCSE',
+  notes: 'Working on fractions',
+  tagIds: [],
+  contact: { source: 'family', name: 'Sarah Taylor', isEmpty: true },
+};
 
 describe('StudentForm', () => {
   beforeEach(() => {
@@ -57,19 +80,101 @@ describe('StudentForm', () => {
     expect(screen.queryByLabelText(/Phone/)).not.toBeInTheDocument();
   });
 
-  it('requires a family for a child and does not save without one', async () => {
+  it('splits the form into four steps, starting with the name', () => {
+    // Arrange & Act
+    render(<StudentForm families={families} />);
+
+    // Assert
+    expect(progress()).toHaveTextContent('Step 1 of 4');
+    for (const title of ['Name', 'Family', 'Subject, level, board', 'Notes']) {
+      expect(screen.getByRole('navigation', { name: 'Form steps' })).toHaveTextContent(title);
+    }
+    expect(screen.getByLabelText('First name')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Save student' })).not.toBeInTheDocument();
+  });
+
+  it('shows a last name only while Adult is selected', async () => {
     // Arrange
     const user = userEvent.setup();
     render(<StudentForm families={families} />);
-    await user.type(screen.getByLabelText('First name'), 'Emily');
-    await user.type(screen.getByLabelText('Subject'), 'Maths');
-    await user.type(screen.getByLabelText('Level'), 'GCSE');
+    await user.type(screen.getByLabelText('First name'), 'Daniel');
+
+    // Act
+    await user.click(screen.getByRole('radio', { name: 'Adult' }));
+    const shownForAdult = screen.queryByLabelText('Last name') !== null;
+    await user.click(screen.getByRole('radio', { name: 'Child' }));
+
+    // Assert
+    expect(shownForAdult).toBe(true);
+    expect(screen.queryByLabelText('Last name')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('First name')).toHaveValue('Daniel');
+  });
+
+  it('requires an adult’s last name before moving on', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<StudentForm families={families} />);
+    await user.click(screen.getByRole('radio', { name: 'Adult' }));
+    await user.type(screen.getByLabelText('First name'), 'Daniel');
+
+    // Act
+    await next(user);
+
+    // Assert
+    expect(await screen.findByText('Enter a last name.')).toBeInTheDocument();
+    expect(progress()).toHaveTextContent('Step 1 of 4');
+  });
+
+  it('saves an adult with their last name and no family', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    vi.mocked(saveStudent).mockResolvedValue(toFormState('SUCCESS', 'Saved.'));
+    render(<StudentForm families={families} />);
+    await user.click(screen.getByRole('radio', { name: 'Adult' }));
+    await user.type(screen.getByLabelText('First name'), 'Daniel');
+    await user.type(screen.getByLabelText('Last name'), 'Hughes');
+    await next(user);
+    await next(user);
+    await user.type(screen.getByLabelText('Subject'), 'French');
+    await user.type(screen.getByLabelText('Level'), 'A level');
+    await next(user);
 
     // Act
     await user.click(screen.getByRole('button', { name: 'Save student' }));
 
     // Assert
+    await waitFor(() => expect(saveStudent).toHaveBeenCalledOnce());
+    const formData = vi.mocked(saveStudent).mock.calls[0][1];
+    expect(formData.get('type')).toBe('adult');
+    expect(formData.get('lastName')).toBe('Hughes');
+  });
+
+  it('shows a saved adult’s last name', () => {
+    // Arrange & Act
+    render(
+      <StudentForm
+        student={{ ...emily, type: 'adult', firstName: 'Daniel', lastName: 'Hughes' }}
+        families={families}
+      />
+    );
+
+    // Assert
+    expect(screen.getByLabelText('Last name')).toHaveValue('Hughes');
+  });
+
+  it('requires a family for a child before moving on', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<StudentForm families={families} />);
+    await user.type(screen.getByLabelText('First name'), 'Emily');
+    await next(user);
+
+    // Act
+    await next(user);
+
+    // Assert
     expect(await screen.findByText('Choose or add a family.')).toBeInTheDocument();
+    expect(progress()).toHaveTextContent('Step 2 of 4');
     expect(saveStudent).not.toHaveBeenCalled();
   });
 
@@ -77,6 +182,8 @@ describe('StudentForm', () => {
     // Arrange
     const user = userEvent.setup();
     render(<StudentForm families={families} />);
+    await user.type(screen.getByLabelText('First name'), 'Emily');
+    await next(user);
 
     // Act
     await chooseFamily(user, 'Taylor (Sarah Taylor)');
@@ -99,9 +206,11 @@ describe('StudentForm', () => {
       })
     );
     render(<StudentForm families={families} />);
+    await user.type(screen.getByLabelText('First name'), 'Emily');
+    await next(user);
 
     // Act
-    await user.click(screen.getByLabelText('Family'));
+    await user.click(screen.getByRole('combobox', { name: 'Family' }));
     await user.click(await screen.findByTestId('family-picker-add-new'));
     const dialog = await screen.findByTestId('family-dialog');
     await user.type(within(dialog).getByLabelText('Family name'), 'Hughes');
@@ -110,7 +219,7 @@ describe('StudentForm', () => {
 
     // Assert
     await waitFor(() => expect(screen.queryByTestId('family-dialog')).not.toBeInTheDocument());
-    expect(screen.getByLabelText('Family')).toHaveValue('Hughes (Jo Hughes)');
+    expect(screen.getByRole('combobox', { name: 'Family' })).toHaveValue('Hughes (Jo Hughes)');
     expect(saveFamily).toHaveBeenCalledTimes(1);
   });
 
@@ -187,7 +296,29 @@ describe('StudentForm', () => {
 
     // Assert
     expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(progress()).toHaveTextContent('Step 1 of 4');
     expect(screen.getByLabelText('First name')).toHaveAccessibleDescription(message);
     await waitFor(() => expect(screen.getByLabelText('First name')).toHaveFocus());
+  });
+
+  it('lets a saved student jump to any step and save from it', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    vi.mocked(saveStudent).mockResolvedValue(toFormState('SUCCESS', 'Saved.'));
+    render(<StudentForm student={emily} families={families} />);
+
+    // Act
+    await user.click(within(screen.getByTestId('wizard-step-notes')).getByRole('button'));
+    const jumpedTo = progress().textContent;
+    const headingFocused =
+      screen.getByRole('heading', { name: 'Notes' }) === document.activeElement;
+    await user.click(within(screen.getByTestId('wizard-step-name')).getByRole('button'));
+    await user.click(screen.getByRole('button', { name: 'Save student' }));
+
+    // Assert
+    expect(jumpedTo).toBe('Step 4 of 4');
+    expect(headingFocused).toBe(true);
+    expect(progress()).toHaveTextContent('Step 1 of 4');
+    await waitFor(() => expect(saveStudent).toHaveBeenCalledOnce());
   });
 });

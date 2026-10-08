@@ -10,10 +10,29 @@ async function chooseFamily(page: Page, option: string) {
   await page.getByRole('option', { name: option }).click();
 }
 
-async function fillChild(page: Page, firstName: string, subject = 'Maths', level = 'GCSE') {
+async function next(page: Page) {
+  await page.getByTestId('wizard-next').click();
+}
+
+// Clicks a step in the wizard's progress indicator.
+async function openStep(page: Page, step: 'name' | 'family' | 'study' | 'notes') {
+  await page.getByTestId(`wizard-step-${step}`).getByRole('button').click();
+}
+
+// Fills the subject step and moves on to Notes.
+async function fillStudy(page: Page, subject = 'Maths', level = 'GCSE') {
+  await page.getByLabel('Subject', { exact: true }).fill(subject);
+  await page.getByLabel('Level', { exact: true }).fill(level);
+  await next(page);
+}
+
+// Goes through every step of a new child, ending on Notes with Save showing.
+async function fillChild(page: Page, firstName: string, family: string) {
   await page.getByLabel('First name').fill(firstName);
-  await page.getByLabel('Subject').fill(subject);
-  await page.getByLabel('Level').fill(level);
+  await next(page);
+  await chooseFamily(page, family);
+  await next(page);
+  await fillStudy(page);
 }
 
 test.describe('US1 add a child', () => {
@@ -23,7 +42,8 @@ test.describe('US1 add a child', () => {
     await page.goto('/students/new');
 
     // Act
-    await fillChild(page, 'Emily');
+    await page.getByLabel('First name').fill('Emily');
+    await next(page);
     await page.getByRole('combobox', { name: 'Family' }).click();
     await page.getByTestId('family-picker-add-new').click();
     const dialog = page.getByTestId('family-dialog');
@@ -36,6 +56,8 @@ test.describe('US1 add a child', () => {
     await expect(page.getByRole('combobox', { name: 'Family' })).toHaveValue(
       'Taylor (Sarah Taylor)'
     );
+    await next(page);
+    await fillStudy(page);
     await page.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
@@ -45,6 +67,7 @@ test.describe('US1 add a child', () => {
     await expect(row.getByTestId('student-type-badge')).toHaveText('Child');
 
     await row.getByRole('link', { name: 'Emily' }).click();
+    await openStep(page, 'family');
     const contact = page.getByTestId('contact-details');
     await expect(contact).toContainText('Sarah Taylor');
     await expect(contact).toContainText('sarah.taylor@example.test');
@@ -58,10 +81,12 @@ test.describe('US1 add a child', () => {
     await expect(page.getByRole('radio', { name: 'Child' })).toBeChecked();
 
     // Act
-    await fillChild(page, 'Emily');
-    await page.getByRole('button', { name: 'Save student' }).click();
+    await page.getByLabel('First name').fill('Emily');
+    await next(page);
+    await next(page);
 
     // Assert
+    await expect(page.getByTestId('wizard-progress')).toHaveText('Step 2 of 4');
     await expect(page.getByLabel(/Last name/)).toHaveCount(0);
     await expect(page.getByLabel(/^Email/)).toHaveCount(0);
     await expect(page.getByLabel(/^Phone/)).toHaveCount(0);
@@ -84,8 +109,7 @@ test.describe('US1 add a child', () => {
     await page.goto('/students/new');
 
     // Act
-    await fillChild(page, 'Oliver');
-    await chooseFamily(page, 'Taylor (Sarah Taylor)');
+    await fillChild(page, 'Oliver', 'Taylor (Sarah Taylor)');
     await page.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
@@ -95,6 +119,7 @@ test.describe('US1 add a child', () => {
       .filter({ hasText: 'Oliver' })
       .getByRole('link', { name: 'Oliver' })
       .click();
+    await openStep(page, 'family');
     await expect(page.getByTestId('contact-details')).toContainText('sarah.taylor@example.test');
   });
 
@@ -117,6 +142,7 @@ test.describe('US1 add a child', () => {
       level: 'GCSE',
     });
     await page.goto(`/students/${studentId}`);
+    await openStep(page, 'family');
     await expect(page.getByTestId('contact-details')).toContainText('sarah.taylor@example.test');
 
     // Act
@@ -125,6 +151,7 @@ test.describe('US1 add a child', () => {
       .update({ contact_email: 'sarah@taylor-family.example.test' })
       .eq('id', familyId);
     await page.reload();
+    await openStep(page, 'family');
 
     // Assert
     await expect(page.getByTestId('contact-details')).toContainText(
@@ -149,16 +176,17 @@ test.describe('US1 add a child', () => {
     await page.goto('/students/new');
 
     // Act
-    await fillChild(page, 'emily');
-    await chooseFamily(page, 'Taylor (Sarah Taylor)');
+    await fillChild(page, 'emily', 'Taylor (Sarah Taylor)');
     await page.getByRole('button', { name: 'Save student' }).click();
 
-    // Assert
+    // Assert: back on the Name step with the error
     const firstName = page.getByLabel('First name');
     await expect(page.getByText(DUPLICATE_NAME)).toBeVisible();
+    await expect(page.getByTestId('wizard-progress')).toHaveText('Step 1 of 4');
     await expect(firstName).toBeFocused();
 
     await firstName.fill('Emily T');
+    await openStep(page, 'notes');
     await page.getByRole('button', { name: 'Save student' }).click();
     await expect(page).toHaveURL('/students');
     await expect(page.getByTestId('student-row').filter({ hasText: 'Emily T' })).toBeVisible();
@@ -172,8 +200,7 @@ test.describe('US1 add a child', () => {
     const { page } = tutor;
     await seedFamily(adminClient, tutor.id, { name: 'Taylor', contactName: 'Sarah Taylor' });
     await page.goto('/students/new');
-    await fillChild(page, 'Emily');
-    await chooseFamily(page, 'Taylor (Sarah Taylor)');
+    await fillChild(page, 'Emily', 'Taylor (Sarah Taylor)');
     await page.getByLabel('Notes (only you can see these)').fill('Working on fractions');
     const failSaves = (route: Parameters<Parameters<Page['route']>[1]>[0]) =>
       route.request().method() === 'POST' ? route.abort('internetdisconnected') : route.continue();
@@ -188,17 +215,22 @@ test.describe('US1 add a child', () => {
         .getByRole('alert')
         .filter({ hasText: "We couldn't reach the server. Check your connection and try again." })
     ).toBeVisible();
-    await expect(page.getByLabel('First name')).toHaveValue('Emily');
-    await expect(page.getByRole('combobox', { name: 'Family' })).toHaveValue(
-      'Taylor (Sarah Taylor)'
-    );
-    await expect(page.getByLabel('Subject')).toHaveValue('Maths');
-    await expect(page.getByLabel('Level')).toHaveValue('GCSE');
+    await expect(page.getByTestId('wizard-progress')).toHaveText('Step 4 of 4');
     await expect(page.getByLabel('Notes (only you can see these)')).toHaveValue(
       'Working on fractions'
     );
+    await openStep(page, 'name');
+    await expect(page.getByLabel('First name')).toHaveValue('Emily');
+    await openStep(page, 'family');
+    await expect(page.getByRole('combobox', { name: 'Family' })).toHaveValue(
+      'Taylor (Sarah Taylor)'
+    );
+    await openStep(page, 'study');
+    await expect(page.getByLabel('Subject', { exact: true })).toHaveValue('Maths');
+    await expect(page.getByLabel('Level', { exact: true })).toHaveValue('GCSE');
 
     await page.unroute('**/students/new', failSaves);
+    await openStep(page, 'notes');
     await page.getByRole('button', { name: 'Save student' }).click();
     await expect(page).toHaveURL('/students');
     await expect(page.getByTestId('student-row').filter({ hasText: 'Emily' })).toBeVisible();
@@ -242,6 +274,9 @@ test.describe('student list actions', () => {
 
     // Assert
     await expect(page).toHaveURL(`/students/${studentId}`);
+    await openStep(page, 'notes');
+    await expect(page.getByTestId('wizard-progress')).toHaveText('Step 4 of 4');
+    await expect(page.getByLabel('Notes (only you can see these)')).toBeVisible();
   });
 
   test('shows a child’s family contact and offers to copy it', async ({ tutor, adminClient }) => {
@@ -389,9 +424,10 @@ test.describe('add a student from the list', () => {
     // Act
     await page.getByTestId('add-student-button').click();
     const dialog = page.getByTestId('add-student-dialog');
+    await expect(dialog.getByTestId('wizard-progress')).toHaveText('Step 1 of 4');
+    await expect(dialog.getByTestId('wizard-step-family').getByRole('button')).toHaveCount(0);
     await dialog.getByLabel('First name').fill('Emily');
-    await dialog.getByLabel('Subject').fill('Maths');
-    await dialog.getByLabel('Level').fill('GCSE');
+    await next(page);
     await dialog.getByRole('combobox', { name: 'Family' }).click();
     await page.getByTestId('family-picker-add-new').click();
     const familyDialog = page.getByTestId('family-dialog');
@@ -399,6 +435,8 @@ test.describe('add a student from the list', () => {
     await familyDialog.getByLabel('Contact name').fill('Sarah Taylor');
     await familyDialog.getByRole('button', { name: 'Add family' }).click();
     await expect(familyDialog).toBeHidden();
+    await next(page);
+    await fillStudy(page);
     await dialog.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
@@ -427,5 +465,60 @@ test.describe('add a student from the list', () => {
     await expect(page.getByTestId('student-row').filter({ hasText: 'Not saved' })).toHaveCount(0);
     await addButton.click();
     await expect(dialog.getByLabel('First name')).toHaveValue('');
+  });
+});
+
+test('the add-student dialog fits a phone screen without horizontal scrolling', async ({
+  tutor,
+}) => {
+  // Arrange
+  const { page } = tutor;
+  await page.goto('/students');
+
+  // Act
+  await page.getByTestId('add-student-button').click();
+  const dialog = page.getByTestId('add-student-dialog');
+  await expect(dialog.getByTestId('wizard')).toBeVisible();
+
+  // Assert
+  const overflow = await dialog.evaluate((element) => element.scrollWidth - element.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test.describe('US2 add an adult', () => {
+  test('an adult has a last name and needs no family', async ({ tutor }) => {
+    // Arrange
+    const { page } = tutor;
+    await page.goto('/students/new');
+
+    // Act
+    await page.getByRole('radio', { name: 'Adult' }).click();
+    await page.getByLabel('First name').fill('Daniel');
+    await page.getByLabel('Last name').fill('Hughes');
+    await next(page);
+    await next(page);
+    await fillStudy(page, 'French', 'A level');
+    await page.getByRole('button', { name: 'Save student' }).click();
+
+    // Assert
+    await expect(page).toHaveURL('/students');
+    const row = page.getByTestId('student-row').filter({ hasText: 'Daniel' });
+    await expect(row.getByTestId('student-type-badge')).toHaveText('Adult');
+    await row.getByRole('link', { name: 'Daniel' }).click();
+    await expect(page.getByLabel('Last name')).toHaveValue('Hughes');
+  });
+
+  test('switching to child removes the last name field', async ({ tutor }) => {
+    // Arrange
+    const { page } = tutor;
+    await page.goto('/students/new');
+    await page.getByRole('radio', { name: 'Adult' }).click();
+    await expect(page.getByLabel('Last name')).toBeVisible();
+
+    // Act
+    await page.getByRole('radio', { name: 'Child' }).click();
+
+    // Assert
+    await expect(page.getByLabel('Last name')).toHaveCount(0);
   });
 });
