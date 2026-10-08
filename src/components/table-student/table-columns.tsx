@@ -1,5 +1,5 @@
 import { type Column, createColumnHelper } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import Link from 'next/link';
 import { StudentListItem } from '@/services/db/student/mappers';
 import { Badge } from '@/components/ui/badge';
@@ -17,14 +17,21 @@ type SortableColumn = Pick<
 
 function headerWithSort(title: string) {
   return function SortHeader({ column }: { column: SortableColumn }) {
+    const isSorted: false | 'asc' | 'desc' = column.getIsSorted();
+
     return (
       <button
         type="button"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="flex cursor-pointer items-center"
+        className="flex h-full w-full cursor-pointer items-center"
       >
         {title}
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {isSorted && isSorted === 'asc' && (
+          <ArrowDownAZ className="text-muted-foreground ml-2" size={16} />
+        )}
+        {isSorted && isSorted === 'desc' && (
+          <ArrowUpZA className="text-muted-foreground ml-2" size={16} />
+        )}
       </button>
     );
   };
