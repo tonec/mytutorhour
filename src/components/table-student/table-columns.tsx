@@ -91,7 +91,7 @@ export const columns = columnHelper.columns([
   columnHelper.accessor('tags', {
     header: 'Tags',
     cell: ({ getValue }) => (
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-1">
         {getValue().map((tag: { id: string; name: string }) => (
           <Badge key={tag.id} variant="secondary" data-testid="student-type-badge">
             {tag.name}
