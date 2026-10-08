@@ -1,15 +1,34 @@
-import { createColumnHelper } from '@tanstack/react-table';
+import { type Column, createColumnHelper } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { StudentListItem } from '@/services/db/student/mappers';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { type DataTableFeatures } from '../data-table/data-table-features';
 import { StudentActions } from './student-actions';
 import { studentUrl } from './student-url';
 
 const columnHelper = createColumnHelper<DataTableFeatures, StudentListItem>();
+
+type SortableColumn = Pick<
+  Column<DataTableFeatures, StudentListItem>,
+  'toggleSorting' | 'getIsSorted'
+>;
+
+function headerWithSort(title: string) {
+  return function SortHeader({ column }: { column: SortableColumn }) {
+    return (
+      <button
+        type="button"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="flex cursor-pointer items-center"
+      >
+        {title}
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    );
+  };
+}
 
 export const columns = columnHelper.columns([
   columnHelper.display({
@@ -29,21 +48,12 @@ export const columns = columnHelper.columns([
         aria-label="Select row"
       />
     ),
+    size: 58,
     enableSorting: false,
     enableHiding: false,
   }),
   columnHelper.accessor('displayName', {
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: headerWithSort('Name'),
     cell: ({ row, getValue }) => (
       <Link href={studentUrl(row.original.id)} className="font-medium hover:underline">
         {getValue()}
@@ -51,7 +61,7 @@ export const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor('type', {
-    header: 'Type',
+    header: headerWithSort('Title'),
     size: 100,
     cell: ({ getValue }) => (
       <Badge variant="secondary" data-testid="student-type-badge">
@@ -60,20 +70,29 @@ export const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor('familyName', {
-    header: 'Family',
+    header: headerWithSort('Family'),
   }),
   columnHelper.accessor('email', {
-    header: 'Contact email',
+    header: headerWithSort('Contact email'),
   }),
   columnHelper.accessor('phone', {
-    header: 'Contact phone',
+    header: headerWithSort('Contact phone'),
   }),
   columnHelper.accessor('subject', {
-    header: 'Subject',
+    header: headerWithSort('Subject'),
   }),
-  // columnHelper.accessor('tags', {
-  //   header: 'Tags',
-  // }),
+  columnHelper.accessor('tags', {
+    header: 'Tags',
+    cell: ({ getValue }) => (
+      <div className="flex gap-2">
+        {getValue().map((tag: { id: string; name: string }) => (
+          <Badge key={tag.id} variant="secondary" data-testid="student-type-badge">
+            {tag.name}
+          </Badge>
+        ))}
+      </div>
+    ),
+  }),
   columnHelper.display({
     id: 'actions',
     cell: ({ row }) => <StudentActions student={row.original} />,

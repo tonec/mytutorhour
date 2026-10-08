@@ -4,13 +4,12 @@ import { routes } from '@/config/routes';
 import {
   type ColumnFiltersState,
   type ColumnVisibilityState,
-  type ReactTable,
   type SortingState,
   useTable,
 } from '@tanstack/react-table';
-import { type Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Columns3Cog, UserRoundPlus } from 'lucide-react';
-import { type MouseEvent, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { StudentListItem } from '@/services/db/student/mappers';
 import {
@@ -19,26 +18,15 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { type DataTableFeatures, features } from '../data-table/data-table-features';
+import { features } from '../data-table/data-table-features';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { columns } from './columns';
-import { studentUrl } from './student-url';
-
-type StudentReactTable = ReactTable<DataTableFeatures, StudentListItem>;
+import { StudentTableBody } from './table-body';
+import { columns } from './table-columns';
+import { StudentTableHeader } from './table-header';
 
 const ESTIMATED_ROW_HEIGHT = 49;
-
-// Controls inside a row (checkbox, name link, actions menu) handle their own clicks.
-const INTERACTIVE_SELECTOR = 'a, button, input, label, [role="checkbox"], [role="menuitem"]';
-
-function isRowBackgroundClick(event: MouseEvent<HTMLTableRowElement>) {
-  const target = event.target as Element;
-  // React bubbles events out of portals (e.g. the actions menu), so ignore anything outside the row
-  return event.currentTarget.contains(target) && !target.closest(INTERACTIVE_SELECTOR);
-}
 
 export function StudentTable({ students }: { students: StudentListItem[] }) {
   const router = useRouter();
@@ -154,80 +142,5 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
         </table>
       </div>
     </>
-  );
-}
-
-function StudentTableHeader({ table }: { table: StudentReactTable }) {
-  return (
-    <TableHeader className="bg-background sticky top-0 z-10 grid">
-      {table.getHeaderGroups().map((headerGroup) => (
-        <TableRow key={headerGroup.id} className="flex w-full">
-          {headerGroup.headers.map((header) => (
-            <TableHead
-              key={header.id}
-              className="flex shrink-0 items-center"
-              style={{ width: header.getSize() }}
-            >
-              {header.isPlaceholder ? null : <table.FlexRender header={header} />}
-            </TableHead>
-          ))}
-        </TableRow>
-      ))}
-    </TableHeader>
-  );
-}
-
-interface StudentTableBodyProps {
-  table: StudentReactTable;
-  rowVirtualizer: Virtualizer<HTMLDivElement, HTMLTableRowElement>;
-}
-
-function StudentTableBody({ table, rowVirtualizer }: StudentTableBodyProps) {
-  const router = useRouter();
-  const { rows } = table.getRowModel();
-
-  if (!rows.length) {
-    return (
-      <TableBody className="grid">
-        <TableRow className="flex">
-          <TableCell className="flex h-24 w-full items-center justify-center">
-            No results.
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    );
-  }
-
-  return (
-    <TableBody className="relative grid" style={{ height: rowVirtualizer.getTotalSize() }}>
-      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-        const row = rows[virtualRow.index];
-
-        return (
-          <TableRow
-            key={row.id}
-            data-index={virtualRow.index}
-            data-state={row.getIsSelected() ? 'selected' : undefined}
-            data-testid="student-row"
-            ref={rowVirtualizer.measureElement}
-            className="absolute flex w-full cursor-pointer"
-            onClick={(event) => {
-              if (isRowBackgroundClick(event)) router.push(studentUrl(row.original.id));
-            }}
-            style={{ transform: `translateY(${virtualRow.start}px)` }}
-          >
-            {row.getVisibleCells().map((cell) => (
-              <TableCell
-                key={cell.id}
-                className="flex shrink-0 items-center overflow-hidden"
-                style={{ width: cell.column.getSize() }}
-              >
-                <table.FlexRender cell={cell} />
-              </TableCell>
-            ))}
-          </TableRow>
-        );
-      })}
-    </TableBody>
   );
 }
