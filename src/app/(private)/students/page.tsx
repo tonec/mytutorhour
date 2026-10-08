@@ -1,18 +1,12 @@
-import { routes } from '@/config/routes';
-import Link from 'next/link';
-import { StudentTableContainer } from '@/components/table-student/table-container';
-import { buttonVariants } from '@/components/ui/button';
+import { listStudents } from '@/services/db/student/student';
+import { StudentTable } from '@/components/table-student/table';
 
-export default function StudentsPage() {
+export default async function StudentsPage() {
+  const students = await listStudents();
+
   return (
     <div className="w-full">
-      {/* <Link
-        href={routes.studentNew.url}
-        className={buttonVariants({ className: 'w-full sm:w-auto sm:self-end' })}
-      >
-        Add student
-      </Link> */}
-      <StudentTableContainer />
+      <StudentTable students={students} />
     </div>
   );
 }

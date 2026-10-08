@@ -13,7 +13,7 @@ const inputVariants = cva(
       },
       compact: {
         false: null,
-        true: 'h-9 px-2 py-0 text-sm',
+        true: 'h-10 px-2 py-0 text-sm',
       },
     },
     defaultVariants: {

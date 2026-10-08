@@ -1,5 +1,6 @@
 'use client';
 
+import { routes } from '@/config/routes';
 import {
   type ColumnFiltersState,
   type ColumnVisibilityState,
@@ -8,7 +9,7 @@ import {
   useTable,
 } from '@tanstack/react-table';
 import { type Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
-import { Columns3Cog } from 'lucide-react';
+import { Columns3Cog, UserRoundPlus } from 'lucide-react';
 import { type MouseEvent, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { StudentListItem } from '@/services/db/student/mappers';
@@ -19,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { type DataTableFeatures, features } from '../data-table/data-table-features';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -39,6 +41,7 @@ function isRowBackgroundClick(event: MouseEvent<HTMLTableRowElement>) {
 }
 
 export function StudentTable({ students }: { students: StudentListItem[] }) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -81,25 +84,47 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
     overscan: 5,
   });
 
+  const handleAddStudent = () => {
+    router.push(routes.studentNew.url);
+  };
+
   return (
     <>
-      <div className="flex items-center gap-2 p-2">
-        <div>
+      <div className="flex items-center justify-between gap-2 p-2">
+        <div className="flex gap-2">
           <Input
             variant="flat"
-            compact
             placeholder="Filter students..."
             value={(table.getColumn('displayName')?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn('displayName')?.setFilterValue(event.target.value)}
             className="max-w-xs"
           />
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  aria-label="Add student"
+                  onClick={handleAddStudent}
+                >
+                  <UserRoundPlus className="ml-1" />
+                </Button>
+              }
+            />
+            <TooltipContent>
+              <p>Add student</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div>
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="secondary" size="icon" />}>
+            <DropdownMenuTrigger
+              render={<Button variant="secondary" size="icon" aria-label="Show / hide columns" />}
+            >
               <Columns3Cog />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -117,6 +142,7 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
           </DropdownMenu>
         </div>
       </div>
+
       {/* Rows are absolutely positioned, so the table uses grid/flex layout with fixed column widths */}
       <div
         ref={tableContainerRef}
