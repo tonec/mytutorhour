@@ -9,7 +9,7 @@ import { saveStudent } from './actions';
 import { StudentForm } from './form';
 
 vi.mock('./actions', () => ({ saveStudent: vi.fn() }));
-vi.mock('../families/actions', () => ({ saveFamily: vi.fn() }));
+vi.mock('@/components/form-family/actions', () => ({ saveFamily: vi.fn() }));
 vi.mock('next/navigation', async (importOriginal) => ({
   ...(await importOriginal<typeof import('next/navigation')>()),
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
