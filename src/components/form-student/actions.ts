@@ -2,7 +2,7 @@
 
 import { routes } from '@/config/routes';
 import { caughtErrorToState, dbErrorToState, formPayload } from '@/utils/action-errors';
-import { type ActionState } from '@/utils/form';
+import { type ActionState, toFormState } from '@/utils/form';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -20,10 +20,12 @@ const FIELDS = [
   'notes',
   'email',
   'phone',
+  'intent',
 ] as const;
 
 export async function saveStudent(_state: ActionState, formData: FormData): Promise<ActionState> {
   const payload = formPayload(formData, FIELDS);
+  let fromDialog = false;
 
   try {
     const student = studentSchema.parse(studentFormDataToInput(formData));
@@ -48,6 +50,7 @@ export async function saveStudent(_state: ActionState, formData: FormData): Prom
     });
 
     if (error) return dbErrorToState(error, 'saveStudent', payload);
+    fromDialog = student.intent === 'dialog';
   } catch (error) {
     return caughtErrorToState(error, 'saveStudent', payload);
   }
@@ -55,5 +58,8 @@ export async function saveStudent(_state: ActionState, formData: FormData): Prom
   // The list, the student's page and their family's page all show this student.
   revalidatePath(routes.students.url, 'layout');
   revalidatePath(routes.families.url, 'layout');
+
+  // Added from the list's dialog: the list behind it refreshes, so stay put and let it close.
+  if (fromDialog) return toFormState('SUCCESS', 'Student added.');
   redirect(routes.students.url);
 }

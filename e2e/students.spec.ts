@@ -379,3 +379,53 @@ test.describe('student notes from the list', () => {
     );
   });
 });
+
+test.describe('add a student from the list', () => {
+  test('adds a child and their family in a dialog without leaving the list', async ({ tutor }) => {
+    // Arrange
+    const { page } = tutor;
+    await page.goto('/students');
+
+    // Act
+    await page.getByTestId('add-student-button').click();
+    const dialog = page.getByTestId('add-student-dialog');
+    await dialog.getByLabel('First name').fill('Emily');
+    await dialog.getByLabel('Subject').fill('Maths');
+    await dialog.getByLabel('Level').fill('GCSE');
+    await dialog.getByRole('combobox', { name: 'Family' }).click();
+    await page.getByTestId('family-picker-add-new').click();
+    const familyDialog = page.getByTestId('family-dialog');
+    await familyDialog.getByLabel('Family name').fill('Taylor');
+    await familyDialog.getByLabel('Contact name').fill('Sarah Taylor');
+    await familyDialog.getByRole('button', { name: 'Add family' }).click();
+    await expect(familyDialog).toBeHidden();
+    await dialog.getByRole('button', { name: 'Save student' }).click();
+
+    // Assert
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL('/students');
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await expect(row).toContainText('Taylor');
+    await expect(row.getByTestId('student-type-badge')).toHaveText('Child');
+  });
+
+  test('cancelling closes the dialog, saves nothing and returns focus', async ({ tutor }) => {
+    // Arrange
+    const { page } = tutor;
+    await page.goto('/students');
+    const addButton = page.getByTestId('add-student-button');
+
+    // Act
+    await addButton.click();
+    const dialog = page.getByTestId('add-student-dialog');
+    await dialog.getByLabel('First name').fill('Not saved');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+
+    // Assert
+    await expect(dialog).toBeHidden();
+    await expect(addButton).toBeFocused();
+    await expect(page.getByTestId('student-row').filter({ hasText: 'Not saved' })).toHaveCount(0);
+    await addButton.click();
+    await expect(dialog.getByLabel('First name')).toHaveValue('');
+  });
+});

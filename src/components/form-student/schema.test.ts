@@ -184,6 +184,21 @@ describe('studentSchema', () => {
       // Assert
       expect(firstMessage(result, 'type')).toBe('Choose adult or child.');
     });
+
+    it.each([
+      ['dialog', 'dialog'],
+      ['', undefined],
+    ])('reads an intent of %j as %j', (intent, expected) => {
+      // Arrange
+      const input = { ...child, intent };
+
+      // Act
+      const result = studentSchema.safeParse(input);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data?.intent).toBe(expected);
+    });
   });
 });
 

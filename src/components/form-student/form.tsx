@@ -1,7 +1,7 @@
 'use client';
 
 import { routes } from '@/config/routes';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import Link from 'next/link';
 import type { FamilyListItem } from '@/services/db/family';
@@ -26,9 +26,20 @@ const TYPE_OPTIONS = [
 type Props = {
   student?: StudentDetail;
   families: FamilyListItem[];
+  // 'dialog' when used in the list's add-student dialog: onSaved runs instead of a redirect.
+  intent?: 'dialog';
+  onSaved?: () => void;
+  // Replaces the Cancel link (back to the list) with a button, e.g. to close a dialog.
+  onCancel?: () => void;
 };
 
-export function StudentForm({ student, families: initialFamilies }: Props) {
+export function StudentForm({
+  student,
+  families: initialFamilies,
+  intent,
+  onSaved,
+  onCancel,
+}: Props) {
   const [families, setFamilies] = useState(initialFamilies);
   const studentForm = useActionForm({
     schema: studentSchema,
@@ -43,16 +54,23 @@ export function StudentForm({ student, families: initialFamilies }: Props) {
       examBoard: student?.examBoard ?? '',
       notes: student?.notes ?? '',
       tagIds: student?.tagIds ?? [],
+      intent: intent ?? '',
     },
   });
+  const { actionState } = studentForm;
   const { control } = studentForm.form;
   const familyId = useWatch({ control, name: 'familyId' }) as string | undefined;
   const family = families.find((option) => option.id === familyId);
+
+  useEffect(() => {
+    if (intent === 'dialog' && actionState.status === 'SUCCESS') onSaved?.();
+  }, [actionState, intent, onSaved]);
 
   return (
     <ActionForm actionForm={studentForm} aria-label="Student" data-testid="student-form">
       <div className="flex flex-col gap-6">
         <input type="hidden" name="id" value={student?.id ?? ''} />
+        <input type="hidden" name="intent" value={intent ?? ''} />
         <RadioGroupField
           name="type"
           label="Student type"
@@ -87,17 +105,23 @@ export function StudentForm({ student, families: initialFamilies }: Props) {
         <FormField name="level" label="Level" autoComplete="off" />
         <FormField name="examBoard" label="Exam board (optional)" autoComplete="off" />
         <TextareaField name="notes" label="Notes (only you can see these)" maxLength={2000} />
-        <FormMessage actionState={studentForm.actionState} />
+        <FormMessage actionState={actionState} />
         <div className="flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={studentForm.pending}>
             Save student
           </Button>
-          <Link
-            href={routes.students.url}
-            className={buttonVariants({ variant: 'ghost', className: 'w-full' })}
-          >
-            Cancel
-          </Link>
+          {onCancel ? (
+            <Button type="button" variant="ghost" className="w-full" onClick={onCancel}>
+              Cancel
+            </Button>
+          ) : (
+            <Link
+              href={routes.students.url}
+              className={buttonVariants({ variant: 'ghost', className: 'w-full' })}
+            >
+              Cancel
+            </Link>
+          )}
         </div>
       </div>
     </ActionForm>

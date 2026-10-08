@@ -10,6 +10,11 @@ const sharedFields = {
   examBoard: optionalText(50),
   notes: optionalText(2000),
   tagIds: z.array(z.uuid()).default([]),
+  // 'dialog' when the student is added from the list's dialog (no redirect).
+  intent: z
+    .enum(['dialog', ''])
+    .optional()
+    .transform((value) => (value === 'dialog' ? value : undefined)),
 };
 
 // A child has a first name only and takes their contact details from their family, so the
@@ -53,6 +58,7 @@ const TEXT_FIELDS = [
   'notes',
   'email',
   'phone',
+  'intent',
 ] as const;
 
 // Reads the student form's FormData into the shape studentSchema expects.

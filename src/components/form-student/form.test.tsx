@@ -122,6 +122,37 @@ describe('StudentForm', () => {
     expect(screen.getByText('0/2000')).toBeInTheDocument();
   });
 
+  it('calls onSaved instead of navigating when saved from the dialog', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onSaved = vi.fn();
+    vi.mocked(saveStudent).mockResolvedValue(toFormState('SUCCESS', 'Student added.'));
+    render(<StudentForm families={families} intent="dialog" onSaved={onSaved} />);
+    await fillChild(user);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Save student' }));
+
+    // Assert
+    await waitFor(() => expect(onSaved).toHaveBeenCalledOnce());
+    const formData = vi.mocked(saveStudent).mock.calls[0][1];
+    expect(formData.get('intent')).toBe('dialog');
+  });
+
+  it('cancels with a button instead of a link when onCancel is given', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onCancel = vi.fn();
+    render(<StudentForm families={families} onCancel={onCancel} />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    // Assert
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('link', { name: 'Cancel' })).not.toBeInTheDocument();
+  });
+
   it('keeps everything typed when the save fails to reach the server', async () => {
     // Arrange
     const user = userEvent.setup();

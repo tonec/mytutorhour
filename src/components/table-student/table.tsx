@@ -1,6 +1,5 @@
 'use client';
 
-import { routes } from '@/config/routes';
 import {
   type ColumnFiltersState,
   type ColumnVisibilityState,
@@ -10,7 +9,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Columns3Cog, UserRoundPlus } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import type { FamilyListItem } from '@/services/db/family';
 import type { StudentListItem } from '@/services/db/student/mappers';
 import {
   DropdownMenu,
@@ -22,14 +21,21 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { features } from '../data-table/data-table-features';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { AddStudentDialog } from './add-student-dialog';
 import { StudentTableBody } from './table-body';
 import { columns } from './table-columns';
 import { StudentTableHeader } from './table-header';
 
 const ESTIMATED_ROW_HEIGHT = 49;
 
-export function StudentTable({ students }: { students: StudentListItem[] }) {
-  const router = useRouter();
+type Props = {
+  students: StudentListItem[];
+  families: FamilyListItem[];
+};
+
+export function StudentTable({ students, families }: Props) {
+  const [addStudentOpen, setAddStudentOpen] = useState(false);
+  const addStudentButtonRef = useRef<HTMLButtonElement>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -72,10 +78,6 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
     overscan: 5,
   });
 
-  const handleAddStudent = () => {
-    router.push(routes.studentNew.url);
-  };
-
   return (
     <>
       <div className="flex items-center justify-between gap-2 p-2">
@@ -91,10 +93,12 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
             <TooltipTrigger
               render={
                 <Button
+                  ref={addStudentButtonRef}
                   variant="secondary"
                   size="lg"
                   aria-label="Add student"
-                  onClick={handleAddStudent}
+                  data-testid="add-student-button"
+                  onClick={() => setAddStudentOpen(true)}
                 >
                   <UserRoundPlus className="ml-1" />
                 </Button>
@@ -104,6 +108,12 @@ export function StudentTable({ students }: { students: StudentListItem[] }) {
               <p>Add student</p>
             </TooltipContent>
           </Tooltip>
+          <AddStudentDialog
+            families={families}
+            open={addStudentOpen}
+            onOpenChange={setAddStudentOpen}
+            returnFocusTo={addStudentButtonRef}
+          />
         </div>
         <div>
           <DropdownMenu>
