@@ -1,18 +1,6 @@
 import { Virtualizer } from '@tanstack/react-virtual';
-import { type MouseEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { TableBody, TableCell, TableRow } from '../ui/table';
-import { studentUrl } from './student-url';
 import { StudentReactTable } from './table-types';
-
-// Controls inside a row (checkbox, name link, actions menu) handle their own clicks.
-const INTERACTIVE_SELECTOR = 'a, button, input, label, [role="checkbox"], [role="menuitem"]';
-
-function isRowBackgroundClick(event: MouseEvent<HTMLTableRowElement>) {
-  const target = event.target as Element;
-  // React bubbles events out of portals (e.g. the actions menu), so ignore anything outside the row
-  return event.currentTarget.contains(target) && !target.closest(INTERACTIVE_SELECTOR);
-}
 
 export interface StudentTableBodyProps {
   table: StudentReactTable;
@@ -20,7 +8,6 @@ export interface StudentTableBodyProps {
 }
 
 export function StudentTableBody({ table, rowVirtualizer }: StudentTableBodyProps) {
-  const router = useRouter();
   const { rows } = table.getRowModel();
 
   if (!rows.length) {
@@ -48,9 +35,6 @@ export function StudentTableBody({ table, rowVirtualizer }: StudentTableBodyProp
             data-testid="student-row"
             ref={rowVirtualizer.measureElement}
             className="absolute flex w-full cursor-pointer"
-            onClick={(event) => {
-              if (isRowBackgroundClick(event)) router.push(studentUrl(row.original.id));
-            }}
             style={{ transform: `translateY(${virtualRow.start}px)` }}
           >
             {row.getVisibleCells().map((cell) => (
