@@ -145,7 +145,7 @@ export function StudentTable({ students, families }: Props) {
           container but never shrink below their size; past that, the container scrolls sideways */}
       <div
         ref={tableContainerRef}
-        className="scrollbar-thumb-border scrollbar-track-foreground-muted relative h-[calc(100vh-116px)] w-full scrollbar-thin overflow-auto"
+        className="scrollbar-thumb-border scrollbar-track-foreground-muted relative h-[calc(100vh-136px)] w-full scrollbar-thin overflow-auto"
       >
         <table className="grid w-full text-sm" style={{ minWidth: table.getTotalSize() }}>
           <StudentTableHeader table={table} />
