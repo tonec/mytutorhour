@@ -14,12 +14,13 @@ export function AppMobileHeader() {
   };
 
   return (
-    <header className="md:display-none align-center relative flex justify-between p-2 md:invisible md:absolute">
-      <Button onClick={handleToggleSidebar} variant="ghost" size="icon">
-        <Menu />
-      </Button>
-      <h1>Icon</h1>
-      <Notifications notifications={sampleNotifications} />
+    <header className="md:display-none bg-background fixed top-0 right-0 left-0 z-1000 h-10 md:invisible md:absolute">
+      <div className="flex h-10 items-center justify-between">
+        <Button onClick={handleToggleSidebar} variant="ghost" size="icon">
+          <Menu />
+        </Button>
+        <Notifications notifications={sampleNotifications} />
+      </div>
     </header>
   );
 }
