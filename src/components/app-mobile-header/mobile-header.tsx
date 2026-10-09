@@ -1,12 +1,15 @@
 'use client';
 
-import { sampleNotifications } from '@/config/sampleNotifications';
+import { getTitleByUrl } from '@/config/routes';
 import { Menu } from 'lucide-react';
-import { Notifications } from '../app-sidebar/notifications/notifications';
+import { usePathname } from 'next/navigation';
+import { HeaderActions } from '../app-header-actions/header-actions';
 import { Button } from '../ui/button';
 import { useSidebar } from '../ui/sidebar';
 
 export function AppMobileHeader() {
+  const path = usePathname();
+  const title = getTitleByUrl(path);
   const { toggleSidebar } = useSidebar();
 
   const handleToggleSidebar = () => {
@@ -19,7 +22,8 @@ export function AppMobileHeader() {
         <Button onClick={handleToggleSidebar} variant="ghost" size="icon">
           <Menu />
         </Button>
-        <Notifications notifications={sampleNotifications} />
+        <h1 className="text-muted-foreground text-sm font-medium">{title}</h1>
+        <HeaderActions />
       </div>
     </header>
   );
