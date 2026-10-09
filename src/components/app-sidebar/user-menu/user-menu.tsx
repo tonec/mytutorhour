@@ -3,7 +3,7 @@ import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
 import { UserMenuContent } from './content';
 import { UserMenuTrigger } from './trigger';
 
-export async function UserMenu() {
+export function UserMenu() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>

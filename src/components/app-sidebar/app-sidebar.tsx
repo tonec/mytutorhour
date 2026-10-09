@@ -6,7 +6,7 @@ import { UserMenu } from './user-menu/user-menu';
 
 export function DashboardSidebar() {
   return (
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar variant="inset">
       <AppSidebarHeader />
 
       <SidebarContent className="gap-4 px-2 py-4">

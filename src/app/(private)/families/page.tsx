@@ -1,3 +1,3 @@
 export default function Families() {
-  return <p>Families</p>;
+  return <p></p>;
 }

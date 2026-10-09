@@ -1,4 +1,5 @@
 import { PropsWithChildren } from 'react';
+import { AppMobileHeader } from '@/components/app-mobile-header/mobile-header';
 import { DashboardSidebar } from '@/components/app-sidebar/app-sidebar';
 import { PageHeader } from '@/components/page-header/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -6,7 +7,8 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 export default function PrivateLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
-      <div className="relative flex h-dvh w-full">
+      <div className="relative flex h-dvh w-full flex-col md:flex-row">
+        <AppMobileHeader />
         <DashboardSidebar />
         <SidebarInset className="flex flex-col md:peer-data-[variant=inset]:mb-6">
           <PageHeader />
