@@ -45,7 +45,7 @@ async function fillChild(user: UserEvent) {
   await next(user);
   await chooseFamily(user, 'Taylor (Sarah Taylor)');
   await next(user);
-  await user.type(screen.getByLabelText('Subject'), 'Maths');
+  await user.type(screen.getByRole('textbox', { name: 'Subject' }), 'Maths');
   await user.type(screen.getByLabelText('Level'), 'GCSE');
   await next(user);
   await user.type(screen.getByLabelText('Notes (only you can see these)'), 'Working on fractions');
@@ -86,7 +86,7 @@ describe('StudentForm', () => {
 
     // Assert
     expect(progress()).toHaveTextContent('Step 1 of 4');
-    for (const title of ['Name', 'Family', 'Subject, level, board', 'Notes']) {
+    for (const title of ['Student', 'Parent / Guardian', 'Subject', 'Notes']) {
       expect(screen.getByRole('navigation', { name: 'Form steps' })).toHaveTextContent(title);
     }
     expect(screen.getByLabelText('First name')).toBeVisible();
@@ -135,7 +135,7 @@ describe('StudentForm', () => {
     await user.type(screen.getByLabelText('Last name'), 'Hughes');
     await next(user);
     await next(user);
-    await user.type(screen.getByLabelText('Subject'), 'French');
+    await user.type(screen.getByRole('textbox', { name: 'Subject' }), 'French');
     await user.type(screen.getByLabelText('Level'), 'A level');
     await next(user);
 
@@ -275,7 +275,7 @@ describe('StudentForm', () => {
     // Assert
     expect(await screen.findByText(NETWORK_ERROR_MESSAGE)).toBeInTheDocument();
     expect(screen.getByLabelText('First name')).toHaveValue('Emily');
-    expect(screen.getByLabelText('Subject')).toHaveValue('Maths');
+    expect(screen.getByRole('textbox', { name: 'Subject', hidden: true })).toHaveValue('Maths');
     expect(screen.getByLabelText('Level')).toHaveValue('GCSE');
     expect(screen.getByLabelText('Notes (only you can see these)')).toHaveValue(
       'Working on fractions'

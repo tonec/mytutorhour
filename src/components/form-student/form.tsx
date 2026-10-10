@@ -85,7 +85,7 @@ export function StudentForm({
   const steps: WizardStep[] = [
     {
       id: 'name',
-      title: 'Name',
+      title: 'Student',
       fields: ['type', 'firstName', 'lastName'],
       content: (
         <>
@@ -107,7 +107,7 @@ export function StudentForm({
     },
     {
       id: 'family',
-      title: 'Family',
+      title: 'Parent / Guardian',
       fields: ['familyId'],
       content: (
         <>
@@ -139,7 +139,7 @@ export function StudentForm({
     },
     {
       id: 'study',
-      title: 'Subject, level, board',
+      title: 'Subject',
       fields: ['subject', 'level', 'examBoard'],
       content: (
         <>

@@ -21,7 +21,7 @@ async function openStep(page: Page, step: 'name' | 'family' | 'study' | 'notes')
 
 // Fills the subject step and moves on to Notes.
 async function fillStudy(page: Page, subject = 'Maths', level = 'GCSE') {
-  await page.getByLabel('Subject', { exact: true }).fill(subject);
+  await page.getByRole('textbox', { name: 'Subject', exact: true }).fill(subject);
   await page.getByLabel('Level', { exact: true }).fill(level);
   await next(page);
 }
@@ -226,7 +226,7 @@ test.describe('US1 add a child', () => {
       'Taylor (Sarah Taylor)'
     );
     await openStep(page, 'study');
-    await expect(page.getByLabel('Subject', { exact: true })).toHaveValue('Maths');
+    await expect(page.getByRole('textbox', { name: 'Subject', exact: true })).toHaveValue('Maths');
     await expect(page.getByLabel('Level', { exact: true })).toHaveValue('GCSE');
 
     await page.unroute('**/students/new', failSaves);
@@ -299,7 +299,7 @@ test.describe('student list actions', () => {
     // Act
     const modal = await openEdit(page);
     await openStep(page, 'study');
-    await modal.getByLabel('Subject', { exact: true }).fill('Physics');
+    await modal.getByRole('textbox', { name: 'Subject', exact: true }).fill('Physics');
     await modal.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
