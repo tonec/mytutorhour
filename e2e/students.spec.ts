@@ -298,12 +298,13 @@ test.describe('student list actions', () => {
 
     // Act
     const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
-    await row.getByTestId('student-actions').click();
+    await row.getByTestId('student-contact').click();
 
     // Assert
-    await expect(row).toContainText('sarah.taylor@example.test');
-    await expect(page.getByRole('menuitem', { name: 'Copy email' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Copy phone' })).toHaveCount(0);
+    await expect(
+      page.getByRole('menuitem', { name: 'sarah.taylor@example.test Copy' })
+    ).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: '07700 900123 Copy phone' })).toHaveCount(0);
   });
 
   test('offers to copy an adult’s own email and phone', async ({ tutor, adminClient }) => {

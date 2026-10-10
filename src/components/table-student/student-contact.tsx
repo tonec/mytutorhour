@@ -26,7 +26,7 @@ export function StudentContact({ student }: { student: StudentListItem }) {
         <DropdownMenuTrigger
           ref={triggerRef}
           render={<Button variant="secondary" className="h-8 w-16 p-0" />}
-          data-testid="student-actions"
+          data-testid="student-contact"
         >
           <span className="sr-only">Actions for {student.displayName}</span>
           <Phone className="h-4 w-4" />
