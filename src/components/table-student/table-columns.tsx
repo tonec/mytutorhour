@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { type DataTableFeatures } from '../data-table/data-table-features';
 import { StudentActions } from './student-actions';
+import { StudentContact } from './student-contact';
 import { studentUrl } from './student-url';
 
 const columnHelper = createColumnHelper<DataTableFeatures, StudentListItem>();
@@ -83,14 +84,6 @@ export const columns = columnHelper.columns([
     header: headerWithSort('Family'),
     size: 140,
   }),
-  columnHelper.accessor('email', {
-    header: headerWithSort('Contact email'),
-    size: 220,
-  }),
-  columnHelper.accessor('phone', {
-    header: headerWithSort('Contact phone'),
-    size: 140,
-  }),
   columnHelper.accessor('subject', {
     header: headerWithSort('Subject'),
     size: 130,
@@ -99,14 +92,25 @@ export const columns = columnHelper.columns([
     header: 'Tags',
     size: 180,
     cell: ({ getValue }) => (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-0.5">
         {getValue().map((tag: { id: string; name: string }) => (
-          <Badge key={tag.id} variant="secondary" data-testid="student-type-badge">
+          <Badge
+            key={tag.id}
+            variant="secondary"
+            data-testid="student-type-badge"
+            style={{ fontSize: 10 }}
+          >
             {tag.name}
           </Badge>
         ))}
       </div>
     ),
+  }),
+  columnHelper.display({
+    id: 'contact',
+    size: 86,
+    maxSize: 86,
+    cell: ({ row }) => <StudentContact student={row.original} />,
   }),
   columnHelper.display({
     id: 'actions',
