@@ -11,7 +11,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { StudentNotesDialog } from './student-notes-dialog';
@@ -21,7 +20,6 @@ export function StudentActions({ student }: { student: StudentListItem }) {
   const [notesOpen, setNotesOpen] = useState(false);
   // The menu has closed by the time the dialog does, so send focus back to its trigger.
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const { email, phone } = student;
 
   return (
     <>
@@ -42,17 +40,6 @@ export function StudentActions({ student }: { student: StudentListItem }) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setNotesOpen(true)}>View/edit notes</DropdownMenuItem>
           </DropdownMenuGroup>
-          {email || phone ? <DropdownMenuSeparator /> : null}
-          {email ? (
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(email)}>
-              Copy email
-            </DropdownMenuItem>
-          ) : null}
-          {phone ? (
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(phone)}>
-              Copy phone
-            </DropdownMenuItem>
-          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
       <StudentNotesDialog
