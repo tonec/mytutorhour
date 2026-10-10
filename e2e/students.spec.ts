@@ -323,11 +323,13 @@ test.describe('student list actions', () => {
 
     // Act
     const row = page.getByTestId('student-row').filter({ hasText: 'James' });
-    await row.getByTestId('student-actions').click();
+    await row.getByTestId('student-contact').click();
 
     // Assert
-    await expect(page.getByRole('menuitem', { name: 'Copy email' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Copy phone' })).toBeVisible();
+    await expect(
+      page.getByRole('menuitem', { name: 'james.wilson@example.test Copy' })
+    ).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: '07700 900456 Copy' })).toBeVisible();
   });
 });
 
