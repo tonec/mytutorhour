@@ -26,6 +26,7 @@ const FIELDS = [
 export async function saveStudent(_state: ActionState, formData: FormData): Promise<ActionState> {
   const payload = formPayload(formData, FIELDS);
   let fromDialog = false;
+  let isNew = false;
 
   try {
     const student = studentSchema.parse(studentFormDataToInput(formData));
@@ -51,6 +52,7 @@ export async function saveStudent(_state: ActionState, formData: FormData): Prom
 
     if (error) return dbErrorToState(error, 'saveStudent', payload);
     fromDialog = student.intent === 'dialog';
+    isNew = !student.id;
   } catch (error) {
     return caughtErrorToState(error, 'saveStudent', payload);
   }
@@ -59,7 +61,8 @@ export async function saveStudent(_state: ActionState, formData: FormData): Prom
   revalidatePath(routes.students.url, 'layout');
   revalidatePath(routes.families.url, 'layout');
 
-  // Added from the list's dialog: the list behind it refreshes, so stay put and let it close.
-  if (fromDialog) return toFormState('SUCCESS', 'Student added.');
+  // Added or edited from a dialog on the list: the list behind it refreshes, so stay put and let
+  // it close.
+  if (fromDialog) return toFormState('SUCCESS', isNew ? 'Student added.' : 'Student saved.');
   redirect(routes.students.url);
 }

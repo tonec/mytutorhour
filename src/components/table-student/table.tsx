@@ -1,5 +1,6 @@
 'use client';
 
+import { openModal } from '@/utils/modal-url';
 import {
   type ColumnFiltersState,
   type ColumnVisibilityState,
@@ -21,7 +22,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { features } from '../data-table/data-table-features';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { AddStudentDialog } from './add-student-dialog';
+import { Modal, useModal } from '../ui/modal';
+import { AddStudentModal } from './student-add-modal';
+import { EditStudentModal } from './student-edit-modal';
+import { StudentNotesModal } from './student-notes-modal';
 import { StudentTableBody } from './table-body';
 import { columns } from './table-columns';
 import { StudentTableHeader } from './table-header';
@@ -34,7 +38,8 @@ type Props = {
 };
 
 export function StudentTable({ students, families }: Props) {
-  const [addStudentOpen, setAddStudentOpen] = useState(false);
+  const { data: modalData } = useModal();
+  const shownStudentId = modalData;
   const addStudentButtonRef = useRef<HTMLButtonElement>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -62,9 +67,13 @@ export function StudentTable({ students, families }: Props) {
 
   const { rows } = table.getRowModel();
 
-  // Owned here, not in the body: React attaches refs and runs layout effects child-first, so a
-  // virtualizer inside the scroll container would mount before `tableContainerRef` is set and
-  // render no rows until something else triggered a re-render.
+  const returnFocusToRow = () =>
+    (shownStudentId &&
+      tableContainerRef.current?.querySelector<HTMLElement>(
+        `[data-student-id="${CSS.escape(shownStudentId)}"]`
+      )) ||
+    true;
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLTableRowElement>({
     count: rows.length,
@@ -98,7 +107,7 @@ export function StudentTable({ students, families }: Props) {
                   size="lg"
                   aria-label="Add student"
                   data-testid="add-student-button"
-                  onClick={() => setAddStudentOpen(true)}
+                  onClick={() => openModal('student-add')}
                 >
                   <UserRoundPlus className="ml-1" />
                 </Button>
@@ -108,12 +117,6 @@ export function StudentTable({ students, families }: Props) {
               <p>Add student</p>
             </TooltipContent>
           </Tooltip>
-          <AddStudentDialog
-            families={families}
-            open={addStudentOpen}
-            onOpenChange={setAddStudentOpen}
-            returnFocusTo={addStudentButtonRef}
-          />
         </div>
         <div>
           <DropdownMenu>
@@ -141,6 +144,8 @@ export function StudentTable({ students, families }: Props) {
         </div>
       </div>
 
+      <Modal name="student-new" />
+
       {/* Rows are absolutely positioned, so the table uses grid/flex layout. Columns grow to fill the
           container but never shrink below their size; past that, the container scrolls sideways */}
       <div
@@ -152,6 +157,18 @@ export function StudentTable({ students, families }: Props) {
           <StudentTableBody table={table} rowVirtualizer={rowVirtualizer} />
         </table>
       </div>
+
+      <Modal name="student-add" title="Add student" returnFocusTo={addStudentButtonRef}>
+        <AddStudentModal families={families} />
+      </Modal>
+
+      <Modal name="student-edit" title="Edit student" returnFocusTo={returnFocusToRow}>
+        <EditStudentModal />
+      </Modal>
+
+      <Modal name="student-notes" title="Student notes" returnFocusTo={returnFocusToRow}>
+        <StudentNotesModal />
+      </Modal>
     </>
   );
 }

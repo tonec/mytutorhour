@@ -27,7 +27,7 @@ const TYPE_OPTIONS = [
 type Props = {
   student?: StudentDetail;
   families: FamilyListItem[];
-  // 'dialog' when used in the list's add-student dialog: onSaved runs instead of a redirect.
+  // 'dialog' when used in the list's add or edit student dialog: onSaved runs instead of a redirect.
   intent?: 'dialog';
   onSaved?: () => void;
   // Replaces the Cancel link (back to the list) with a button, e.g. to close a dialog.
