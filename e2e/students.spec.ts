@@ -269,41 +269,41 @@ test.describe('student list actions', () => {
     const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
     await row.getByTestId('student-actions').click();
     await page.getByRole('menuitem', { name: 'Edit student' }).click();
-    return page.getByTestId('edit-student-dialog');
+    return page.getByTestId('edit-student-modal');
   }
 
-  test('the actions menu opens the student to edit in a dialog', async ({ tutor, adminClient }) => {
+  test('the actions menu opens the student to edit in a modal', async ({ tutor, adminClient }) => {
     // Arrange
     const { page } = tutor;
     const studentId = await seedEmily(tutor, adminClient);
     await page.goto('/students');
 
     // Act
-    const dialog = await openEdit(page);
+    const modal = await openEdit(page);
 
     // Assert
-    await expect(dialog).toBeVisible();
+    await expect(modal).toBeVisible();
     await expect(page).toHaveURL(`/students?modal=student-edit&data=${studentId}`);
-    await expect(dialog.getByLabel('First name')).toHaveValue('Emily');
+    await expect(modal.getByLabel('First name')).toHaveValue('Emily');
     await openStep(page, 'notes');
-    await expect(dialog.getByTestId('wizard-progress')).toHaveText('Step 4 of 4');
-    await expect(dialog.getByLabel('Notes (only you can see these)')).toBeVisible();
+    await expect(modal.getByTestId('wizard-progress')).toHaveText('Step 4 of 4');
+    await expect(modal.getByLabel('Notes (only you can see these)')).toBeVisible();
   });
 
-  test('saves an edit from the dialog and stays on the list', async ({ tutor, adminClient }) => {
+  test('saves an edit from the modal and stays on the list', async ({ tutor, adminClient }) => {
     // Arrange
     const { page } = tutor;
     const studentId = await seedEmily(tutor, adminClient);
     await page.goto('/students');
 
     // Act
-    const dialog = await openEdit(page);
+    const modal = await openEdit(page);
     await openStep(page, 'study');
-    await dialog.getByLabel('Subject', { exact: true }).fill('Physics');
-    await dialog.getByRole('button', { name: 'Save student' }).click();
+    await modal.getByLabel('Subject', { exact: true }).fill('Physics');
+    await modal.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
     await expect(page.getByTestId('student-row').filter({ hasText: 'Emily' })).toContainText(
       'Physics'
@@ -317,7 +317,7 @@ test.describe('student list actions', () => {
     expect(data?.subject).toBe('Physics');
   });
 
-  test('a link opens the student to edit in a dialog', async ({ tutor, adminClient }) => {
+  test('a link opens the student to edit in a modal', async ({ tutor, adminClient }) => {
     // Arrange
     const { page } = tutor;
     const studentId = await seedEmily(tutor, adminClient);
@@ -326,9 +326,9 @@ test.describe('student list actions', () => {
     await page.goto(`/students?modal=student-edit&data=${studentId}`);
 
     // Assert
-    const dialog = page.getByTestId('edit-student-dialog');
-    await expect(dialog.getByRole('heading', { name: 'Edit Emily' })).toBeVisible();
-    await expect(dialog.getByLabel('First name')).toHaveValue('Emily');
+    const modal = page.getByTestId('edit-student-modal');
+    await expect(modal.getByRole('heading', { name: 'Edit Emily' })).toBeVisible();
+    await expect(modal.getByLabel('First name')).toHaveValue('Emily');
   });
 
   test('a link to an unknown student says it can’t be loaded', async ({ tutor }) => {
@@ -339,12 +339,12 @@ test.describe('student list actions', () => {
     await page.goto('/students?modal=student-edit&data=00000000-0000-4000-8000-000000000000');
 
     // Assert
-    const dialog = page.getByTestId('edit-student-dialog');
-    await expect(dialog.getByRole('alert')).toHaveText(
+    const modal = page.getByTestId('edit-student-modal');
+    await expect(modal.getByRole('alert')).toHaveText(
       'This student couldn’t be loaded. Please try again.'
     );
-    await dialog.getByRole('button', { name: 'Close' }).click();
-    await expect(dialog).toBeHidden();
+    await modal.getByRole('button', { name: 'Close' }).click();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
   });
 
@@ -422,7 +422,7 @@ test.describe('student notes from the list', () => {
     const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
     await row.getByTestId('student-actions').click();
     await page.getByRole('menuitem', { name: 'View/edit notes' }).click();
-    return page.getByTestId('student-notes-dialog');
+    return page.getByTestId('edit-student-notes-modal');
   }
 
   test('notes are not shown as a column in the list', async ({ tutor, adminClient }) => {
@@ -439,21 +439,21 @@ test.describe('student notes from the list', () => {
     await expect(page.getByText('Working on fractions')).toHaveCount(0);
   });
 
-  test('views and edits a student’s notes in a dialog', async ({ tutor, adminClient }) => {
+  test('views and edits a student’s notes in a modal', async ({ tutor, adminClient }) => {
     // Arrange
     const { page } = tutor;
     const studentId = await seedEmily(tutor, adminClient);
     await page.goto('/students');
 
     // Act
-    const dialog = await openNotes(page);
-    const notes = dialog.getByLabel('Notes (only you can see these)');
+    const modal = await openNotes(page);
+    const notes = modal.getByLabel('Notes (only you can see these)');
     await expect(notes).toHaveValue('Working on fractions');
     await notes.fill('Fractions done, start on algebra');
-    await dialog.getByRole('button', { name: 'Save notes' }).click();
+    await modal.getByRole('button', { name: 'Save notes' }).click();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page.getByTestId('student-actions').first()).toBeFocused();
     const reopened = await openNotes(page);
     await expect(reopened.getByLabel('Notes (only you can see these)')).toHaveValue(
@@ -474,12 +474,12 @@ test.describe('student notes from the list', () => {
     await page.goto('/students');
 
     // Act
-    const dialog = await openNotes(page);
-    await dialog.getByLabel('Notes (only you can see these)').fill('Not saved');
-    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    const modal = await openNotes(page);
+    await modal.getByLabel('Notes (only you can see these)').fill('Not saved');
+    await modal.getByRole('button', { name: 'Cancel' }).click();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
     const reopened = await openNotes(page);
     await expect(reopened.getByLabel('Notes (only you can see these)')).toHaveValue(
@@ -487,7 +487,7 @@ test.describe('student notes from the list', () => {
     );
   });
 
-  test('a link opens a student’s notes in a dialog', async ({ tutor, adminClient }) => {
+  test('a link opens a student’s notes in a modal', async ({ tutor, adminClient }) => {
     // Arrange
     const { page } = tutor;
     const studentId = await seedEmily(tutor, adminClient);
@@ -496,27 +496,27 @@ test.describe('student notes from the list', () => {
     await page.goto(`/students?modal=student-notes&data=${studentId}`);
 
     // Assert
-    const dialog = page.getByTestId('student-notes-dialog');
-    await expect(dialog.getByLabel('Notes (only you can see these)')).toHaveValue(
+    const modal = page.getByTestId('edit-student-notes-modal');
+    await expect(modal.getByLabel('Notes (only you can see these)')).toHaveValue(
       'Working on fractions'
     );
   });
 });
 
 test.describe('add a student from the list', () => {
-  test('adds a child and their family in a dialog without leaving the list', async ({ tutor }) => {
+  test('adds a child and their family in a modal without leaving the list', async ({ tutor }) => {
     // Arrange
     const { page } = tutor;
     await page.goto('/students');
 
     // Act
     await page.getByTestId('add-student-button').click();
-    const dialog = page.getByTestId('add-student-dialog');
-    await expect(dialog.getByTestId('wizard-progress')).toHaveText('Step 1 of 4');
-    await expect(dialog.getByTestId('wizard-step-family').getByRole('button')).toHaveCount(0);
-    await dialog.getByLabel('First name').fill('Emily');
+    const modal = page.getByTestId('add-student-modal');
+    await expect(modal.getByTestId('wizard-progress')).toHaveText('Step 1 of 4');
+    await expect(modal.getByTestId('wizard-step-family').getByRole('button')).toHaveCount(0);
+    await modal.getByLabel('First name').fill('Emily');
     await next(page);
-    await dialog.getByRole('combobox', { name: 'Family' }).click();
+    await modal.getByRole('combobox', { name: 'Family' }).click();
     await page.getByTestId('family-picker-add-new').click();
     const familyDialog = page.getByTestId('family-dialog');
     await familyDialog.getByLabel('Family name').fill('Taylor');
@@ -525,17 +525,17 @@ test.describe('add a student from the list', () => {
     await expect(familyDialog).toBeHidden();
     await next(page);
     await fillStudy(page);
-    await dialog.getByRole('button', { name: 'Save student' }).click();
+    await modal.getByRole('button', { name: 'Save student' }).click();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
     const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
     await expect(row).toContainText('Taylor');
     await expect(row.getByTestId('student-type-badge')).toHaveText('Child');
   });
 
-  test('cancelling closes the dialog, saves nothing and returns focus', async ({ tutor }) => {
+  test('cancelling closes the modal, saves nothing and returns focus', async ({ tutor }) => {
     // Arrange
     const { page } = tutor;
     await page.goto('/students');
@@ -543,38 +543,38 @@ test.describe('add a student from the list', () => {
 
     // Act
     await addButton.click();
-    const dialog = page.getByTestId('add-student-dialog');
+    const modal = page.getByTestId('add-student-modal');
     await expect(page).toHaveURL('/students?modal=student-add');
-    await dialog.getByLabel('First name').fill('Not saved');
-    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await modal.getByLabel('First name').fill('Not saved');
+    await modal.getByRole('button', { name: 'Cancel' }).click();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
     await expect(addButton).toBeFocused();
     await expect(page.getByTestId('student-row').filter({ hasText: 'Not saved' })).toHaveCount(0);
     await addButton.click();
-    await expect(dialog.getByLabel('First name')).toHaveValue('');
+    await expect(modal.getByLabel('First name')).toHaveValue('');
   });
 
-  test('Back closes the dialog', async ({ tutor }) => {
+  test('Back closes the modal', async ({ tutor }) => {
     // Arrange
     const { page } = tutor;
     await page.goto('/students');
     await page.getByTestId('add-student-button').click();
-    const dialog = page.getByTestId('add-student-dialog');
-    await expect(dialog).toBeVisible();
+    const modal = page.getByTestId('add-student-modal');
+    await expect(modal).toBeVisible();
 
     // Act
     await page.goBack();
 
     // Assert
-    await expect(dialog).toBeHidden();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL('/students');
   });
 });
 
-test('the add-student dialog fits a phone screen without horizontal scrolling', async ({
+test('the add-student modal fits a phone screen without horizontal scrolling', async ({
   tutor,
 }) => {
   // Arrange
@@ -583,11 +583,11 @@ test('the add-student dialog fits a phone screen without horizontal scrolling', 
 
   // Act
   await page.getByTestId('add-student-button').click();
-  const dialog = page.getByTestId('add-student-dialog');
-  await expect(dialog.getByTestId('wizard')).toBeVisible();
+  const modal = page.getByTestId('add-student-modal');
+  await expect(modal.getByTestId('wizard')).toBeVisible();
 
   // Assert
-  const overflow = await dialog.evaluate((element) => element.scrollWidth - element.clientWidth);
+  const overflow = await modal.evaluate((element) => element.scrollWidth - element.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
 

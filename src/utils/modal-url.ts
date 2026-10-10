@@ -2,7 +2,7 @@
 // linked to, survive a refresh and close on Back. The history calls are shallow: Next.js syncs
 // them with useSearchParams without a server round trip.
 
-const MODAL_NAMES = ['student-add', 'student-edit', 'student-notes'] as const;
+const MODAL_NAMES = ['add-student', 'edit-student', 'edit-notes-student'] as const;
 
 export type ModalName = (typeof MODAL_NAMES)[number];
 export type ModalState = { name: ModalName; data?: string };

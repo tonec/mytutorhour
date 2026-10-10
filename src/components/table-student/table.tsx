@@ -107,7 +107,7 @@ export function StudentTable({ students, families }: Props) {
                   size="lg"
                   aria-label="Add student"
                   data-testid="add-student-button"
-                  onClick={() => openModal('student-add')}
+                  onClick={() => openModal('add-student')}
                 >
                   <UserRoundPlus className="ml-1" />
                 </Button>
@@ -144,8 +144,6 @@ export function StudentTable({ students, families }: Props) {
         </div>
       </div>
 
-      <Modal name="student-new" />
-
       {/* Rows are absolutely positioned, so the table uses grid/flex layout. Columns grow to fill the
           container but never shrink below their size; past that, the container scrolls sideways */}
       <div
@@ -158,15 +156,15 @@ export function StudentTable({ students, families }: Props) {
         </table>
       </div>
 
-      <Modal name="student-add" title="Add student" returnFocusTo={addStudentButtonRef}>
+      <Modal name="add-student" title="Add student" returnFocusTo={addStudentButtonRef}>
         <AddStudentModal families={families} />
       </Modal>
 
-      <Modal name="student-edit" title="Edit student" returnFocusTo={returnFocusToRow}>
+      <Modal name="edit-student" title="Edit student" returnFocusTo={returnFocusToRow}>
         <EditStudentModal />
       </Modal>
 
-      <Modal name="student-notes" title="Student notes" returnFocusTo={returnFocusToRow}>
+      <Modal name="edit-notes-student" title="Student notes" returnFocusTo={returnFocusToRow}>
         <StudentNotesModal />
       </Modal>
     </>

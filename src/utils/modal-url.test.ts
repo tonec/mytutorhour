@@ -53,7 +53,7 @@ describe('modalUrl', () => {
     const current = new URL('https://example.test/students?sort=name');
 
     // Act
-    const url = modalUrl(current, { name: 'student-notes', data: 'abc' });
+    const url = modalUrl(current, { name: 'edit-notes-student', data: 'abc' });
 
     // Assert
     expect(url).toBe('/students?sort=name&modal=student-notes&data=abc');
@@ -64,7 +64,7 @@ describe('modalUrl', () => {
     const current = new URL('https://example.test/students?modal=student-edit&data=abc');
 
     // Act
-    const url = modalUrl(current, { name: 'student-add' });
+    const url = modalUrl(current, { name: 'add-student' });
 
     // Assert
     expect(url).toBe('/students?modal=student-add');

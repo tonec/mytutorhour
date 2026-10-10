@@ -1,5 +1,5 @@
 'use client';
-import { ModalState, closeModal, readModal } from '@/utils/modal-url';
+import { ModalName, ModalState, closeModal, readModal } from '@/utils/modal-url';
 import {
   type ComponentProps,
   type PropsWithChildren,
@@ -15,13 +15,12 @@ type ModalContextType = ModalState & { close: () => void };
 const ModalDataContext = createContext({} as ModalContextType);
 
 interface Props {
-  name: string;
+  name: ModalName;
   title?: string;
   returnFocusTo?: ComponentProps<typeof DialogContent>['finalFocus'];
-  testid?: string;
 }
 
-export function Modal({ name, title, returnFocusTo, testid, children }: PropsWithChildren<Props>) {
+export function Modal({ name, title, returnFocusTo, children }: PropsWithChildren<Props>) {
   const searchParams = useSearchParams();
   const modal = readModal(searchParams);
   const [shownModal, setShownModal] = useState(modal);
@@ -47,7 +46,7 @@ export function Modal({ name, title, returnFocusTo, testid, children }: PropsWit
     <ModalDataContext.Provider value={value}>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          data-testid={testid}
+          data-testid={`${name}-modal`}
           finalFocus={returnFocusTo}
           className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl"
         >

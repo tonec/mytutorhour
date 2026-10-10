@@ -29,10 +29,10 @@ export function StudentActions({ student }: { student: StudentListItem }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => openModal('student-edit', student.id)}>
+          <DropdownMenuItem onClick={() => openModal('edit-student', student.id)}>
             Edit student
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => openModal('student-notes', student.id)}>
+          <DropdownMenuItem onClick={() => openModal('edit-notes-student', student.id)}>
             View/edit notes
           </DropdownMenuItem>
         </DropdownMenuGroup>
