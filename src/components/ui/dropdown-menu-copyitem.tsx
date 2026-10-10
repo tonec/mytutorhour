@@ -1,13 +1,20 @@
+import { toast } from 'sonner';
 import { DropdownMenuItem } from './dropdown-menu';
 
 interface Props {
+  title: string;
   text: string;
 }
 
-export function DropdownMenuCopyItem({ text }: Props) {
+export function DropdownMenuCopyItem({ title, text }: Props) {
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    toast(`${title} copied to clipboard`);
+  };
+
   return (
     <DropdownMenuItem
-      onClick={() => navigator.clipboard.writeText(text)}
+      onClick={handleCopy}
       className="border-border group flex justify-between overflow-hidden rounded-b-sm border p-0 text-nowrap"
     >
       <span className="px-2">{text}</span>

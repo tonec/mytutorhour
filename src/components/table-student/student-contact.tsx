@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DropdownMenuCopyItem } from '../ui/dropdown-menu-copyitem';
-import { Separator } from '../ui/separator';
 import { StudentNotesDialog } from './student-notes-dialog';
 
 export function StudentContact({ student }: { student: StudentListItem }) {
@@ -37,9 +36,9 @@ export function StudentContact({ student }: { student: StudentListItem }) {
         <DropdownMenuContent align="end" className="w-auto">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Contact</DropdownMenuLabel>
-            {email ? <DropdownMenuCopyItem text={email} /> : null}
+            {email ? <DropdownMenuCopyItem title="Email" text={email} /> : null}
             {email && phone && <span className="block h-1"></span>}
-            {phone ? <DropdownMenuCopyItem text={phone} /> : null}
+            {phone ? <DropdownMenuCopyItem title="Phone" text={phone} /> : null}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

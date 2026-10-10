@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import './globals.css';
 import { PropsWithChildren } from 'react';
 import { cn } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
     >
       <body className="flex min-h-full flex-col">
         <TooltipProvider>{children}</TooltipProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );
