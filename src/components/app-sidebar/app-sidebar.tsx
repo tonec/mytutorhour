@@ -6,7 +6,7 @@ import { UserMenu } from './user-menu/user-menu';
 
 export function AppSidebar() {
   return (
-    <Sidebar variant="inset" className="z-1000">
+    <Sidebar variant="inset" className="z-10">
       <AppSidebarHeader />
 
       <SidebarContent className="gap-4 px-2 py-4">
