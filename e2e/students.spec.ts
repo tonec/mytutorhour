@@ -283,7 +283,7 @@ test.describe('student list actions', () => {
 
     // Assert
     await expect(modal).toBeVisible();
-    await expect(page).toHaveURL(`/students?modal=student-edit&data=${studentId}`);
+    await expect(page).toHaveURL(`/students?modal=edit-student&data=${studentId}`);
     await expect(modal.getByLabel('First name')).toHaveValue('Emily');
     await openStep(page, 'notes');
     await expect(modal.getByTestId('wizard-progress')).toHaveText('Step 4 of 4');
@@ -323,12 +323,32 @@ test.describe('student list actions', () => {
     const studentId = await seedEmily(tutor, adminClient);
 
     // Act
-    await page.goto(`/students?modal=student-edit&data=${studentId}`);
+    await page.goto(`/students?modal=edit-student&data=${studentId}`);
 
     // Assert
     const modal = page.getByTestId('edit-student-modal');
-    await expect(modal.getByRole('heading', { name: 'Edit Emily' })).toBeVisible();
+    await expect(modal.getByRole('heading', { name: 'Edit student' })).toBeVisible();
     await expect(modal.getByLabel('First name')).toHaveValue('Emily');
+  });
+
+  test('closing a linked edit modal returns focus to the student’s actions', async ({
+    tutor,
+    adminClient,
+  }) => {
+    // Arrange
+    const { page } = tutor;
+    const studentId = await seedEmily(tutor, adminClient);
+    await page.goto(`/students?modal=edit-student&data=${studentId}`);
+    const modal = page.getByTestId('edit-student-modal');
+    await expect(modal.getByLabel('First name')).toHaveValue('Emily');
+
+    // Act
+    await modal.getByRole('button', { name: 'Close' }).click();
+
+    // Assert
+    await expect(modal).toBeHidden();
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await expect(row.getByTestId('student-actions')).toBeFocused();
   });
 
   test('a link to an unknown student says it can’t be loaded', async ({ tutor }) => {
@@ -336,7 +356,7 @@ test.describe('student list actions', () => {
     const { page } = tutor;
 
     // Act
-    await page.goto('/students?modal=student-edit&data=00000000-0000-4000-8000-000000000000');
+    await page.goto('/students?modal=edit-student&data=00000000-0000-4000-8000-000000000000');
 
     // Assert
     const modal = page.getByTestId('edit-student-modal');
@@ -422,7 +442,7 @@ test.describe('student notes from the list', () => {
     const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
     await row.getByTestId('student-actions').click();
     await page.getByRole('menuitem', { name: 'View/edit notes' }).click();
-    return page.getByTestId('edit-student-notes-modal');
+    return page.getByTestId('edit-notes-student-modal');
   }
 
   test('notes are not shown as a column in the list', async ({ tutor, adminClient }) => {
@@ -493,13 +513,33 @@ test.describe('student notes from the list', () => {
     const studentId = await seedEmily(tutor, adminClient);
 
     // Act
-    await page.goto(`/students?modal=student-notes&data=${studentId}`);
+    await page.goto(`/students?modal=edit-notes-student&data=${studentId}`);
 
     // Assert
-    const modal = page.getByTestId('edit-student-notes-modal');
+    const modal = page.getByTestId('edit-notes-student-modal');
     await expect(modal.getByLabel('Notes (only you can see these)')).toHaveValue(
       'Working on fractions'
     );
+  });
+
+  test('closing a linked notes modal returns focus to the student’s actions', async ({
+    tutor,
+    adminClient,
+  }) => {
+    // Arrange
+    const { page } = tutor;
+    const studentId = await seedEmily(tutor, adminClient);
+    await page.goto(`/students?modal=edit-notes-student&data=${studentId}`);
+    const modal = page.getByTestId('edit-notes-student-modal');
+    await expect(modal.getByLabel('Notes (only you can see these)')).toBeVisible();
+
+    // Act
+    await modal.getByRole('button', { name: 'Cancel' }).click();
+
+    // Assert
+    await expect(modal).toBeHidden();
+    const row = page.getByTestId('student-row').filter({ hasText: 'Emily' });
+    await expect(row.getByTestId('student-actions')).toBeFocused();
   });
 });
 
@@ -544,7 +584,7 @@ test.describe('add a student from the list', () => {
     // Act
     await addButton.click();
     const modal = page.getByTestId('add-student-modal');
-    await expect(page).toHaveURL('/students?modal=student-add');
+    await expect(page).toHaveURL('/students?modal=add-student');
     await modal.getByLabel('First name').fill('Not saved');
     await modal.getByRole('button', { name: 'Cancel' }).click();
 

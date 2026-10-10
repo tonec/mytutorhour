@@ -21,7 +21,7 @@ export function StudentActions({ student }: { student: StudentListItem }) {
         render={<Button variant="ghost" className="h-8 w-8 p-0" />}
         data-testid="student-actions"
         // Lets a closing dialog send focus back here (the menu has closed by then).
-        data-student-id={student.id}
+        data-student-actions-id={student.id}
       >
         <span className="sr-only">Actions for {student.displayName}</span>
         <MoreHorizontal className="h-4 w-4" />

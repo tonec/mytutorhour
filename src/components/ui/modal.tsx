@@ -1,12 +1,6 @@
 'use client';
 import { ModalName, ModalState, closeModal, readModal } from '@/utils/modal-url';
-import {
-  type ComponentProps,
-  type PropsWithChildren,
-  createContext,
-  useContext,
-  useState,
-} from 'react';
+import { type ComponentProps, type PropsWithChildren, createContext, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 
@@ -17,13 +11,19 @@ const ModalDataContext = createContext({} as ModalContextType);
 interface Props {
   name: ModalName;
   title?: string;
-  returnFocusTo?: ComponentProps<typeof DialogContent>['finalFocus'];
+  finalFocus?: ComponentProps<typeof DialogContent>['finalFocus'];
+  returnFocusTo?: ({ data }: ModalState) => true | HTMLElement;
 }
 
-export function Modal({ name, title, returnFocusTo, children }: PropsWithChildren<Props>) {
+export function Modal({
+  name,
+  title,
+  finalFocus,
+  returnFocusTo,
+  children,
+}: PropsWithChildren<Props>) {
   const searchParams = useSearchParams();
   const modal = readModal(searchParams);
-  const [shownModal, setShownModal] = useState(modal);
 
   const open = modal?.name === name;
 
@@ -33,21 +33,19 @@ export function Modal({ name, title, returnFocusTo, children }: PropsWithChildre
     if (!open) closeModal();
   };
 
-  if (modal && (modal.name !== shownModal?.name || modal.data !== shownModal?.data)) {
-    setShownModal(modal);
-  }
-
   const value = {
     ...modal,
     close: closeModal,
   };
+
+  const derivedFinalFocus = () => returnFocusTo?.(modal);
 
   return (
     <ModalDataContext.Provider value={value}>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           data-testid={`${name}-modal`}
-          finalFocus={returnFocusTo}
+          finalFocus={finalFocus || derivedFinalFocus}
           className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl"
         >
           {title && (

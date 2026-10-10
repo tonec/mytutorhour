@@ -4,24 +4,24 @@ import { modalUrl, readModal } from './modal-url';
 describe('readModal', () => {
   it('reads a modal and its data', () => {
     // Arrange
-    const params = new URLSearchParams('modal=student-edit&data=abc');
+    const params = new URLSearchParams('modal=edit-student&data=abc');
 
     // Act
     const modal = readModal(params);
 
     // Assert
-    expect(modal).toEqual({ name: 'student-edit', data: 'abc' });
+    expect(modal).toEqual({ name: 'edit-student', data: 'abc' });
   });
 
   it('reads a modal without data', () => {
     // Arrange
-    const params = new URLSearchParams('modal=student-add');
+    const params = new URLSearchParams('modal=add-student');
 
     // Act
     const modal = readModal(params);
 
     // Assert
-    expect(modal).toEqual({ name: 'student-add', data: undefined });
+    expect(modal).toEqual({ name: 'add-student', data: undefined });
   });
 
   it('ignores an unknown modal name', () => {
@@ -56,23 +56,23 @@ describe('modalUrl', () => {
     const url = modalUrl(current, { name: 'edit-notes-student', data: 'abc' });
 
     // Assert
-    expect(url).toBe('/students?sort=name&modal=student-notes&data=abc');
+    expect(url).toBe('/students?sort=name&modal=edit-notes-student&data=abc');
   });
 
   it('drops data left over from a previous modal', () => {
     // Arrange
-    const current = new URL('https://example.test/students?modal=student-edit&data=abc');
+    const current = new URL('https://example.test/students?modal=edit-student&data=abc');
 
     // Act
     const url = modalUrl(current, { name: 'add-student' });
 
     // Assert
-    expect(url).toBe('/students?modal=student-add');
+    expect(url).toBe('/students?modal=add-student');
   });
 
   it('removes the modal params on close, keeping other params', () => {
     // Arrange
-    const current = new URL('https://example.test/students?sort=name&modal=student-add');
+    const current = new URL('https://example.test/students?sort=name&modal=add-student');
 
     // Act
     const url = modalUrl(current, null);
@@ -83,7 +83,7 @@ describe('modalUrl', () => {
 
   it('leaves a bare path when nothing else is in the query', () => {
     // Arrange
-    const current = new URL('https://example.test/students?modal=student-edit&data=abc');
+    const current = new URL('https://example.test/students?modal=edit-student&data=abc');
 
     // Act
     const url = modalUrl(current, null);

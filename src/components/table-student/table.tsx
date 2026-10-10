@@ -1,6 +1,6 @@
 'use client';
 
-import { openModal } from '@/utils/modal-url';
+import { ModalState, openModal } from '@/utils/modal-url';
 import {
   type ColumnFiltersState,
   type ColumnVisibilityState,
@@ -22,7 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { features } from '../data-table/data-table-features';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Modal, useModal } from '../ui/modal';
+import { Modal } from '../ui/modal';
 import { AddStudentModal } from './student-add-modal';
 import { EditStudentModal } from './student-edit-modal';
 import { StudentNotesModal } from './student-notes-modal';
@@ -38,8 +38,6 @@ type Props = {
 };
 
 export function StudentTable({ students, families }: Props) {
-  const { data: modalData } = useModal();
-  const shownStudentId = modalData;
   const addStudentButtonRef = useRef<HTMLButtonElement>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -67,10 +65,10 @@ export function StudentTable({ students, families }: Props) {
 
   const { rows } = table.getRowModel();
 
-  const returnFocusToRow = () =>
-    (shownStudentId &&
+  const returnFocusToRowActions = ({ data }: ModalState) =>
+    (data &&
       tableContainerRef.current?.querySelector<HTMLElement>(
-        `[data-student-id="${CSS.escape(shownStudentId)}"]`
+        `[data-student-actions-id="${CSS.escape(data)}"]`
       )) ||
     true;
 
@@ -156,15 +154,19 @@ export function StudentTable({ students, families }: Props) {
         </table>
       </div>
 
-      <Modal name="add-student" title="Add student" returnFocusTo={addStudentButtonRef}>
+      <Modal name="add-student" title="Add student" finalFocus={addStudentButtonRef}>
         <AddStudentModal families={families} />
       </Modal>
 
-      <Modal name="edit-student" title="Edit student" returnFocusTo={returnFocusToRow}>
+      <Modal name="edit-student" title="Edit student" returnFocusTo={returnFocusToRowActions}>
         <EditStudentModal />
       </Modal>
 
-      <Modal name="edit-notes-student" title="Student notes" returnFocusTo={returnFocusToRow}>
+      <Modal
+        name="edit-notes-student"
+        title="Student notes"
+        returnFocusTo={returnFocusToRowActions}
+      >
         <StudentNotesModal />
       </Modal>
     </>

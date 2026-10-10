@@ -37,5 +37,5 @@ export function StudentNotesModal() {
     );
   }
 
-  return <StudentNotesForm student={loaded.student} onSaved={close} onCancel={close} />;
+  return <StudentNotesForm student={loaded.student} onSaved={modal.close} onCancel={modal.close} />;
 }
